@@ -1,5 +1,6 @@
-"""Refresh the static public Scratch catalog for the project map and favorites reel."""
+"""Refresh the public Scratch catalog, cover images, and project share dates."""
 import concurrent.futures
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -61,24 +62,41 @@ def previous_items():
     return {row["id"]: row for row in json.loads(raw)["items"]}
 
 
+def shared_at(history):
+    value = history.get("shared")
+    if not isinstance(value, str):
+        return None
+    try:
+        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if timestamp.tzinfo is None:
+            return None
+        return timestamp.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    except (ValueError, OverflowError):
+        return None
+
+
 def make_item(row, owned_ids, previous, staging):
     project_id = row["id"]
     if type(project_id) is not int or project_id <= 0:
         raise ValueError("Invalid Scratch project ID")
+    history = row.get("history") or {}
     if project_id in owned_ids:
         author = USER
     else:
-        author = json.loads(fetch(f"{API}/projects/{project_id}"))["author"]["username"]
+        detail = json.loads(fetch(f"{API}/projects/{project_id}"))
+        author = detail["author"]["username"]
+        history = detail.get("history") or history
 
     # Locally curated running-stage captures take priority over Scratch cover art.
     name = f"{project_id}.webp"
     thumbnail = f"./assets/projects/{name}"
     if not (ASSETS / name).exists():
-        version = parse_qs(urlsplit(row["images"]["282x218"]).query).get("v", [row["history"]["modified"]])[0]
+        version = parse_qs(urlsplit(row["images"]["282x218"]).query).get("v", [history.get("modified")])[0]
+        query = f"?v={version}" if version else ""
         name = f"{project_id}.png"
-        thumbnail = f"./assets/projects/{name}?v={version}"
+        thumbnail = f"./assets/projects/{name}{query}"
         if previous.get(project_id, {}).get("thumbnail") != thumbnail or not (ASSETS / name).exists():
-            url = f"https://cdn2.scratch.mit.edu/get_image/project/{project_id}_480x360.png?v={version}"
+            url = f"https://cdn2.scratch.mit.edu/get_image/project/{project_id}_480x360.png{query}"
             png = fetch(url)
             if not png.startswith(b"\x89PNG\r\n\x1a\n"):
                 raise ValueError(f"Invalid Scratch thumbnail for {project_id}")
@@ -91,7 +109,8 @@ def make_item(row, owned_ids, previous, staging):
     if turbowarp:
         hqpen = "hqpen" in notes or project_id in (1406787990, 953460273, 1388418319)
         embed = f"https://turbowarp.org/{project_id}/embed" + ("?hqpen" if hqpen else "")
-    return {"id": project_id, "title": row["title"], "author": author, "thumbnail": thumbnail, "embed": embed}
+    return {"id": project_id, "title": row["title"], "author": author, "sharedAt": shared_at(history),
+            "thumbnail": thumbnail, "embed": embed}
 
 
 def main():
@@ -99,7 +118,9 @@ def main():
     projects = listing("projects")
     favorites = listing("favorites")
     owned = {row["id"] for row in projects}
-    rows = {row["id"]: row for row in [*projects, *favorites]}
+    rows = {row["id"]: row for row in projects}
+    for row in favorites:
+        rows.setdefault(row["id"], row)
     ASSETS.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".scratch-sync-", dir=ROOT) as directory:
         staging = Path(directory)

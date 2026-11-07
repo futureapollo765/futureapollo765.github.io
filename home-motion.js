@@ -1,4 +1,4 @@
-import { favorites } from "./project-data.js";
+import { projects } from "./project-data.js";
 import { mountProjectIndex } from "./project-index.js";
 
 const home = document.querySelector("#home-view");
@@ -58,8 +58,9 @@ export function refreshHomeMotion() {
 function updatePreference() {
   const next = !reduce.matches && !pausedByUser;
   const preserve = enabled !== next && !home.hidden && lastProgress !== -1;
-  const selected = home.querySelector("#selected-work");
-  const favoritesTop = preserve && !selected.hidden ? selected.getBoundingClientRect().top : null;
+  const anchors = preserve ? [...home.querySelectorAll("#selected-work, .tl-stage, .study-note")].reverse() : [];
+  const anchor = anchors.find(node => node.offsetWidth && node.getBoundingClientRect().top < innerHeight * .7);
+  const originalTop = anchor?.getBoundingClientRect().top;
   const pose = preserve ? index?.snapshot() : null;
   enabled = next;
   document.documentElement.classList.toggle("motion-paused", !enabled);
@@ -73,8 +74,8 @@ function updatePreference() {
   if (preserve) {
     // Pausing changes the pinned stage's height. Keep the current work under
     // the visitor's eyes even if removing that scroll distance moves the page.
-    if (favoritesTop !== null && favoritesTop < innerHeight) {
-      window.scrollBy({top:selected.getBoundingClientRect().top - favoritesTop, behavior:"instant"});
+    if (anchor) {
+      window.scrollBy({top:anchor.getBoundingClientRect().top - originalTop, behavior:"instant"});
     } else if (!enabled) window.scrollTo({top:0,behavior:"instant"});
     updateSequence();
     index?.restore(pose);
@@ -91,7 +92,7 @@ export function enterHome() {
   refreshHomeMotion();
 }
 
-if (!favorites.length) {
+if (!projects.length) {
   cue.lastChild.textContent = "Open project map";
   sequence.classList.add("no-favorites");
 }
@@ -108,7 +109,8 @@ window.addEventListener("studio-intro-ended", revealHome);
 window.addEventListener("scroll", refreshHomeMotion, { passive: true });
 window.addEventListener("resize", refreshHomeMotion);
 cue.addEventListener("click", () => {
-  const destination = document.querySelector("#selected-work");
+  const studies = document.querySelector("#project-studies");
+  const destination = studies.hidden ? document.querySelector("#selected-work") : studies;
   if (destination.hidden) {
     location.hash = "#projects";
     return;

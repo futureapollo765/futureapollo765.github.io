@@ -4,14 +4,20 @@ import { showProjectView, hideProjectView, hasMapPhotoFlight } from "./projects.
 import { presentRoute } from "./transition.js";
 import { captureIndexFlight } from "./index-flight.js";
 import { projects } from "./project-data.js";
+import { mountStudies } from "./studies.js";
+import { mountTimeline } from "./timeline.js";
 
 const home = document.querySelector("#home-view");
 const gallery = document.querySelector("#projects-view");
 const content = document.querySelector("#main-content");
 const nav = document.querySelectorAll("[data-nav]");
 let currentView;
+let pendingHomeProject = null;
+let pendingMedia = null;
 
 mountSelectedWork();
+const restoreStudy = mountStudies();
+mountTimeline();
 
 function renderRoute() {
   const [page, id, action] = location.hash.slice(1).split("/");
@@ -36,16 +42,17 @@ function renderRoute() {
     if (changed) {
       const state = history.state?.studioHome;
       restoreHome(state);
+      restoreStudy?.();
       if (state?.restoreFocus) {
-        const link = home.querySelector(".index-panel:not([inert]) [data-index-link]");
+        const link = document.getElementById(state.sourceId);
         link?.focus({ preventScroll:true });
       }
     }
     enterHome();
-    if (page === "selected-work") {
-      const selectedWork = document.querySelector("#selected-work");
-      if (selectedWork.hidden) location.replace("#projects");
-      else requestAnimationFrame(() => selectedWork.scrollIntoView({ block: "start" }));
+    if (["project-studies","project-timeline","selected-work"].includes(page) && !(changed && history.state?.studioHome)) {
+      const section = document.getElementById(page);
+      if (section.hidden) location.replace("#projects");
+      else requestAnimationFrame(() => section.scrollIntoView({ block: "start" }));
     }
   }
 }
@@ -55,7 +62,12 @@ function renderRoute() {
 home.addEventListener("click", event => {
   const target = event.target.closest("a[href^='#projects']");
   if (target && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
-    history.replaceState({ ...history.state, studioHome:{...rememberHome(), restoreFocus:event.detail === 0} }, "", location.href);
+    const projectId = /^#projects\/(\d+)$/.exec(target.hash);
+    pendingHomeProject = projectId ? Number(projectId[1]) : null;
+    pendingMedia = target.closest(".index-panel") ? "index" :
+      target.closest("#project-studies") ? "study" : target.closest(".tl-project") ? "timeline" : null;
+    if (!target.id) target.id = "home-origin-" + [...home.querySelectorAll("a")].indexOf(target);
+    history.replaceState({ ...history.state, studioHome:{...rememberHome(), media:pendingMedia, projectId:pendingHomeProject, sourceId:target.dataset.returnFocus || target.id, restoreFocus:event.detail === 0} }, "", location.href);
   }
 });
 document.querySelector(".skip-link").addEventListener("click", event => {
@@ -71,6 +83,10 @@ for (const link of document.querySelectorAll(".site-header [href='#home']")) {
 }
 function navigate() {
   const [page, id] = location.hash.slice(1).split("/");
+  if (currentView === "home" && page === "projects" && Number(id) === pendingHomeProject) {
+    history.replaceState({ ...history.state, studioHomeFrom:pendingHomeProject, studioHomeMedia:pendingMedia }, "", location.href);
+  }
+  pendingHomeProject = pendingMedia = null;
   let viewKey = "home";
   if (page === "projects") {
     const project = projects.find(item => String(item.id) === id);
