@@ -105,16 +105,9 @@
      pieces whose final orientation is set on their nested use element. */
   transform-box: view-box;
   transform-origin: 2.5px 2.5px;
-  animation-duration: 2200ms;
-  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
-  animation-fill-mode: both;
+  transform: scale(0);
+  opacity: 0;
 }
-.studio-intro-arm { animation-name: studio-intro-arm-in; }
-.studio-intro-arm[data-side=left] { animation-delay: 0ms; }
-.studio-intro-arm[data-side=top] { animation-delay: 100ms; }
-.studio-intro-arm[data-side=right] { animation-delay: 200ms; }
-.studio-intro-arm[data-side=bottom] { animation-delay: 300ms; }
-.studio-intro-center { animation-name: studio-intro-center-in; }
 .studio-intro-caption { position: relative; margin-top: calc((var(--intro-ring) - var(--intro-logo)) / 2 + 32px); text-align: center; }
 .studio-intro-name { margin: 0; font: 500 clamp(15px, 2.2vmin, 19px)/1.3 "Instrument Sans", system-ui, sans-serif; letter-spacing: -.025em; }
 .studio-intro-status { margin: 15px 0 18px; color: #989898; font: 9px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .19em; text-transform: uppercase; }
@@ -138,14 +131,6 @@
 .studio-intro-skip:focus-visible { outline: 1px solid currentColor; outline-offset: 1px; }
 
 @keyframes studio-intro-exit { to { opacity: 0; } }
-@keyframes studio-intro-arm-in {
-  from { transform: rotate(-90deg) scale(0); opacity: 0; }
-  to { transform: rotate(0deg) scale(1); opacity: 1; }
-}
-@keyframes studio-intro-center-in {
-  from { transform: scale(0); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
 @keyframes studio-intro-orbit { to { transform: rotate(360deg); } }
 @keyframes studio-intro-scan { from { transform: translateX(-105%); } to { transform: translateX(365%); } }
 

@@ -1,9 +1,44 @@
 const host = document.querySelector("#studio-intro");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const visitKey = "futureapollo765.studio-intro.v3";
+const visitKey = "futureapollo765.studio-intro.v4";
 const minimumDuration = 4500;
 const maximumDuration = 8500;
 const exitDuration = 550;
+
+function assembleLogo(logo) {
+  // The reference Scratch loop runs at 30 updates per second. Its remaining
+  // distance is multiplied by .9 (center size), .875 (outer size), and .75
+  // (outer rotation) each update; ghost decreases linearly by 5 points.
+  // Sample the continuous equivalents at 120Hz for compositor interpolation,
+  // so these same curves keep their timing on every display refresh rate.
+  const duration = 3000;
+  const samples = duration / 1000 * 120;
+  const frames = center => Array.from({ length: samples + 1 }, (_, i) => {
+    const ticks = i / samples * duration / 1000 * 30;
+    const settled = i === samples;
+    const size = settled ? 1 : 1 - Math.pow(center ? .9 : .875, ticks);
+    const angle = settled ? 0 : -90 * Math.pow(.75, ticks);
+    return {
+      offset: i / samples,
+      transform: center ? `scale(${size})` : `rotate(${angle}deg) scale(${size})`,
+      opacity: Math.min(1, ticks / 20),
+    };
+  });
+  const centerFrames = frames(true), outerFrames = frames(false);
+  const delays = { left: 100, top: 200, right: 300, bottom: 400 };
+  return [...logo.querySelectorAll(".studio-intro-piece")].flatMap(piece => {
+    if (typeof piece.animate !== "function") {
+      piece.style.transform = "scale(1)";
+      piece.style.opacity = "1";
+      return [];
+    }
+    const center = piece.classList.contains("studio-intro-center");
+    return [piece.animate(center ? centerFrames : outerFrames, {
+      duration, delay: center ? 0 : delays[piece.dataset.side],
+      easing: "linear", fill: "both",
+    })];
+  });
+}
 
 function shouldPlayIntro() {
   const homeEntry = !location.hash || location.hash === "#home";
@@ -63,6 +98,7 @@ function playIntro() {
   let minimumElapsed = false, pageReady = document.readyState === "complete";
   let fontsReady = !document.fonts, animationReady = false;
   let minimumTimer = 0, deadline = 0, exitTimer = 0;
+  const assembly = assembleLogo(logo);
 
   function releasePage() {
     if (announced) return;
@@ -78,6 +114,7 @@ function playIntro() {
     clearTimeout(deadline);
     clearTimeout(exitTimer);
     events.abort();
+    assembly.forEach(animation => animation.cancel());
     releasePage();
     host.hidden = true;
     dialog.remove();
@@ -115,7 +152,6 @@ function playIntro() {
   document.fonts?.ready.then(() => { fontsReady = true; readyToExit(); }, () => { fontsReady = true; readyToExit(); });
   // These are only the five finite logo motions. The atmospheric ring and
   // indeterminate rail are outside logo, so their loops never gate readiness.
-  const assembly = logo.getAnimations?.({ subtree: true }) || [];
   Promise.all(assembly.map(animation => animation.finished.catch(() => {}))).then(() => {
     animationReady = true;
     readyToExit();
