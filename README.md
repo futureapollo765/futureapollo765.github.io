@@ -5,7 +5,7 @@ A personal showcase built with static HTML, CSS, and JavaScript. Run `python3 -m
 ## Experience
 
 - **Home** pairs the public handle with an original orbital assembly. Scroll to change the composition, drag to rotate the object, or focus it and use the arrow keys. The header motion button remembers a visitor’s preference.
-- **Selected work** shows public Scratch favorites in a moving horizontal reel. Hover or focus to inspect a project, use the controls to browse, or open the original on Scratch.
+- **Selected work** shows public Scratch favorites in two continuously moving rows. The upper row fits three project cards across. Hover or focus a card to inspect it, open the original on Scratch, or pause the motion.
 - **Projects** is a repeating two-dimensional map of shared projects. Pan to explore, choose a project by name, and open its player on demand. A link such as `#projects/1406787990` goes directly to one work.
 - **Intro** plays a shortened version of the supplied recording once per tab on a fresh home visit. The vector mark has exact four-fold rotational symmetry. Reduced-motion preferences bypass the intro and automatic movement.
 
