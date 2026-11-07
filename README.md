@@ -24,7 +24,7 @@ The **Refresh Scratch catalog** workflow runs daily at **08:17 UTC** and can be 
 
 ## GitHub Pages
 
-The personal site is published at **<https://futureapollo765.github.io/>** from **`futureapollo765/futureapollo765.github.io`**. The repository remains private; the website is public. Assets use relative URLs, and hash routes support direct links without requiring server routing.
+The personal site is published at **<https://futureapollo765.github.io/>** from **`futureapollo765/futureapollo765.github.io`**. The repository and website are public. The pre-publication review is recorded in [publication-review.md](design/publication-review.md). Assets use relative URLs, and hash routes support direct links without requiring server routing.
 
 GitHub Pages is configured as **Deploy from a branch → main → / (root)** with HTTPS enforced. Pushing to `main` publishes an updated site. The catalog workflow also explicitly requests a Pages rebuild when its commit is newer than the published branch build. The local Git remote points to the renamed repository. [Pages requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) · [Publishing settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 

@@ -1,1 +1,13 @@
 .DS_Store
+
+# Local credentials and machine-specific configuration must not be published.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.ssh/
+.codex/
