@@ -1,6 +1,8 @@
 const host = document.querySelector("#studio-intro");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const visitKey = "futureapollo765.studio-intro.v4";
+const leadInDuration = 500;
+const revealDuration = 350;
 const minimumDuration = 4500;
 const maximumDuration = 8500;
 const exitDuration = 550;
@@ -58,7 +60,9 @@ function playIntro() {
   const dialog = document.createElement("dialog");
   dialog.className = "studio-intro-dialog";
   dialog.setAttribute("aria-label", "FutureApollo765 — Initializing");
+  dialog.style.setProperty("--intro-reveal-duration", revealDuration + "ms");
   dialog.innerHTML = `
+    <div class="studio-intro-screen">
     <div class="studio-intro-field" aria-hidden="true"></div>
     <div class="studio-intro-registration" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="studio-intro-core">
@@ -78,6 +82,7 @@ function playIntro() {
         <p class="studio-intro-status">Initializing</p>
         <span class="studio-intro-rail" role="progressbar" aria-label="Initializing"><i></i></span>
       </div>
+    </div>
     </div>`;
 
   const logo = dialog.querySelector(".studio-intro-logo");
@@ -86,7 +91,7 @@ function playIntro() {
   skip.type = "button";
   skip.className = "studio-intro-skip";
   skip.textContent = "Skip intro";
-  dialog.append(skip);
+  dialog.querySelector(".studio-intro-screen").append(skip);
   host.append(dialog);
   host.hidden = false;
   try { dialog.showModal(); }
@@ -98,7 +103,14 @@ function playIntro() {
   let minimumElapsed = false, pageReady = document.readyState === "complete";
   let fontsReady = !document.fonts, animationReady = false;
   let minimumTimer = 0, deadline = 0, exitTimer = 0;
-  const assembly = assembleLogo(logo);
+  let paintFrame = 0, leadInTimer = 0, revealTimer = 0;
+  let assembly = [];
+
+  function cancelEntrance() {
+    cancelAnimationFrame(paintFrame);
+    clearTimeout(leadInTimer);
+    clearTimeout(revealTimer);
+  }
 
   function releasePage() {
     if (announced) return;
@@ -110,6 +122,7 @@ function playIntro() {
   function removeIntro() {
     if (phase === "removed") return;
     phase = "removed";
+    cancelEntrance();
     clearTimeout(minimumTimer);
     clearTimeout(deadline);
     clearTimeout(exitTimer);
@@ -123,6 +136,7 @@ function playIntro() {
   function beginExit() {
     if (phase !== "waiting") return;
     phase = "exiting";
+    cancelEntrance();
     clearTimeout(minimumTimer);
     clearTimeout(deadline);
     dialog.classList.add("is-exiting");
@@ -137,8 +151,19 @@ function playIntro() {
     if (phase === "waiting" && minimumElapsed && pageReady && fontsReady && animationReady) beginExit();
   }
 
-  minimumTimer = setTimeout(() => { minimumElapsed = true; readyToExit(); }, minimumDuration);
-  deadline = setTimeout(beginExit, maximumDuration);
+  function startAssembly() {
+    if (phase !== "waiting") return;
+    // Start the original curves at zero only after the screen is visible.
+    // The lead-in never consumes the logo's animation or its reading hold.
+    assembly = assembleLogo(logo);
+    minimumTimer = setTimeout(() => { minimumElapsed = true; readyToExit(); }, minimumDuration);
+    // Only the five finite logo motions gate readiness, not the ambient loops.
+    Promise.all(assembly.map(animation => animation.finished.catch(() => {}))).then(() => {
+      animationReady = true;
+      readyToExit();
+    });
+  }
+
   skip.addEventListener("click", removeIntro, options);
   dialog.addEventListener("cancel", event => { event.preventDefault(); removeIntro(); }, options);
   window.addEventListener("keydown", event => {
@@ -150,11 +175,18 @@ function playIntro() {
   window.addEventListener("hashchange", removeIntro, options);
   window.addEventListener("load", () => { pageReady = true; readyToExit(); }, options);
   document.fonts?.ready.then(() => { fontsReady = true; readyToExit(); }, () => { fontsReady = true; readyToExit(); });
-  // These are only the five finite logo motions. The atmospheric ring and
-  // indeterminate rail are outside logo, so their loops never gate readiness.
-  Promise.all(assembly.map(animation => animation.finished.catch(() => {}))).then(() => {
-    animationReady = true;
-    readyToExit();
+  // Let the black modal actually paint before counting its half-second hold.
+  // Creating the logo animations here would spend their opening offscreen.
+  deadline = setTimeout(beginExit, leadInDuration + revealDuration + maximumDuration);
+  paintFrame = requestAnimationFrame(() => {
+    paintFrame = requestAnimationFrame(() => {
+      if (phase !== "waiting") return;
+      leadInTimer = setTimeout(() => {
+        if (phase !== "waiting") return;
+        dialog.classList.add("is-revealing");
+        revealTimer = setTimeout(startAssembly, revealDuration);
+      }, leadInDuration);
+    });
   });
   return true;
 }

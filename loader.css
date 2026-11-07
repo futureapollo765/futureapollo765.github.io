@@ -14,14 +14,27 @@
   padding: 0;
   overflow: hidden;
   color: #efefec;
-  background: #090909;
+  background: #000;
   isolation: isolate;
 }
 
 .studio-intro-dialog[open],
 .studio-intro-dialog.is-exiting { display: grid; place-items: center; }
-.studio-intro-dialog::backdrop { background: #090909; }
+.studio-intro-dialog::backdrop { background: #000; }
 .studio-intro-dialog.is-exiting { pointer-events: none; animation: studio-intro-exit 550ms ease-in-out both; }
+
+.studio-intro-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+  background: #090909;
+  opacity: 0;
+  transition: opacity var(--intro-reveal-duration, 350ms) ease-out;
+}
+.is-revealing .studio-intro-screen { opacity: 1; }
 
 .studio-intro-field {
   position: absolute;
