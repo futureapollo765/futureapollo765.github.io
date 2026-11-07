@@ -22,11 +22,9 @@ The **Refresh Scratch catalog** workflow runs daily at **08:17 UTC** and can be 
 
 ## GitHub Pages
 
-For the final personal-site address **<https://futureapollo765.github.io/>**, rename this repository to **`futureapollo765.github.io`** before enabling Pages and update the local Git remote to match. GitHub requires a user-site repository to match the account name exactly. No custom domain or application rewrite is needed: the site already uses relative asset URLs and hash routes.
+The personal site is published at **<https://futureapollo765.github.io/>** from **`futureapollo765/futureapollo765.github.io`**. The repository remains private; the website is public. Assets use relative URLs, and hash routes support direct links without requiring server routing.
 
-The current repository name, `futureapollo.github.io`, would instead give the project address <https://futureapollo765.github.io/futureapollo.github.io/> once enabled. The code also supports that subpath. The final repository rename and Pages publication are separate deployment steps.
-
-To publish, choose **Settings → Pages → Deploy from a branch**, then **main** and **/ (root)**. The catalog workflow explicitly requests a Pages rebuild when its commit is newer than the published branch build. A private personal repository needs GitHub Pro or another eligible plan. A root site at `futureapollo765.github.io` requires a repository of that exact name. [Pages requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) · [Publishing settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+GitHub Pages is configured as **Deploy from a branch → main → / (root)** with HTTPS enforced. Pushing to `main` publishes an updated site. The catalog workflow also explicitly requests a Pages rebuild when its commit is newer than the published branch build. The local Git remote points to the renamed repository. [Pages requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) · [Publishing settings](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 ## Orbital artwork
 
