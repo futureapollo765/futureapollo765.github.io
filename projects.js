@@ -1,4 +1,5 @@
 import { projects } from "./project-data.js";
+import { mountMapSurface } from "./map-surface.js";
 
 const root = document.querySelector("#projects-view");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -11,6 +12,9 @@ const directions = [
   ["right", 1, 0, "M4 12h16m-7-7 7 7-7 7"],
 ];
 const modulo = (value, n) => ((value % n) + n) % n;
+const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+const minZoom = .65;
+const maxZoom = 1.9;
 const routeFor = (project) => `#projects/${project.id}`;
 const tiles = new Map();
 // Place a varied group of the studio's actual projects in the opening chunk.
@@ -27,13 +31,18 @@ const studioPicks = openingIds.map((id) => byId.get(id)).filter(Boolean);
 const otherProjects = projects.filter((project) => !openingIds.includes(project.id));
 const spread = (id) => Math.imul(id ^ (id >>> 16), 2654435761) >>> 0;
 const mapProjects = [...studioPicks, ...otherProjects.sort((a, b) => spread(a.id) - spread(b.id))];
-const camera = projects.length > 1 ? { x: 1.55, y: 1.3 } : { x: 0, y: 0 };
+const camera = { x: projects.length > 1 ? 1.55 : 0, y: projects.length > 1 ? 1.3 : 0, zoom: 1 };
 
 let mapView, viewport, tileLayer, picker, mapStatus;
 let detail, detailImage, detailTitle, playLink, sourceLink;
 let dialog, playerFrame, pendingPlayer, pendingDetail;
 let focusedProject, selectedId, centeredProject;
-let layout, gesture, entryBounds;
+let layout, gesture, entryBounds, entryCell, selectedCell;
+let surface, zoomLabel, zoomOut, zoomIn;
+let aim, previousPose, pinch, returningPhoto, hoverTile;
+const touches = new Map();
+const drift = { x: 0, y: 0 };
+let assembled = false;
 let renderFrame = 0, coastFrame = 0, statusTimer = 0;
 let suppressClickUntil = 0;
 let motionAllowed = !document.documentElement.classList.contains("motion-paused");
@@ -46,7 +55,12 @@ function syncMotion() {
   root.dataset.motion = canMove() ? "on" : "off";
   if (!canMove()) {
     stopCoasting();
+    clearLook();
+    clearReturnPhoto();
     root.getAnimations({ subtree: true }).forEach((animation) => animation.cancel());
+    previousPose = null;
+    drift.x = drift.y = 0;
+    if (layout && !root.hidden && !mapView.hidden) queueRender();
   }
 }
 
@@ -70,7 +84,12 @@ function mount() {
         <div class="projects-map-tiles"></div>
       </div>
       <div class="projects-map-footer">
-        <p id="projects-map-help">Drag to explore. Use arrow keys to move and Enter to open the nearest project.</p>
+        <p id="projects-map-help">Drag or use arrows to move. Pinch or use + and − to zoom. Enter opens the nearest project.</p>
+        <div class="projects-zoom-controls" role="group" aria-label="Map zoom">
+          <button type="button" data-zoom="out" aria-label="Zoom out">${icon("M5 12h14")}</button>
+          <button type="button" class="projects-zoom-label" aria-label="Reset zoom to 100 percent">100%</button>
+          <button type="button" data-zoom="in" aria-label="Zoom in">${icon("M5 12h14M12 5v14")}</button>
+        </div>
         <div class="projects-pan-controls" role="group" aria-label="Move around the project map">
           ${directions.map(([name, , , path]) => `<button type="button" data-pan="${name}" aria-label="Pan ${name}">${icon(path)}</button>`).join("")}
         </div>
@@ -95,6 +114,9 @@ function mount() {
   tileLayer = root.querySelector(".projects-map-tiles");
   picker = root.querySelector(".projects-picker select");
   mapStatus = root.querySelector(".projects-map-status");
+  zoomLabel = root.querySelector(".projects-zoom-label");
+  zoomOut = root.querySelector('[data-zoom="out"]');
+  zoomIn = root.querySelector('[data-zoom="in"]');
   detail = root.querySelector(".projects-detail");
   detailImage = root.querySelector(".projects-detail-image");
   detailTitle = root.querySelector(".projects-detail-title");
@@ -105,12 +127,14 @@ function mount() {
   if (projects.length < 2) {
     viewport.dataset.static = "true";
     root.querySelector(".projects-pan-controls").hidden = true;
+    root.querySelector(".projects-zoom-controls").hidden = true;
     root.querySelector("#projects-map-help").textContent = projects.length ? "Select the project to open it." : "";
     if (!projects.length) {
       picker.disabled = true;
       tileLayer.innerHTML = '<div class="projects-empty"><p>No shared projects are available.</p><a href="https://scratch.mit.edu/users/FutureApollo765/">View Scratch profile</a></div>';
     }
   }
+  if (projects.length > 1) surface = mountMapSurface(viewport);
   picker.addEventListener("change", () => {
     const index = projects.findIndex((p) => String(p.id) === picker.value);
     if (index < 0) return;
@@ -131,8 +155,12 @@ function mount() {
     const [, dx, dy] = directions.find(([name]) => name === button.dataset.pan);
     button.addEventListener("click", () => nudge(dx, dy));
   });
+  zoomOut.addEventListener("click", () => zoomBy(1 / 1.25));
+  zoomIn.addEventListener("click", () => zoomBy(1.25));
+  zoomLabel.addEventListener("click", () => zoomTo(1));
   viewport.addEventListener("pointerdown", startDrag);
   viewport.addEventListener("pointermove", moveDrag);
+  viewport.addEventListener("pointerleave", clearLook);
   window.addEventListener("pointerup", finishDrag);
   window.addEventListener("pointercancel", finishDrag);
   viewport.addEventListener("wheel", panWheel, { passive: false });
@@ -163,8 +191,16 @@ function mapKey(event) {
   if (direction) {
     event.preventDefault();
     nudge(direction[1], direction[2]);
+  } else if (["+", "=", "-", "_", "0"].includes(event.key)) {
+    event.preventDefault();
+    if (event.key === "0") zoomTo(1);
+    else zoomBy(event.key === "-" || event.key === "_" ? .8 : 1.25);
   } else if (event.key === "Enter" && !event.target.closest(".projects-tile") && centeredProject) {
     event.preventDefault();
+    const nearest = viewport.querySelector("[data-nearest]");
+    entryBounds = nearest?.querySelector("img")?.getBoundingClientRect();
+    entryCell = nearest?.dataset.cell;
+    stopCoasting();
     pendingDetail = centeredProject.id;
     location.hash = routeFor(centeredProject);
   }
@@ -191,18 +227,20 @@ function cellShape(col, row) {
 function measureMap() {
   const width = viewport.clientWidth;
   const height = viewport.clientHeight;
-  const stepX = Math.max(138, Math.min(300, width < 640 ? width * .43 : width * .205));
-  layout = { width, height, stepX, stepY: stepX * .91 };
+  const unit = Math.max(138, Math.min(300, width < 640 ? width * .43 : width * .205));
+  layout = { width, height, unit, stepX: unit * camera.zoom, stepY: unit * .91 * camera.zoom };
 }
 
 function queueRender() {
   if (!renderFrame) renderFrame = requestAnimationFrame(renderMap);
 }
 
-function createTile(project) {
+function createTile(project, key, depth) {
   const tile = document.createElement("a");
   tile.className = "projects-tile";
   tile.href = routeFor(project);
+  tile.dataset.cell = key;
+  tile.style.setProperty("--depth", depth);
   tile.tabIndex = -1;
   tile.draggable = false;
   const image = new Image(480, 360);
@@ -211,16 +249,36 @@ function createTile(project) {
   image.decoding = "async";
   image.loading = "lazy";
   image.draggable = false;
+  const body = document.createElement("span");
+  body.className = "projects-tile-body";
+  const frame = document.createElement("span");
+  frame.className = "projects-tile-frame";
+  const open = document.createElement("span");
+  open.className = "projects-tile-open";
+  open.setAttribute("aria-hidden", "true");
+  open.innerHTML = `Open project ${icon("M4 12h15m-7-7 7 7-7 7")}`;
   const label = document.createElement("span");
+  label.className = "projects-tile-name";
   label.textContent = project.title;
-  tile.append(image, label);
+  frame.append(image, open);
+  body.append(frame, label);
+  tile.append(body);
   return tile;
 }
 
 function renderMap() {
+  cancelAnimationFrame(renderFrame);
   renderFrame = 0;
   if (root.hidden || mapView.hidden || !layout || !projects.length) return;
+  layout.stepX = layout.unit * camera.zoom;
+  layout.stepY = layout.stepX * .91;
   const { width, height, stepX, stepY } = layout;
+  surface?.update(camera.x, camera.y, stepX, stepY);
+  updateDrift();
+  const percent = Math.round(camera.zoom * 100) + "%";
+  if (zoomLabel.textContent !== percent) zoomLabel.textContent = percent;
+  zoomOut.disabled = camera.zoom <= minZoom + .001;
+  zoomIn.disabled = camera.zoom >= maxZoom - .001;
   const halfCols = width / (2 * stepX);
   const halfRows = height / (2 * stepY);
   const visible = new Set();
@@ -237,7 +295,7 @@ function renderMap() {
       const project = mapProjects[projectIndex(col, row)];
       let tile = tiles.get(key);
       if (!tile) {
-        tile = createTile(project);
+        tile = createTile(project, key, .3 + modulo(col * 11 + row * 7, 13) / 18);
         tiles.set(key, tile);
         tileLayer.append(tile);
       }
@@ -274,6 +332,7 @@ function renderMap() {
 // Point a direct link or picker selection at its first occurrence.
 // Never recenter when a visitor returns from a tile on their own map.
 function centerOn(index) {
+  stopCoasting();
   const col = Math.floor(index / 16) * 4 + index % 4;
   const row = Math.floor((index % 16) / 4);
   const target = cellShape(col, row);
@@ -290,37 +349,136 @@ function panBy(dx, dy) {
 function stopCoasting() {
   cancelAnimationFrame(coastFrame);
   coastFrame = 0;
+  aim = null;
 }
 
-function nudge(dx, dy) {
-  if (projects.length < 2) return;
-  stopCoasting();
-  const start = { ...camera };
+function glideTo(x, y, zoom, response = 76) {
   if (!canMove()) {
-    camera.x += dx;
-    camera.y += dy;
+    stopCoasting();
+    Object.assign(camera, { x, y, zoom });
     queueRender();
     return;
   }
-  const began = performance.now();
+  if (aim) {
+    Object.assign(aim, { x, y, zoom, response });
+    return;
+  }
+  stopCoasting();
+  aim = { x, y, zoom, response };
+  let lastTime = performance.now();
   function move(now) {
-    const fraction = Math.min(1, (now - began) / 200);
-    const eased = 1 - (1 - fraction) ** 3;
-    camera.x = start.x + dx * eased;
-    camera.y = start.y + dy * eased;
+    const ease = 1 - Math.exp(-Math.min(64, now - lastTime) / aim.response);
+    lastTime = now;
+    const dx = aim.x - camera.x, dy = aim.y - camera.y, dz = aim.zoom - camera.zoom;
+    if (Math.hypot(dx, dy) * layout.stepX < .3 && Math.abs(dz) < .001) {
+      Object.assign(camera, { x: aim.x, y: aim.y, zoom: aim.zoom });
+      aim = null;
+      coastFrame = 0;
+    } else {
+      camera.x += dx * ease;
+      camera.y += dy * ease;
+      camera.zoom += dz * ease;
+      coastFrame = requestAnimationFrame(move);
+    }
     queueRender();
-    if (fraction < 1) coastFrame = requestAnimationFrame(move);
   }
   coastFrame = requestAnimationFrame(move);
 }
 
+function nudge(dx, dy) {
+  if (projects.length < 2) return;
+  clearLook();
+  clearReturnPhoto();
+  const target = aim || camera;
+  glideTo(target.x + dx, target.y + dy, target.zoom, 64);
+}
+
+function zoomTo(zoom) {
+  if (projects.length < 2) return;
+  clearLook();
+  clearReturnPhoto();
+  const target = aim || camera;
+  glideTo(target.x, target.y, clamp(zoom, minZoom, maxZoom), 82);
+}
+
+function zoomBy(factor) {
+  zoomTo((aim || camera).zoom * factor);
+}
+
+// Images spring a short distance within their cells as the camera moves.
+// The underlying links continue to follow drag coordinates exactly.
+function updateDrift() {
+  const now = performance.now();
+  const elapsed = previousPose ? now - previousPose.time : Infinity;
+  const moving = canMove() && elapsed < 100;
+  const strength = moving ? 1 - Math.exp(-Math.max(8, elapsed) / 45) : 1;
+  const vx = moving ? clamp((camera.x - previousPose.x) * layout.stepX / Math.max(8, elapsed), -2, 2) : 0;
+  const vy = moving ? clamp((camera.y - previousPose.y) * layout.stepY / Math.max(8, elapsed), -2, 2) : 0;
+  drift.x += (vx - drift.x) * strength;
+  drift.y += (vy - drift.y) * strength;
+  if (Math.abs(drift.x) < .008) drift.x = 0;
+  if (Math.abs(drift.y) < .008) drift.y = 0;
+  previousPose = { x: camera.x, y: camera.y, time: now };
+  tileLayer.style.setProperty("--drift-x", (drift.x * 10).toFixed(2) + "px");
+  tileLayer.style.setProperty("--drift-y", (drift.y * 8).toFixed(2) + "px");
+  tileLayer.style.setProperty("--turn-y", (drift.x * 6).toFixed(2) + "deg");
+  tileLayer.style.setProperty("--turn-x", (-drift.y * 5).toFixed(2) + "deg");
+  if (drift.x || drift.y) queueRender();
+}
+
+function pinchMetrics() {
+  const [first, second] = touches.values();
+  const rect = viewport.getBoundingClientRect();
+  return {
+    x: (first.x + second.x) / 2 - rect.left - layout.width / 2,
+    y: (first.y + second.y) / 2 - rect.top - layout.height / 2,
+    distance: Math.max(2, Math.hypot(first.x - second.x, first.y - second.y)),
+  };
+}
+
 function startDrag(event) {
-  if (projects.length < 2 || !event.isPrimary || event.button !== 0) return;
+  if (projects.length < 2 || event.button !== 0) return;
+  clearLook();
+  clearReturnPhoto();
+  if (event.pointerType === "touch") {
+    if (touches.size >= 2) return;
+    touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (touches.size === 2) {
+      stopCoasting();
+      gesture = null;
+      const mid = pinchMetrics();
+      pinch = { x: camera.x + mid.x / layout.stepX, y: camera.y + mid.y / layout.stepY, distance: mid.distance, zoom: camera.zoom };
+      for (const id of touches.keys()) viewport.setPointerCapture(id);
+      viewport.classList.add("is-dragging");
+      return;
+    }
+  } else if (!event.isPrimary) return;
   stopCoasting();
   gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, vx: 0, vy: 0, dragging: false };
 }
 
 function moveDrag(event) {
+  if (!gesture && !pinch && event.pointerType === "mouse" && canMove()) {
+    const tile = event.target.closest(".projects-tile");
+    if (tile !== hoverTile) clearLook();
+    if (tile && !aim) {
+      hoverTile = tile;
+      const box = tile.getBoundingClientRect();
+      const x = clamp((event.clientX - box.left) / box.width - .5, -.5, .5);
+      const y = clamp((event.clientY - box.top) / box.height - .5, -.5, .5);
+      tile.style.setProperty("--look-x", -y * 9 + "deg");
+      tile.style.setProperty("--look-y", x * 11 + "deg");
+    }
+  }
+  if (touches.has(event.pointerId)) touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  if (pinch && touches.has(event.pointerId)) {
+    const mid = pinchMetrics();
+    camera.zoom = clamp(pinch.zoom * mid.distance / pinch.distance, minZoom, maxZoom);
+    camera.x = pinch.x - mid.x / (layout.unit * camera.zoom);
+    camera.y = pinch.y - mid.y / (layout.unit * .91 * camera.zoom);
+    queueRender();
+    return;
+  }
   if (!gesture || gesture.id !== event.pointerId) return;
   const dx = gesture.x - event.clientX;
   const dy = gesture.y - event.clientY;
@@ -339,7 +497,25 @@ function moveDrag(event) {
   panBy(dx, dy);
 }
 
+function clearLook() {
+  if (!hoverTile) return;
+  hoverTile.style.removeProperty("--look-x");
+  hoverTile.style.removeProperty("--look-y");
+  hoverTile = null;
+}
+
 function finishDrag(event) {
+  const trackedTouch = touches.delete(event.pointerId);
+  if (pinch && trackedTouch) {
+    pinch = null;
+    suppressClickUntil = performance.now() + 300;
+    viewport.classList.remove("is-dragging");
+    if (touches.size) {
+      const [id, point] = touches.entries().next().value;
+      gesture = { id, ...point, time: event.timeStamp, vx: 0, vy: 0, dragging: true };
+    }
+    return;
+  }
   if (!gesture || gesture.id !== event.pointerId) return;
   const drag = gesture;
   cancelDrag();
@@ -364,16 +540,22 @@ function finishDrag(event) {
 function cancelDrag() {
   if (gesture && viewport.hasPointerCapture(gesture.id)) viewport.releasePointerCapture(gesture.id);
   gesture = null;
+  for (const id of touches.keys()) if (viewport.hasPointerCapture(id)) viewport.releasePointerCapture(id);
+  touches.clear();
+  pinch = null;
   viewport?.classList.remove("is-dragging");
 }
 
 function panWheel(event) {
   if (projects.length < 2 || event.ctrlKey || event.metaKey) return;
   event.preventDefault();
-  stopCoasting();
+  clearLook();
+  clearReturnPhoto();
   const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? layout.height : 1;
-  if (event.shiftKey && !event.deltaX) panBy(event.deltaY * unit, 0);
-  else panBy(event.deltaX * unit, event.deltaY * unit);
+  const horizontal = event.shiftKey && !event.deltaX;
+  const target = aim || camera;
+  glideTo(target.x + (horizontal ? event.deltaY : event.deltaX) * unit / layout.stepX,
+    target.y + (horizontal ? 0 : event.deltaY) * unit / layout.stepY, target.zoom);
 }
 
 function clickTile(event) {
@@ -384,7 +566,9 @@ function clickTile(event) {
   }
   if (!tile || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   pendingDetail = Number(tile.hash.split("/")[1]);
-  entryBounds = tile.getBoundingClientRect();
+  stopCoasting();
+  entryBounds = tile.querySelector("img").getBoundingClientRect();
+  entryCell = tile.dataset.cell;
 }
 
 function backToMap() {
@@ -446,16 +630,78 @@ function removePlayer(restoreFocus = false) {
   if (restoreFocus && !root.hidden) playLink.focus({ preventScroll: true });
 }
 
+function flyPhoto(image, from, to) {
+  const dx = from.x + from.width / 2 - to.x - to.width / 2;
+  const dy = from.y + from.height / 2 - to.y - to.height / 2;
+  return image.animate([
+    { transform: `translate(${dx}px,${dy}px) scale(${from.width / to.width},${from.height / to.height})` },
+    { transform: "none" },
+  ], { duration: 520, easing: "cubic-bezier(.22,.72,.16,1)" });
+}
+
+function clearReturnPhoto() {
+  if (!returningPhoto) return;
+  returningPhoto.tile.classList.remove("is-returning");
+  returningPhoto.ghost.remove();
+  returningPhoto = null;
+}
+
+function returnPhoto(project, from) {
+  if (!canMove() || !from.width) return;
+  const tile = tiles.get(selectedCell) || [...tiles.values()].find((node) => node.hash === routeFor(project));
+  if (!tile) return;
+  const dest = tile.querySelector("img").getBoundingClientRect();
+  const field = viewport.getBoundingClientRect();
+  if (!dest.width || dest.right < field.left || dest.left > field.right || dest.bottom < field.top || dest.top > field.bottom) return;
+  const ghost = document.createElement("img");
+  ghost.className = "projects-photo-return";
+  ghost.alt = "";
+  ghost.src = project.thumbnail;
+  ghost.style.left = dest.left + "px";
+  ghost.style.top = dest.top + "px";
+  ghost.style.width = dest.width + "px";
+  ghost.style.height = dest.height + "px";
+  root.append(ghost);
+  tile.classList.add("is-returning");
+  returningPhoto = { ghost, tile };
+  const flight = flyPhoto(ghost, from, dest);
+  const finish = () => { if (returningPhoto?.ghost === ghost) clearReturnPhoto(); };
+  flight.onfinish = flight.oncancel = finish;
+}
+
+function assembleMap() {
+  if (assembled || !tiles.size) return;
+  assembled = true;
+  if (!canMove()) return;
+  const field = viewport.getBoundingClientRect();
+  for (const tile of tiles.values()) {
+    if (tile.classList.contains("is-returning")) continue;
+    const box = tile.getBoundingClientRect();
+    if (box.right < field.left || box.left > field.right || box.bottom < field.top || box.top > field.bottom) continue;
+    const x = (box.left + box.width / 2 - field.left) / field.width - .5;
+    const y = (box.top + box.height / 2 - field.top) / field.height - .5;
+    tile.animate([
+      { opacity: .03, scale: ".82", translate: `${x * 56}px ${y * 48 + 18}px` },
+      { opacity: 1, scale: "1", translate: "0" },
+    ], { duration: 480, delay: 55 + Math.hypot(x, y) * 170, fill: "backwards", easing: "cubic-bezier(.18,.68,.21,1)" });
+  }
+}
+
 function openDetail(project) {
+  clearReturnPhoto();
   focusedProject = project;
   selectedId = project.id;
   const fromMap = pendingDetail === project.id;
   if (fromMap) {
-    history.replaceState({ ...history.state, studioMapFrom: project.id, studioMapCamera: { ...camera } }, "", location.href);
+    selectedCell = entryCell;
+    history.replaceState({ ...history.state, studioMapFrom: project.id, studioMapCell: selectedCell, studioMapCamera: { ...camera } }, "", location.href);
     pendingDetail = null;
   } else if (history.state?.studioMapFrom === project.id && Number.isFinite(history.state.studioMapCamera?.x) && Number.isFinite(history.state.studioMapCamera?.y)) {
     Object.assign(camera, history.state.studioMapCamera);
+    camera.zoom = clamp(camera.zoom || 1, minZoom, maxZoom);
+    selectedCell = history.state.studioMapCell;
   } else {
+    selectedCell = null;
     centerOn(mapProjects.indexOf(project));
   }
   stopCoasting();
@@ -472,16 +718,10 @@ function openDetail(project) {
   detailTitle.focus({ preventScroll: true });
   if (canMove() && entryBounds) {
     const target = detailImage.getBoundingClientRect();
-    if (target.width > 0) {
-      const dx = entryBounds.x + entryBounds.width / 2 - target.x - target.width / 2;
-      const dy = entryBounds.y + entryBounds.height / 2 - target.y - target.height / 2;
-      detailImage.animate([
-        { transform: `translate(${dx}px,${dy}px) scale(${entryBounds.width / target.width})`, opacity: .55 },
-        { transform: "none", opacity: 1 },
-      ], { duration: 370, easing: "cubic-bezier(.16,.72,.2,1)" });
-    }
+    if (target.width > 0) flyPhoto(detailImage, entryBounds, target);
   }
   entryBounds = null;
+  entryCell = null;
 }
 
 export function showProjectView(id, play = false) {
@@ -495,7 +735,8 @@ export function showProjectView(id, play = false) {
     return;
   }
   if (id) history.replaceState(history.state, "", "#projects");
-  const fromDetail = !!focusedProject;
+  const fromDetail = focusedProject;
+  const photoBounds = fromDetail && detailImage.getBoundingClientRect();
   removePlayer();
   focusedProject = null;
   detail.hidden = true;
@@ -503,10 +744,16 @@ export function showProjectView(id, play = false) {
   root.setAttribute("aria-labelledby", "projects-title");
   measureMap();
   renderMap();
-  if (fromDetail) viewport.focus({ preventScroll: true });
+  if (fromDetail) {
+    viewport.focus({ preventScroll: true });
+    returnPhoto(fromDetail, photoBounds);
+  }
+  assembleMap();
 }
 
 export function hideProjectView() {
+  clearLook();
+  clearReturnPhoto();
   removePlayer();
   cancelDrag();
   stopCoasting();
@@ -516,6 +763,8 @@ export function hideProjectView() {
   pendingPlayer = null;
   pendingDetail = null;
   entryBounds = null;
+  entryCell = null;
+  previousPose = null;
   focusedProject = null;
   root.hidden = true;
 }

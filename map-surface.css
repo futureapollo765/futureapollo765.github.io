@@ -1,0 +1,51 @@
+.projects-map { background-image: none; }
+.map-ground, .map-instrument { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.map-ground { z-index: 0; --grid-step-x: 250px; --grid-step-y: 220px; }
+.projects-map-tiles { z-index: 1; }
+.map-instrument { z-index: 3; }
+.map-grid, .map-light, .map-pointer { display: block; position: absolute; }
+.map-grid {
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, #ffffff07 1px, transparent 1px),
+    linear-gradient(#ffffff07 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, #ffffff20 .65px, transparent 1px);
+  background-size:
+    var(--grid-step-x) var(--grid-step-y),
+    var(--grid-step-x) var(--grid-step-y),
+    calc(var(--grid-step-x) / 10) calc(var(--grid-step-y) / 10);
+  background-position:
+    calc(50% + var(--grid-x, 0px)) calc(50% + var(--grid-y, 0px)),
+    calc(50% + var(--grid-x, 0px)) calc(50% + var(--grid-y, 0px)),
+    calc(50% + var(--dots-x, 0px)) calc(50% + var(--dots-y, 0px));
+}
+.map-light {
+  top: 0; left: 0; width: min(60vw, 640px); aspect-ratio: 1;
+  background: radial-gradient(closest-side, #f1f1ec15, #d4d4ca05 58%, transparent);
+  transform: translate3d(var(--map-pointer-x, -100vw),var(--map-pointer-y, -100vh),0) translate(-50%, -50%);
+  opacity: 0; transition: opacity .28s ease;
+}
+.projects-map[data-pointer-intent] .map-light { opacity: 1; }
+.map-edge-x, .map-edge-y { position: absolute; display: block; background: #d3d3d3a8; }
+.map-edge-x { top: 50%; height: 1px; left: 0; width: 7px; box-shadow: calc(100vw - 7px) 0 #d3d3d3a8; }
+.map-edge-y { left: 50%; width: 1px; top: 0; height: 6px; }
+.map-pointer {
+  top: 0; left: 0; width: 35px; height: 35px;
+  transform: translate3d(var(--map-pointer-x, -100vw),var(--map-pointer-y, -100vh),0) translate(-50%,-50%);
+  opacity: 0; transition: opacity .14s;
+}
+.map-pointer::before {
+  content: ""; position: absolute; inset: 0; border: 1px solid #f5f5f48c; border-radius: 50%;
+  transform: scale(var(--pointer-scale, 1)); transition: transform .18s ease-out, background .15s;
+}
+.projects-map[data-pointer-intent] .map-pointer { opacity: .8; }
+.projects-map[data-pointer-intent="open"] .map-pointer { --pointer-scale: 1.18; }
+.projects-map.is-dragging .map-pointer { --pointer-scale: .68; }
+.projects-map.is-dragging .map-pointer::before { background: #ececeb1a; }
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .map-pointer, .map-light { display: none; }
+}
+html.motion-paused :is(.map-light, .map-pointer) { display: none; }
+html.motion-paused .map-grid {
+  background-position: calc(50% + var(--grid-x, 0px)) calc(50% + var(--grid-y, 0px));
+}
