@@ -61,6 +61,8 @@ function makeLane(viewport, projects, large, speed) {
   let width = 0;
   let position = 0;
   let keyboardFocused = false;
+  let running = false;
+  let carry = 0;
   let down = null;
   let suppressClickUntil = 0;
 
@@ -81,48 +83,115 @@ function makeLane(viewport, projects, large, speed) {
     viewport.scrollLeft = position;
   }
 
-  function move(deltaSeconds) {
-    if (!width || keyboardFocused) return;
-    // Native focus scrolling and touch browsing can change the starting point.
+  function advance(distance) {
+    // The browser can scroll the row when a link receives focus or a
+    // trackpad moves. Start from the visible position after either action.
     const actual = viewport.scrollLeft;
     if (Math.abs(actual - position) > 1) position = actual;
-    position = width + modulo(position + speed * deltaSeconds - width, width);
+    position = width + modulo(position + distance - width, width);
     viewport.scrollLeft = position;
+  }
+
+  function move(deltaSeconds) {
+    if (!width || down || keyboardFocused) return;
+    // A released drag gradually settles back into this row's own direction.
+    const decay = Math.exp(-deltaSeconds / .19);
+    advance(speed * deltaSeconds + carry * .19 * (1 - decay));
+    carry *= decay;
+    if (Math.abs(carry) < 1) carry = 0;
+  }
+
+  function setRunning(enabled) {
+    running = enabled;
+    if (!enabled) carry = 0;
   }
 
   viewport.addEventListener("focusin", event => {
     keyboardFocused = event.target.matches(":focus-visible");
+    if (keyboardFocused) carry = 0;
   });
   viewport.addEventListener("focusout", event => {
     if (!viewport.contains(event.relatedTarget)) keyboardFocused = false;
   });
-  viewport.addEventListener("keydown", () => { keyboardFocused = true; });
+  viewport.addEventListener("keydown", event => {
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+    const link = event.target.closest("a");
+    if (!link || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    keyboardFocused = true;
+    carry = 0;
+    const index = Array.from(link.parentElement.children).indexOf(link);
+    let next = modulo(index + (event.key === "ArrowLeft" ? -1 : 1), projects.length);
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = projects.length - 1;
+    const target = original.children[next];
+    target.focus({ preventScroll: true });
+    const card = target.getBoundingClientRect();
+    const frame = viewport.getBoundingClientRect();
+    viewport.scrollLeft += card.left + card.width / 2 - frame.left - frame.width / 2;
+    position = viewport.scrollLeft;
+  });
+
   viewport.addEventListener("pointerdown", event => {
+    if (!width || down || !event.isPrimary || event.button !== 0) return;
     keyboardFocused = false;
+    carry = 0;
     suppressClickUntil = 0;
-    down = { id: event.pointerId, x: event.clientX, y: event.clientY, dragged: false };
+    down = {
+      id: event.pointerId, x: event.clientX, y: event.clientY,
+      lastX: event.clientX, time: event.timeStamp, velocity: 0, dragging: false, vertical: false,
+    };
   });
-  viewport.addEventListener("pointermove", event => {
-    if (down?.id !== event.pointerId) return;
-    if (Math.hypot(event.clientX - down.x, event.clientY - down.y) > 8) {
-      down.dragged = true;
+  window.addEventListener("pointermove", event => {
+    if (down?.id !== event.pointerId || down.vertical) return;
+    if (!down.dragging) {
+      const dx = Math.abs(event.clientX - down.x);
+      const dy = Math.abs(event.clientY - down.y);
+      if (Math.max(dx, dy) < 7) return;
+      if (dy > dx) {
+        down.vertical = true;
+        return;
+      }
+      down.dragging = true;
+      viewport.setPointerCapture(event.pointerId);
+      viewport.classList.add("is-scrubbing");
     }
+    const distance = down.lastX - event.clientX;
+    const seconds = Math.max(.008, (event.timeStamp - down.time) / 1000);
+    const blend = 1 - Math.exp(-seconds / .04);
+    down.velocity += (distance / seconds - down.velocity) * blend;
+    down.time = event.timeStamp;
+    down.lastX = event.clientX;
+    advance(distance);
   });
-  viewport.addEventListener("pointerup", event => {
+
+  function release(event) {
     if (down?.id !== event.pointerId) return;
-    if (down.dragged || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 8) {
-      suppressClickUntil = performance.now() + 600;
-    }
+    const gesture = down;
     down = null;
+    if (gesture.vertical || gesture.dragging) suppressClickUntil = performance.now() + 600;
+    if (gesture.dragging) {
+      viewport.classList.remove("is-scrubbing");
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+      if (running && event.type === "pointerup") {
+        const limit = Math.min(1400, viewport.clientWidth * 2.2);
+        const velocity = event.timeStamp - gesture.time < 95 ? gesture.velocity : 0;
+        carry = Math.max(-limit, Math.min(limit, velocity)) - speed;
+      }
+    }
+  }
+  window.addEventListener("pointerup", release);
+  window.addEventListener("pointercancel", release);
+  viewport.addEventListener("lostpointercapture", event => {
+    if (event.target === viewport) release(event);
   });
-  viewport.addEventListener("pointercancel", () => { down = null; });
   viewport.addEventListener("click", event => {
     if (event.detail && performance.now() < suppressClickUntil) event.preventDefault();
   });
   viewport.addEventListener("dragstart", event => event.preventDefault());
   new ResizeObserver(measure).observe(viewport);
   measure();
-  return { move };
+  return { move, setRunning };
 }
 
 export function mountSelectedWork() {
@@ -136,10 +205,14 @@ export function mountSelectedWork() {
   mount.innerHTML = `
     <div class="sf-heading">
       <div><p class="sf-collection">Scratch favorites</p><h2 id="featured-title">Selected work</h2></div>
-      <button type="button" class="sf-pause" aria-label="Pause favorites"></button>
+      <div class="sf-controls">
+        <span class="sf-scrub-hint" aria-hidden="true">Drag to browse</span>
+        <button type="button" class="sf-pause" aria-label="Pause favorites"></button>
+      </div>
     </div>
-    <div class="sf-stage sf-lane" role="group" aria-label="Featured favorites"></div>
-    <div class="sf-ribbon sf-lane" role="group" aria-label="More favorite projects on Scratch"></div>`;
+    <span class="sf-key-help" id="sf-key-help">Use the left and right arrow keys to browse. Enter opens the focused project on Scratch.</span>
+    <div class="sf-stage sf-lane" role="group" aria-label="Featured favorites" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
+    <div class="sf-ribbon sf-lane" role="group" aria-label="More favorite projects on Scratch" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>`;
 
   const start = Math.max(0, favorites.findIndex(project => project.id === 1406787990));
   const featured = [...favorites.slice(start), ...favorites.slice(0, start)];
@@ -178,7 +251,9 @@ export function mountSelectedWork() {
       pause.innerHTML = svg(paused || globalPause ? "m8 5 11 7-11 7z" : "M9 5v14m6-14v14");
     }
     pause.disabled = globalPause;
-    if (!inView || document.hidden || paused || globalPause) {
+    const running = inView && !document.hidden && !paused && !globalPause;
+    lanes.forEach(lane => lane.setRunning(running));
+    if (!running) {
       cancelAnimationFrame(frame);
       frame = 0;
     } else if (!frame) {
