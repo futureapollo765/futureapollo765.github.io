@@ -185,11 +185,11 @@ button { font: inherit; }
 .brand:hover img, .brand:focus-visible img { transform: rotate(90deg); }
 .word-line { display: block; position: relative; width: max-content; }
 .word-line > span { display: block; }
-.word-line:first-child { transform: translate3d(calc(-18vw * var(--travel)),calc(-7vh * var(--travel)),0); }
-.word-line:last-child { transform: translate3d(calc(7vw * var(--travel)),calc(-3vh * var(--travel)),0); }
-.hero-copy { opacity: clamp(0, 1.15 - var(--travel) * 1.6, 1); }
-.hero-copy:focus-within { opacity: 1; }
-.instrument { transform: translate3d(calc(var(--travel) * -14vw),calc(var(--travel) * -1svh),0) scale(calc(1 + var(--travel) * .11)); }
+/* The selected station owns the pose. Scroll progress drives the ruler,
+   but must never leave the visible name half-way through its exit. */
+.word-line { transform:none; transition:transform .48s cubic-bezier(.18,.72,.18,1); }
+.is-inspecting .word-line:first-child { transform:translateX(-9vw); }
+.is-inspecting .word-line:last-child { transform:translateX(5vw); }
 .key-hint { display: none; }
 .instrument:has(.orbit-object:focus-visible) .key-hint { display: inline; }
 .instrument:has(.orbit-object:focus-visible) .drag-hint { display: none; }
@@ -209,8 +209,8 @@ button { font: inherit; }
 #selected-work { position: relative; z-index: 1; scroll-margin-top: var(--header); outline: none; }
 #selected-work:target { min-height: calc(100svh - var(--header)); display: grid; align-content: center; }
 @keyframes wheel-travel { 0%, 90%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(6px); opacity: 1; } }
-@keyframes type-arrive { from { opacity: 0; transform: translateY(.55em); clip-path: inset(0 0 100%); } to { opacity: 1; transform: none; clip-path: inset(-5% -5% -26%); } }
-@keyframes instrument-arrive { from { opacity: 0; translate: 24px 8px; } to { opacity: 1; translate: 0 0; } }
+@keyframes type-arrive { from { opacity: 0; transform: translateX(-.25em); clip-path: inset(0 100% 0 0); } to { opacity: 1; transform: none; clip-path: inset(-5% -5% -26%); } }
+@keyframes instrument-arrive { from { opacity: 0; translate: 24px 0; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: no-preference) {
   html:not(.motion-paused) .arrived .word-line > span { animation: type-arrive .88s cubic-bezier(.2,.76,.2,1) both; }
   html:not(.motion-paused) .arrived .word-line:last-child > span { animation-delay: .12s; }
@@ -219,7 +219,7 @@ button { font: inherit; }
 .motion-paused .home-sequence::after { height: 0; }
 .motion-paused .home-stage { position: relative; top: auto; }
 .motion-paused .scroll-wheel::before { animation-play-state: paused; }
-.motion-paused .brand img { transition: none; transform: none; }
+.motion-paused .brand img, .motion-paused .word-line { transition: none; transform: none; }
 @media (max-width: 680px) {
   :root { --header: 65px; }
   .home-stage { min-height: 635px; height: calc(100svh - var(--header)); }
@@ -227,8 +227,6 @@ button { font: inherit; }
   .header-actions { gap: 0; }
   .motion-toggle { width: 32px; }
   .scene-controls { margin-bottom: 6px; }
-  .instrument { transform: translate3d(0,calc(var(--travel) * -10svh),0) scale(calc(1 + var(--travel) * .12)); }
-  .word-line:first-child { transform: translate3d(calc(-18vw * var(--travel)),calc(-2vh * var(--travel)),0); }
   .eyebrow { margin-bottom: 14px; }
 }
 @media (max-width: 370px) {

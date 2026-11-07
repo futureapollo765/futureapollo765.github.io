@@ -79,7 +79,7 @@ export function mountProjectIndex(stage) {
     ], {duration:330, easing:"cubic-bezier(.2,.75,.2,1)"});
     const removeOld = () => { if (old && old !== windowEl.lastElementChild) old.remove(); };
     fx.onfinish = fx.oncancel = removeOld;
-    title.animate([{opacity:.38, transform:"translateY(7px)"},{opacity:1,transform:"none"}],
+    title.animate([{opacity:.38, transform:`translateX(${direction * 10}px)`},{opacity:1,transform:"none"}],
       {duration:240, easing:"ease-out"});
   }
 
