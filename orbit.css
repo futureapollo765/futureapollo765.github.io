@@ -1,0 +1,30 @@
+[data-orbit] {
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-orbit]:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -3px;
+}
+
+[data-orbit].orbit-dragging {
+  cursor: grabbing;
+}
+
+.orbit-still,
+.orbit-turn-frame {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.orbit-turned .orbit-still {
+  visibility: hidden;
+}
