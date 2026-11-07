@@ -21,6 +21,10 @@ try {
   // The control still works for this visit when storage is unavailable.
 }
 
+export function constrainHomeWheel(target, actual, now) {
+  return index?.constrainWheel(target,actual,now) ?? target;
+}
+
 export function rememberHome() {
   return { top:window.scrollY, ...index?.snapshot() };
 }
@@ -40,8 +44,8 @@ function updateSequence() {
   scheduled = false;
   if (home.hidden) return;
   const rect = sequence.getBoundingClientRect();
-  const distance = Math.max(sequence.offsetHeight - stage.offsetHeight, stage.offsetHeight * .55);
-  const progress = enabled ? Math.min(1, Math.max(0, (header.offsetHeight - rect.top) / distance)) : 0;
+  const distance = sequence.offsetHeight - stage.offsetHeight;
+  const progress = enabled && distance > 1 ? Math.min(1, Math.max(0, (header.offsetHeight - rect.top) / distance)) : 0;
   if (Math.abs(progress - lastProgress) < .0001) return;
   lastProgress = progress;
   stage.style.setProperty("--travel", progress.toFixed(4));
@@ -58,7 +62,7 @@ export function refreshHomeMotion() {
 function updatePreference() {
   const next = !reduce.matches && !pausedByUser;
   const preserve = enabled !== next && !home.hidden && lastProgress !== -1;
-  const anchors = preserve ? [...home.querySelectorAll("#selected-work, .tl-stage, .study-note")].reverse() : [];
+  const anchors = preserve ? [...home.querySelectorAll("#selected-work, .tl-stage, .studies-stage")].reverse() : [];
   const anchor = anchors.find(node => node.offsetWidth && node.getBoundingClientRect().top < innerHeight * .7);
   const originalTop = anchor?.getBoundingClientRect().top;
   const pose = preserve ? index?.snapshot() : null;

@@ -162,7 +162,7 @@ button { font: inherit; }
 
 :root { --header: 79px; }
 .home-sequence { position: relative; }
-.home-sequence::after { content: ""; display: block; height: 65svh; }
+.home-sequence::after { content: ""; display: block; height: calc(var(--index-count,0) * clamp(300px,43svh,490px)); }
 .home-sequence.no-favorites::after { height: 0; }
 .home-stage {
   --travel: 0;
@@ -187,9 +187,8 @@ button { font: inherit; }
 .word-line > span { display: block; }
 /* The selected station owns the pose. Scroll progress drives the ruler,
    but must never leave the visible name half-way through its exit. */
-.word-line { transform:none; transition:transform .48s cubic-bezier(.18,.72,.18,1); }
-.is-inspecting .word-line:first-child { transform:translateX(-9vw); }
-.is-inspecting .word-line:last-child { transform:translateX(5vw); }
+.word-line:first-child { transform:translateX(calc(-9vw * var(--index-blend,0))); }
+.word-line:last-child { transform:translateX(calc(5vw * var(--index-blend,0))); }
 .key-hint { display: none; }
 .instrument:has(.orbit-object:focus-visible) .key-hint { display: inline; }
 .instrument:has(.orbit-object:focus-visible) .drag-hint { display: none; }
@@ -214,7 +213,7 @@ button { font: inherit; }
 @media (prefers-reduced-motion: no-preference) {
   html:not(.motion-paused) .arrived .word-line > span { animation: type-arrive .88s cubic-bezier(.2,.76,.2,1) both; }
   html:not(.motion-paused) .arrived .word-line:last-child > span { animation-delay: .12s; }
-  html:not(.motion-paused) .arrived .instrument { animation: instrument-arrive .95s ease-out both; }
+
 }
 .motion-paused .home-sequence::after { height: 0; }
 .motion-paused .home-stage { position: relative; top: auto; }
@@ -223,7 +222,7 @@ button { font: inherit; }
 @media (max-width: 680px) {
   :root { --header: 65px; }
   .home-stage { min-height: 635px; height: calc(100svh - var(--header)); }
-  .home-sequence::after { height: 43svh; }
+
   .header-actions { gap: 0; }
   .motion-toggle { width: 32px; }
   .scene-controls { margin-bottom: 6px; }
@@ -235,7 +234,11 @@ button { font: inherit; }
   .brand img { width: 19px; height: 19px; }
   .main-nav { gap: 9px; }
 }
-@media (max-height: 700px) {
+@media (max-height: 700px) and (min-height:510px) {
+  .home-stage {height:calc(100svh - var(--header)); min-height:0;}
+  .hero {padding-block:12px;}
+}
+@media (max-height: 509px) {
   .home-stage { position: relative; top: auto; }
   .home-sequence::after { height: 0; }
 }

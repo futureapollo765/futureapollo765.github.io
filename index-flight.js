@@ -7,7 +7,7 @@ function stop() { cancel?.(); }
 
 function homeMedia(kind, id) {
   if (kind === "index" && home.querySelector("[data-index-link]").hash === "#projects/" + id)
-    return home.querySelector(".is-inspecting .index-image-window img:last-child");
+    return home.querySelector(".is-inspecting .index-image-window img[data-active-photo]");
   if (kind === "timeline") return home.querySelector('.tl-project[href="#projects/'+id+'"] img');
   if (kind === "study") {
     const frame = home.querySelector('.study-frame[href="#projects/'+id+'"]');

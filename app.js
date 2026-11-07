@@ -1,4 +1,4 @@
-import { enterHome, rememberHome, restoreHome } from "./home-motion.js";
+import { enterHome, rememberHome, restoreHome, constrainHomeWheel } from "./home-motion.js";
 import { mountSelectedWork } from "./selected.js";
 import { showProjectView, hideProjectView, hasMapPhotoFlight } from "./projects.js";
 import { presentRoute } from "./transition.js";
@@ -6,6 +6,7 @@ import { captureIndexFlight } from "./index-flight.js";
 import { projects } from "./project-data.js";
 import { mountStudies } from "./studies.js";
 import { mountTimeline } from "./timeline.js";
+import { mountScrollMotion } from "./scroll-motion.js";
 
 const home = document.querySelector("#home-view");
 const gallery = document.querySelector("#projects-view");
@@ -18,6 +19,7 @@ let pendingMedia = null;
 mountSelectedWork();
 const restoreStudy = mountStudies();
 mountTimeline();
+const interruptScroll = mountScrollMotion(constrainHomeWheel);
 
 function renderRoute() {
   const [page, id, action] = location.hash.slice(1).split("/");
@@ -82,6 +84,7 @@ for (const link of document.querySelectorAll(".site-header [href='#home']")) {
   });
 }
 function navigate() {
+  interruptScroll?.();
   const [page, id] = location.hash.slice(1).split("/");
   if (currentView === "home" && page === "projects" && Number(id) === pendingHomeProject) {
     history.replaceState({ ...history.state, studioHomeFrom:pendingHomeProject, studioHomeMedia:pendingMedia }, "", location.href);

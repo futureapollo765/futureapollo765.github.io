@@ -1,0 +1,63 @@
+.index-lettering-frame {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.index-lettering-label,
+.index-lettering-measure {
+  grid-area: 1 / 1;
+  min-width: 0;
+  align-self: start;
+  overflow-wrap: inherit;
+}
+
+.index-lettering-measure {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.index-lettering-measure::before { content: attr(data-letters); }
+
+.index-lettering-label[data-wiping] {
+  -webkit-mask-image: var(--letter-line-images);
+  mask-image: var(--letter-line-images);
+  -webkit-mask-position: var(--letter-line-positions);
+  mask-position: var(--letter-line-positions);
+  -webkit-mask-size: var(--letter-line-sizes);
+  mask-size: var(--letter-line-sizes);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.index-lettering-lines,
+.index-lettering-mask {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.index-lettering-lines { inset: 0; z-index: 1; }
+.index-lettering-mask { background: var(--ink, #f2f2ef); }
+
+.index-lettering-lines[hidden],
+.motion-paused .index-lettering-lines { display: none; }
+.motion-paused .index-lettering-label {
+  opacity: 1 !important;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-lettering-lines { display: none; }
+  .index-lettering-label,
+  .index-lettering-label[data-wiping] {
+    opacity: 1 !important;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
