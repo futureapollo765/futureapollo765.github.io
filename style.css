@@ -229,6 +229,7 @@ button { font: inherit; }
 .project-belt:is(:hover, :focus-visible) .belt-track { animation-play-state: paused; }
 .project-belt:hover .belt-open { background: var(--ink); color: var(--paper); }
 #selected-work { position: relative; z-index: 1; scroll-margin-top: var(--header); outline: none; }
+#selected-work:target { min-height: calc(100svh - var(--header)); display: grid; align-content: center; }
 @keyframes belt-travel { to { transform: translate3d(-50%,0,0); } }
 @keyframes wheel-travel { 0%, 90%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(6px); opacity: 1; } }
 @keyframes type-arrive { from { opacity: 0; transform: translateY(.55em); clip-path: inset(0 0 100%); } to { opacity: 1; transform: none; clip-path: inset(-5% -5% -26%); } }

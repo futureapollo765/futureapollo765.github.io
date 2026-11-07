@@ -1,6 +1,8 @@
 import { enterHome } from "./home-motion.js";
 import { mountSelectedWork } from "./selected.js";
 import { showProjectView, hideProjectView } from "./projects.js";
+import { presentRoute } from "./transition.js";
+import { projects } from "./project-data.js";
 
 const home = document.querySelector("#home-view");
 const gallery = document.querySelector("#projects-view");
@@ -31,6 +33,11 @@ function renderRoute() {
   else {
     hideProjectView();
     enterHome();
+    if (page === "selected-work") {
+      const selectedWork = document.querySelector("#selected-work");
+      if (selectedWork.hidden) location.replace("#projects");
+      else requestAnimationFrame(() => selectedWork.scrollIntoView({ block: "start" }));
+    }
   }
 }
 
@@ -45,5 +52,15 @@ for (const link of document.querySelectorAll(".site-header [href='#home']")) {
     }
   });
 }
-window.addEventListener("hashchange", renderRoute);
-renderRoute();
+function navigate() {
+  const [page, id] = location.hash.slice(1).split("/");
+  let viewKey = "home";
+  if (page === "projects") {
+    const project = projects.find(item => String(item.id) === id);
+    viewKey = project ? "project/" + project.id : "projects";
+  }
+  presentRoute(viewKey, renderRoute);
+}
+
+window.addEventListener("hashchange", navigate);
+navigate();

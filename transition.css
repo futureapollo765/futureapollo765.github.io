@@ -1,0 +1,37 @@
+.studio-route-cover {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background: #090909;
+}
+
+.studio-route-cover::backdrop { background: transparent; pointer-events: none; }
+
+.studio-route-mark {
+  display: block;
+  width: clamp(52px, 8vmin, 82px);
+  aspect-ratio: 1;
+  animation: studio-quarter-turn 380ms cubic-bezier(.23,.62,.2,1) both;
+}
+
+@keyframes studio-quarter-turn {
+  from { transform: rotate(-90deg) scale(.88); }
+  to { transform: rotate(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-route-cover { display: none; }
+}

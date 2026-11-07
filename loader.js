@@ -22,6 +22,7 @@ function playIntro() {
 
   const film = document.createElement("video");
   film.className = "studio-intro-film";
+  film.poster = new URL("./assets/studio.svg", import.meta.url).href;
   film.muted = true;
   film.playsInline = true;
   film.disablePictureInPicture = true;
@@ -36,10 +37,17 @@ function playIntro() {
   host.hidden = false;
   dialog.showModal();
 
+  function onMotion(event) {
+    if (!event.detail) dismiss();
+  }
+
   function dismiss() {
+    if (!dialog.isConnected) return;
     clearTimeout(deadline);
     reducedMotion.removeEventListener("change", dismiss);
     window.removeEventListener("pagehide", dismiss);
+    window.removeEventListener("hashchange", dismiss);
+    window.removeEventListener("studio-motion", onMotion);
     film.pause();
     dialog.close();
     host.hidden = true;
@@ -57,8 +65,11 @@ function playIntro() {
   film.addEventListener("error", dismiss, { once: true });
   reducedMotion.addEventListener("change", dismiss);
   window.addEventListener("pagehide", dismiss, { once: true });
+  window.addEventListener("hashchange", dismiss, { once: true });
+  window.addEventListener("studio-motion", onMotion);
   film.src = new URL("./assets/studio-intro.mp4", import.meta.url);
   film.play().catch(dismiss);
 }
 
-if (shouldPlayIntro()) playIntro();
+export const recordedIntroStarted = shouldPlayIntro();
+if (recordedIntroStarted) playIntro();
