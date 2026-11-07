@@ -1,15 +1,22 @@
 .index-lettering-frame {
   position: relative;
   isolation: isolate;
-  display: block;
+  display: flow-root;
   width: fit-content;
   max-width: 100%;
+  overflow: visible;
 }
 
 .index-lettering-label {
   display: block;
+  box-sizing: content-box;
   min-width: 0;
   overflow-wrap: inherit;
+  overflow: visible;
+  /* Expand the compositing surface for glyph ink outside tight line boxes.
+     Equal negative margins keep the title's natural layout size unchanged. */
+  padding: .2em .12em;
+  margin: -.2em -.12em;
 }
 
 .index-lettering-label[data-wiping] {
@@ -21,6 +28,8 @@
   mask-size: var(--letter-line-sizes);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  -webkit-mask-clip: border-box;
+  mask-clip: border-box;
 }
 
 .index-lettering-lines,

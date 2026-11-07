@@ -128,8 +128,10 @@ export function mountScrollMotion(constrainTarget) {
     if ((actual - observed) * direction < -.5 || (actual - target) * direction >= -.5) release();
     observed = actual;
   }, {passive:true});
-  // Relinquish ownership before controls and native navigation take effect.
-  for (const event of ["pointerdown", "touchstart", "keydown", "focusin", "click"]) {
+  // Physical input takes ownership before controls and native navigation.
+  // A reading scene may hand off focus with preventScroll as its old note
+  // fades; that programmatic focus change must not cancel the wheel glide.
+  for (const event of ["pointerdown", "touchstart", "keydown", "click"]) {
     window.addEventListener(event, interrupt, {capture:true, passive:true});
   }
   for (const event of ["hashchange", "popstate", "pagehide", "pageshow"]) {

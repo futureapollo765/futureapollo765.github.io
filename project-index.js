@@ -6,14 +6,15 @@ const ease = x => x*x*(3-2*x);
 const fmt = n => String(n).padStart(2,"0");
 
 // Station zero is the orbit; each subsequent station is an actual shared
-// project. The orbit is a continuous scroll composition. Past the orbit, the
-// scroll position chooses a station: each title then finishes its own handoff.
+// project. Orbit and every cover get one equal scroll interval and use the
+// same staged spring; each title finishes its handoff before the next.
 export function mountProjectIndex(stage) {
   const entries = projects.slice(0,6);
   const panel = stage.querySelector(".index-panel");
   if (!entries.length) { panel.hidden = stage.querySelector(".index-legend").hidden = true; return null; }
   const seq = stage.closest(".home-sequence");
-  seq.style.setProperty("--index-count",entries.length);
+  const stationCount=entries.length+1;
+  seq.style.setProperty("--index-count",stationCount);
   const choices = stage.querySelector(".deck-choices"), deck = stage.querySelector(".project-deck");
   const copy = stage.querySelector(".hero-copy"), instrument = stage.querySelector(".instrument");
   const count = panel.querySelector("[data-index-count]"), title = panel.querySelector("[data-index-title]");
@@ -138,17 +139,11 @@ export function mountProjectIndex(stage) {
     transitionFrame=requestAnimationFrame(tick);
   }
   function scrollScene(value, immediate=false) {
-    if(value<1) {
-      natural=1; stopTween();
-      const p=ease(clamp(value/.83));
-      settled=desired=p<.5 ? 0 : 1; scene(0,1,p);
-      return;
-    }
-    // A small dead band around each boundary keeps a resting title stable
-    // if the wheel or finger rocks back a few pixels in either direction.
-    natural=clamp(natural,1,entries.length);
-    while(natural<entries.length && value>=natural+.52) natural++;
-    while(natural>1 && value<=natural-.58) natural--;
+    // Each integer interval belongs to one station, including Orbit at zero.
+    // The same small hysteresis applies at every boundary in both directions.
+    natural=clamp(natural,0,entries.length);
+    while(natural<entries.length && value>=natural+1.04) natural++;
+    while(natural>0 && value<=natural-.04) natural--;
     if(immediate) rest(natural); else turn(natural);
   }
   function override(station, hover=false) {
@@ -163,21 +158,21 @@ export function mountProjectIndex(stage) {
     const distance=seq.offsetHeight-stage.offsetHeight;
     if(!motion() || !distance || stage.closest("[hidden]")) return target;
     const start=scrollY+seq.getBoundingClientRect().top-document.querySelector(".site-header").offsetHeight;
-    const unit=distance/entries.length;
+    const unit=distance/stationCount;
     const pos=(actual-start)/unit;
     const sign=Math.sign(target-actual);
     const exiting=sign>0 && flight?.to===entries.length;
-    if(!sign || pos<-.002 || pos>entries.length+(exiting ? .75 : .002)) return target;
+    if(!sign || pos<-.002 || pos>stationCount+(exiting ? .75 : .002)) return target;
     const anchor=manual && !manual.hover ? manual.station : settled;
     // Admit the following interval throughout this handoff. Waiting until
     // its final frames would still flatten a continuous scroll at each edge.
     const forwardFlight=flight && Math.sign(flight.to-flight.from)===sign;
     const follow=forwardFlight ? ease(clamp(flight.p)) : 0;
-    const lead=forwardFlight ? flight.from+(flight.to-flight.from)*follow : anchor;
-    if(!flight && (sign>0 ? lead>=entries.length : lead<=0)) return target;
+    const lead=.5+(forwardFlight ? flight.from+(flight.to-flight.from)*follow : anchor);
+    if(!flight && (sign>0 ? lead>=entries.length+.5 : lead<=.5)) return target;
     // The last cover can begin yielding to Studies during its final reveal;
     // holding the document exactly at its edge would introduce another stop.
-    const end=entries.length+(exiting ? follow*.72 : 0);
+    const end=stationCount+(exiting ? follow*.72 : 0);
     const limit=start+clamp(lead+sign*.66,0,end)*unit;
     return sign>0 ? Math.min(target,Math.max(actual,limit)) : Math.max(target,Math.min(actual,limit));
   }
@@ -188,7 +183,7 @@ export function mountProjectIndex(stage) {
     expectedY = scrollY;
     if (motion() && distance>1) {
       const start=scrollY+seq.getBoundingClientRect().top-header;
-      expectedY=Math.max(0,Math.round(start + (station===entries.length ? station-.09 : station)*distance/entries.length));
+      expectedY=Math.max(0,Math.round(start + (station ? station+.5 : 0)*distance/stationCount));
       // The scene is pinned at both positions. Move its document coordinate
       // directly; the selection animates only the two requested projects.
       window.scrollTo({top:expectedY,behavior:"instant"});
@@ -198,7 +193,7 @@ export function mountProjectIndex(stage) {
       if(clipped < -1) window.scrollBy({top:clipped,behavior:"instant"});
       expectedY=scrollY;
     }
-    natural=Math.max(1,station);
+    natural=station;
     override(station);
     const button=choices.children[station];
     if(moveFocus) button.focus({preventScroll:true});
@@ -245,8 +240,7 @@ export function mountProjectIndex(stage) {
     clearTimeout(hoverTimer);
     if (!manual?.hover || panel.contains(document.activeElement)) return;
     manual=null;
-    if(raw===0 || raw>=.83 && raw<1) turn(raw===0 ? 0 : 1,true);
-    else scrollScene(raw);
+    scrollScene(raw);
   });
   // The displayed cover is also a directly scrubbable stack on a phone.
   cover.addEventListener("pointerdown", event => {
@@ -281,7 +275,7 @@ export function mountProjectIndex(stage) {
   return {
     constrainWheel,
     travel(progress) {
-      raw=clamp(progress)*entries.length;
+      raw=clamp(progress)*stationCount;
       if(manual && Math.abs(scrollY-expectedY) < 2) return;
       if(manual && !motion()) return;
       manual=null;
@@ -293,7 +287,7 @@ export function mountProjectIndex(stage) {
       stopTween(); clearTimeout(hoverTimer); manual=null;
       if (state && Number.isInteger(state.index) && (state.indexManual !== false || !motion())) {
         expectedY=scrollY; const station=clamp(state.index+1,0,entries.length);
-        manual={station,hover:false};natural=Math.max(1,station);rest(station);
+        manual={station,hover:false};natural=station;rest(station);
       } else scrollScene(raw,true);
     }
   };

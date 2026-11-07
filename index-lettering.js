@@ -5,17 +5,19 @@ const px = n => n.toFixed(3) + "px";
 // A Range follows the actual line breaks, including balanced headings and
 // words wrapped mid-word. Mixed fonts or bidi runs can yield several fragments
 // on the same line; their union defines one independent wipe.
-function renderedLines(label, style) {
+function renderedLines(label, style, measure) {
   const box = label.getBoundingClientRect();
   if (!box.width || !box.height || !label.firstChild) return [];
-  const width = parseFloat(style.width) || box.width;
-  const height = parseFloat(style.height) || box.height;
+  const contentBox = style.boxSizing !== "border-box";
+  const width = (parseFloat(style.width) || box.width) + (contentBox ? parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) : 0);
+  const height = (parseFloat(style.height) || box.height) + (contentBox ? parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) : 0);
   const sx = width / box.width, sy = height / box.height;
   const tolerance = (parseFloat(style.lineHeight) || parseFloat(style.fontSize)) * .5;
   const range = label.ownerDocument.createRange();
   range.selectNodeContents(label);
   const fragments = [...range.getClientRects()].filter(r => r.width > 0 && r.height > 0)
     .map(r => ({ x: (r.left - box.left) * sx, right: (r.right - box.left) * sx,
+      top: (r.top - box.top) * sy, bottom: (r.bottom - box.top) * sy,
       center: (r.top + r.height / 2 - box.top) * sy }))
     .sort((a, b) => a.center - b.center || a.x - b.x);
   const rows = [];
@@ -24,12 +26,50 @@ function renderedLines(label, style) {
     if (row && Math.abs(row.center - fragment.center) < tolerance) {
       row.x = Math.min(row.x, fragment.x);
       row.right = Math.max(row.right, fragment.right);
-    } else rows.push({ ...fragment });
+      row.top = Math.min(row.top, fragment.top);
+      row.bottom = Math.max(row.bottom, fragment.bottom);
+    } else rows.push({ ...fragment, text: "" });
+  }
+
+  // A line box can be shorter than its glyph ink (.98 leading is intentional).
+  // Range rectangles locate the actual wrapped lines; their text metrics place
+  // the baseline and ink, including fallback fonts and g/p descenders. Reading
+  // each character only happens when the cached typography changes.
+  const node = label.firstChild;
+  let offset = 0;
+  for (const character of node.textContent) {
+    range.setStart(node, offset);
+    offset += character.length;
+    range.setEnd(node, offset);
+    const rect = [...range.getClientRects()].find(r => r.width > 0 && r.height > 0);
+    if (!rect) continue;
+    const center = (rect.top + rect.height / 2 - box.top) * sy;
+    const row = rows.reduce((closest, candidate) => !closest ||
+      Math.abs(candidate.center - center) < Math.abs(closest.center - center) ? candidate : closest, null);
+    if (row) row.text += character;
+  }
+  const fontSize = parseFloat(style.fontSize) || 16;
+  const breathing = Math.max(1.5, fontSize * .035);
+  const horizontalBleed = breathing + Math.max(0, -(parseFloat(style.letterSpacing) || 0));
+  if (measure) measure.font = [style.fontStyle, style.fontWeight, style.fontSize, style.fontFamily].join(" ");
+  for (const row of rows) {
+    const metrics = measure?.measureText(row.text.trim());
+    if (metrics && Number.isFinite(metrics.fontBoundingBoxAscent)) {
+      const baseline = row.top + metrics.fontBoundingBoxAscent;
+      row.inkTop = baseline - metrics.actualBoundingBoxAscent;
+      row.inkBottom = baseline + metrics.actualBoundingBoxDescent;
+    } else {
+      row.inkTop = row.top;
+      row.inkBottom = row.bottom;
+    }
   }
   return rows.map((row, i) => {
-    const top = i ? (rows[i - 1].center + row.center) / 2 : 0;
-    const bottom = i + 1 < rows.length ? (row.center + rows[i + 1].center) / 2 : height;
-    return { x: row.x, y: top, width: row.right - row.x, height: Math.max(1, bottom - top) };
+    // Share only the empty space between adjacent glyph runs. The old
+    // center-to-center partition sliced a descender on a tight first line.
+    const top = i ? Math.max(row.inkTop - breathing, (rows[i - 1].inkBottom + row.inkTop) / 2 + .5) : row.inkTop - breathing;
+    const bottom = i + 1 < rows.length ? Math.min(row.inkBottom + breathing, (row.inkBottom + rows[i + 1].inkTop) / 2 - .5) : row.inkBottom + breathing;
+    return { x: row.x - horizontalBleed, y: top,
+      width: row.right - row.x + 2 * horizontalBleed, height: Math.max(1, bottom - top) };
   });
 }
 
@@ -37,6 +77,7 @@ export function createIndexLettering(titleNode) {
   const doc = titleNode.ownerDocument;
   const win = doc.defaultView;
   const reduced = win.matchMedia("(prefers-reduced-motion: reduce)");
+  const measure = doc.createElement("canvas").getContext("2d");
   const frame = doc.createElement("span");
   frame.className = "index-lettering-frame";
   const label = doc.createElement("span");
@@ -73,10 +114,11 @@ export function createIndexLettering(titleNode) {
 
   function measureRows() {
     const style = win.getComputedStyle(label);
-    const key = [label.textContent, style.width, style.height, style.fontFamily, style.fontSize, style.fontWeight, style.letterSpacing,
+    const key = [label.textContent, style.width, style.height, style.paddingLeft, style.paddingTop,
+      style.fontFamily, style.fontSize, style.fontStyle, style.fontWeight, style.letterSpacing,
       style.lineHeight, style.textAlign, style.textWrap].join("\n");
     if (key === savedKey && rows.length) return;
-    rows = renderedLines(label, style);
+    rows = renderedLines(label, style, measure);
     savedKey = key;
     while (masks.children.length > rows.length) masks.lastElementChild.remove();
     for (const [index, row] of rows.entries()) {
@@ -86,12 +128,12 @@ export function createIndexLettering(titleNode) {
         band.className = "index-lettering-mask";
         masks.append(band);
       }
-      band.style.left = px(row.x);
-      // Keep a sliver of the stage between bands even on tight display type.
-      const inset = Math.min(6, row.height * .075);
-      band.style.top = px(row.y + inset);
+      // The label has paint-only padding canceled by negative margins. Its
+      // masks use that larger border box; the stationary bands use the frame.
+      band.style.left = px(row.x - parseFloat(style.paddingLeft));
+      band.style.top = px(row.y - parseFloat(style.paddingTop));
       band.style.width = px(row.width);
-      band.style.height = px(Math.max(1, row.height - 2 * inset));
+      band.style.height = px(row.height);
     }
   }
 

@@ -31,10 +31,11 @@
 .study-frame { grid-area:1/1; display:block; min-width:0; min-height:0; visibility:hidden; pointer-events:none; }
 .study-frame.is-current { pointer-events:auto; }
 .study-frame video { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
-.study-selector { display:flex; align-items:center; justify-content:flex-end; border-top:1px solid #989892; gap:0; }
+.study-selector { display:flex; position:relative; isolation:isolate; align-items:center; justify-content:flex-end; border-top:1px solid #989892; gap:0; background:var(--stock); }
 .study-selector::before { content:""; margin-right:auto; width:clamp(69px,10vw,185px); height:7px; background:repeating-linear-gradient(90deg,#72726e 0 1px,transparent 1px 8px); }
-.study-selector button { width:50px; height:44px; color:#454542; border:0; border-left:1px solid #b3b3ab; background:none; font:inherit; cursor:pointer; }
-.study-selector button[aria-current] { color:#fff; background:#222224; }
+.study-selector-marker { position:absolute; top:0; left:0; width:50px; height:44px; background:#19191a; opacity:0; pointer-events:none; transition:transform .62s cubic-bezier(.2,.8,.2,1), width .62s cubic-bezier(.2,.8,.2,1), height .62s cubic-bezier(.2,.8,.2,1); }
+.study-selector button { position:relative; width:50px; height:44px; color:#454542; border:0; border-left:1px solid #b3b3ab; background:none; font:inherit; cursor:pointer; }
+.study-selector-label { color:#fff; mix-blend-mode:difference; }
 @media(max-width:760px) {
   .studies-stage { padding-block:clamp(13px,2.5vh,24px) 10px; gap:clamp(8px,1.5vh,16px); }
   .studies-head h2 { font-size:clamp(32px,7.3vw,50px); }
@@ -47,5 +48,5 @@
   .study-aperture { justify-self:center; width:min(100%,calc(max(142px,100svh - var(--header) - 341px)*1.3333)); }
 }
 @media(max-height:620px) and (min-width:761px) { .study-aperture {width:min(100%,530px);} }
-.motion-paused .study-open b {transition:none;}
-@media(prefers-reduced-motion:reduce) { .study-open b {transition:none;} }
+.motion-paused .study-open b, .motion-paused .study-selector-marker {transition:none;}
+@media(prefers-reduced-motion:reduce) { .study-open b, .study-selector-marker {transition:none;} }

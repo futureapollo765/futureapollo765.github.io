@@ -154,6 +154,10 @@ export function mountTimeline() {
     yearNav.append(button);
     return button;
   });
+  const yearIndicator = document.createElement("span");
+  yearIndicator.className = "tl-year-indicator";
+  yearIndicator.setAttribute("aria-hidden", "true");
+  yearNav.append(yearIndicator);
 
   const tall = matchMedia("(min-height: 680px) and (prefers-reduced-motion: no-preference)");
   let pinned = false, controlledX = 0;
@@ -162,6 +166,17 @@ export function mountTimeline() {
   let header = 0;
   let active = -1;
   let frame = 0;
+  let indicatorReady = false;
+
+  function indicateYear() {
+    const button = yearButtons.find(button => Number(button.textContent) === nodes[active]?.year);
+    if (!button) return;
+    yearIndicator.style.transition = indicatorReady ? "" : "none";
+    yearIndicator.style.transform = `translate(${button.offsetLeft}px, ${button.offsetTop + button.offsetHeight - 1}px)`;
+    yearIndicator.style.width = button.offsetWidth + "px";
+    yearIndicator.style.opacity = "1";
+    indicatorReady = true;
+  }
 
   function position(i) {
     const span = cards.at(-1).offsetLeft - cards[0].offsetLeft;
@@ -184,6 +199,7 @@ export function mountTimeline() {
     }
     previous.disabled = distance <= 1;
     next.disabled = distance >= maxScroll - 1;
+    indicateYear();
   }
   function paint() {
     frame = 0;
@@ -255,6 +271,8 @@ export function mountTimeline() {
   window.addEventListener("resize", measure);
   window.addEventListener("studio-motion", measure);
   tall.addEventListener("change", measure);
-  new ResizeObserver(measure).observe(viewport);
+  const resize = new ResizeObserver(measure);
+  resize.observe(viewport);
+  resize.observe(yearNav);
   measure();
 }

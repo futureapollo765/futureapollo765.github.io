@@ -46,7 +46,8 @@
   letter-spacing: -.07em;
   font-weight: 510;
 }
-.tl-years { display: flex; flex-wrap: wrap; gap: 2px 5px; }
+.tl-years { display: flex; position:relative; flex-wrap: wrap; gap: 2px 5px; }
+.tl-year-indicator { position:absolute; top:0; left:0; height:1px; background:var(--tl-ink); opacity:0; pointer-events:none; transition:transform .62s cubic-bezier(.2,.8,.2,1), width .62s cubic-bezier(.2,.8,.2,1); }
 .tl-years button, .tl-controls button {
   display: inline-grid;
   place-items: center;
@@ -63,7 +64,7 @@
   font: 500 12px/1 var(--mono, monospace);
   font-variant-numeric: tabular-nums;
 }
-.tl-years button:is(:hover,[aria-current]) { color: var(--tl-ink); border-color: currentColor; }
+.tl-years button:is(:hover,[aria-current]) { color: var(--tl-ink); }
 #project-timeline :focus-visible { outline: 2px solid #252624; outline-offset: 3px; }
 
 .tl-window {
@@ -214,6 +215,8 @@
   .tl-archive select { font-size: 12px; }
 }
 html.motion-paused .tl-art img { transition: none; transform: none; }
+html.motion-paused .tl-year-indicator { transition:none; }
 @media (prefers-reduced-motion: reduce) {
   .tl-art img, .tl-project:is(:hover,:focus-visible) .tl-art img { transition: none; transform: none; }
+  .tl-year-indicator { transition:none; }
 }

@@ -42,10 +42,14 @@ export function mountStudies() {
   const aperture = stage.querySelector(".study-aperture");
   const notes = stage.querySelector(".study-notes");
   const selector = stage.querySelector(".study-selector");
+  const marker = document.createElement("span");
+  marker.className = "study-selector-marker";
+  marker.setAttribute("aria-hidden", "true");
+  selector.append(marker);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   const save = matchMedia("(prefers-reduced-data: reduce)");
   let pinned = false, header = 0, unit = 0, current = -1, frame = 0, near = false;
-  let manual = 0, position = 0, manualFX = null;
+  let manual = 0, position = 0, manualFX = null, markerReady = false;
 
   const views = records.map(({project, field, copy, film}, i) => {
     const item = document.createElement("article");
@@ -70,7 +74,11 @@ export function mountStudies() {
     video.poster = asset(film + ".webp");
     art.append(video); aperture.append(art);
     const button = document.createElement("button");
-    button.type = "button"; button.textContent = fmt(i+1);
+    button.type = "button";
+    const label = document.createElement("span");
+    label.className = "study-selector-label";
+    label.textContent = fmt(i+1);
+    button.append(label);
     button.setAttribute("aria-label", "Show " + project.title + " study");
     button.setAttribute("aria-controls", item.id);
     button.addEventListener("click", () => choose(i));
@@ -79,6 +87,17 @@ export function mountStudies() {
   });
   let hold = .3, end = views.length-1 + hold;
   const motion = () => !reduce.matches && !document.documentElement.classList.contains("motion-paused");
+
+  function indicate() {
+    const button = views[current]?.button;
+    if (!button?.offsetWidth) return;
+    marker.style.transition = markerReady ? "" : "none";
+    marker.style.transform = `translate(${button.offsetLeft}px, ${button.offsetTop}px)`;
+    marker.style.width = button.offsetWidth + "px";
+    marker.style.height = button.offsetHeight + "px";
+    marker.style.opacity = "1";
+    markerReady = true;
+  }
 
   function choose(i) {
     if (pinned) {
@@ -154,6 +173,7 @@ export function mountStudies() {
       const target = views[active].alpha > 0 ? views[active].link : views[active].button;
       target.focus({preventScroll:true});
     }
+    indicate();
   }
   function queue() { if (!frame) frame = requestAnimationFrame(paint); }
   function layout() {
@@ -179,7 +199,10 @@ export function mountStudies() {
   }
   new ResizeObserver(layout).observe(stage);
   new IntersectionObserver(()=>queue()).observe(root);
-  window.addEventListener("scroll",()=>{if (near) queue();},{passive:true});
+  // The tall section enters the viewport behind the fixed header. Gating this
+  // listener on `near` leaves it asleep after that first reverse-entry event.
+  // Always sample the scroll position; `near` only controls media playback.
+  window.addEventListener("scroll",queue,{passive:true});
   window.addEventListener("resize",layout);
   window.addEventListener("studio-motion",layout);
   reduce.addEventListener("change",layout);
