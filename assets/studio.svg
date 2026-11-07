@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5" fill="#fff">
+  <title>FutureApollo765 studio mark</title>
+  <defs>
+    <path id="arm" d="M2 0h2v2H3V1H2z"/>
+  </defs>
+  <path d="M2 2h1v1H2z"/>
+  <use href="#arm"/>
+  <use href="#arm" transform="rotate(90 2.5 2.5)"/>
+  <use href="#arm" transform="rotate(180 2.5 2.5)"/>
+  <use href="#arm" transform="rotate(270 2.5 2.5)"/>
+</svg>

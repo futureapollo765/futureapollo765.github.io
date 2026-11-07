@@ -1,0 +1,59 @@
+#studio-intro[hidden] {
+  display: none;
+}
+
+.studio-intro-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  box-sizing: border-box;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  color: #efefef;
+  background: #090909;
+}
+
+.studio-intro-dialog[open] {
+  display: grid;
+  place-items: center;
+}
+
+.studio-intro-dialog::backdrop {
+  background: #090909;
+}
+
+.studio-intro-film {
+  display: block;
+  width: clamp(100px, 14vmin, 152px);
+  height: auto;
+  aspect-ratio: 1;
+  mix-blend-mode: screen;
+}
+
+.studio-intro-skip {
+  position: absolute;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #c2c2c2;
+  font: 500 13px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.studio-intro-skip:hover,
+.studio-intro-skip:focus-visible {
+  color: #fff;
+}
+
+.studio-intro-skip:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 1px;
+}
