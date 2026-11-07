@@ -14,7 +14,8 @@ function createStillFrames(stage, onFrame, active) {
   const failed = new Set();
   function show() {
     const image = loaded.get(target);
-    if (target === visible || (target && !image)) return;
+    if (target === visible) { onFrame(target * 5); return; }
+    if (target && !image) return;
     if (image) stage.append(image);
     mounted?.remove();
     mounted = image ?? null;
@@ -53,7 +54,8 @@ function createStillFrames(stage, onFrame, active) {
 }
 
 function mountTurntable(stage) {
-  const readout = stage.closest("figure")?.querySelector("[data-angle]");
+  const instrument = stage.closest("figure");
+  const readout = instrument?.querySelector("[data-angle]");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   const reduceData = matchMedia("(prefers-reduced-data: reduce)");
   const connection = navigator.connection;
@@ -65,17 +67,24 @@ function mountTurntable(stage) {
   let film = null;
   let ready = false;
   let filmFailed = false;
+  let localFilmURL = null;
+  let bufferingFilm = false;
   let seeking = false;
-  let pointer = null;
-  let pointerX = 0;
-  let pointerAngle = 0;
+  let gesture = null;
+  let coastFrame = 0;
+  let inspectingWithKeys = false;
+  let displayedAngle = 0;
   let idleDelay = 0;
   let fallbackTick = 0;
-  const visible = () => onscreen && !document.hidden;
+  const visible = () => onscreen && !document.hidden && !instrument?.inert && !instrument?.hidden;
   const setReadout = degrees => {
+    displayedAngle = wrap(degrees);
     if (readout) readout.textContent = String(Math.round(wrap(degrees)) % 360).padStart(3, "0") + "°";
   };
-  const showStill = createStillFrames(stage, setReadout, () => visible() && !ready);
+  const showStill = createStillFrames(stage, degrees => {
+    stage.classList.remove("orbit-filmed");
+    setReadout(degrees);
+  }, () => visible() && !ready);
 
   function onFilmFrame(time) {
     if (!film || !visible()) return;
@@ -90,9 +99,14 @@ function mountTurntable(stage) {
     if (filmFailed) return;
     filmFailed = true;
     ready = false;
+    seeking = false;
     const broken = film;
     film = null;
     broken?.dispose();
+    if (localFilmURL) {
+      URL.revokeObjectURL(localFilmURL);
+      localFilmURL = null;
+    }
     stage.classList.remove("orbit-filmed");
     if (visible()) showStill(angle);
     reconcile();
@@ -109,10 +123,44 @@ function mountTurntable(stage) {
       seeking = true;
       applySeek();
       reconcile();
-    }, { once: true });
-    video.addEventListener("seeked", () => { applySeek(); reconcile(); });
+    });
+    video.addEventListener("seeked", () => {
+      // Paint the decoded pose even when a fast gesture has queued a newer
+      // target. Otherwise the object can appear frozen until a flick ends.
+      if (ready && seeking && visible()) film.draw(video.currentTime);
+      applySeek();
+      reconcile();
+    });
     video.preload = "auto";
     video.src = new URL("turntable.mp4", assets).href;
+  }
+
+  async function bufferForSeeking() {
+    // Simple static preview servers can play a film progressively without
+    // supporting byte ranges. Show the nearby stills while making a seekable
+    // local copy, then switch back at the user's chosen angle.
+    if (bufferingFilm) return;
+    if (localFilmURL || reduceData.matches || connection?.saveData) {
+      failFilm();
+      return;
+    }
+    bufferingFilm = true;
+    ready = false;
+    const activeFilm = film;
+    activeFilm.pause();
+    showStill(angle);
+    try {
+      const response = await fetch(new URL("turntable.mp4", assets));
+      if (!response.ok) throw new Error("Could not buffer turntable");
+      const media = await response.blob();
+      if (film !== activeFilm) return;
+      localFilmURL = URL.createObjectURL(media);
+      activeFilm.video.src = localFilmURL;
+    } catch {
+      failFilm();
+    } finally {
+      bufferingFilm = false;
+    }
   }
 
   // Coalesce drag and scroll updates while the decoder is seeking. Preserve the
@@ -122,6 +170,11 @@ function mountTurntable(stage) {
     const video = film.video;
     const target = Math.min(angle / 360 * video.duration, video.duration - 1 / 24);
     if (Math.abs(video.currentTime - target) > .02) {
+      const seekable = video.seekable;
+      if (!seekable.length || target > seekable.end(seekable.length - 1) + .02) {
+        void bufferForSeeking();
+        return;
+      }
       video.currentTime = target;
       return;
     }
@@ -132,10 +185,17 @@ function mountTurntable(stage) {
   function reconcile() {
     clearInterval(fallbackTick);
     fallbackTick = 0;
-    if (!visible()) { film?.pause(); return; }
+    if (!visible()) {
+      stopCoasting();
+      clearGesture();
+      clearIdle();
+      inspectingWithKeys = false;
+      film?.pause();
+      return;
+    }
     if (enabled && !filmFailed) prepareFilm();
     if (seeking) applySeek();
-    const moving = enabled && pointer === null && !idleDelay && !seeking;
+    const moving = enabled && !gesture && !coastFrame && !inspectingWithKeys && !idleDelay && !seeking;
     if (moving && ready) film.play();
     else film?.pause();
     if (moving && filmFailed) {
@@ -151,10 +211,47 @@ function mountTurntable(stage) {
     else showStill(angle);
   }
 
+  function clearIdle() {
+    clearTimeout(idleDelay);
+    idleDelay = 0;
+  }
+
   function deferIdle(delay) {
     clearInterval(fallbackTick);
-    clearTimeout(idleDelay);
-    idleDelay = setTimeout(() => { idleDelay = 0; reconcile(); }, delay);
+    clearIdle();
+    if (enabled && visible()) {
+      idleDelay = setTimeout(() => { idleDelay = 0; reconcile(); }, delay);
+    }
+  }
+
+  function stopCoasting() {
+    cancelAnimationFrame(coastFrame);
+    coastFrame = 0;
+  }
+
+  function coast(velocity) {
+    const speed = Math.abs(velocity);
+    if (!enabled || !visible() || speed < .035) return false;
+    // Friction bleeds off a fast flick over a longer arc than a slow release.
+    // Integrate from the release position so dropped frames do not change the distance.
+    const frictionTime = 160 + 120 * Math.min(speed / .42, 1);
+    const duration = frictionTime * Math.log(speed / .014);
+    const start = angle;
+    const began = performance.now();
+    function step(now) {
+      if (!enabled || !visible()) { stopCoasting(); reconcile(); return; }
+      const elapsed = Math.min(now - began, duration);
+      setAngle(start + velocity * frictionTime * (1 - Math.exp(-elapsed / frictionTime)));
+      if (elapsed < duration) {
+        coastFrame = requestAnimationFrame(step);
+      } else {
+        coastFrame = 0;
+        deferIdle(2800);
+        reconcile();
+      }
+    }
+    coastFrame = requestAnimationFrame(step);
+    return true;
   }
 
   function clearLight() {
@@ -173,7 +270,11 @@ function mountTurntable(stage) {
     stage.dispatchEvent(new CustomEvent("orbitmotionstate", {
       detail: { enabled, reduced: reduce.matches, savingData },
     }));
-    if (!enabled) clearLight();
+    if (!enabled) {
+      stopCoasting();
+      clearIdle();
+      clearLight();
+    }
     reconcile();
   }
 
@@ -186,24 +287,65 @@ function mountTurntable(stage) {
     const next = Math.max(0, Math.min(1, event.detail));
     const delta = next - progress;
     progress = next;
-    if (!delta || !enabled || pointer !== null || !visible()) return;
+    if (!delta || !enabled || gesture || inspectingWithKeys || !visible()) return;
+    stopCoasting();
     deferIdle(160);
     setAngle(angle + delta * 220);
   });
 
+  function clearGesture() {
+    if (!gesture) return;
+    const id = gesture.id;
+    gesture = null;
+    stage.classList.remove("orbit-dragging");
+    if (stage.hasPointerCapture(id)) stage.releasePointerCapture(id);
+  }
+
   stage.addEventListener("pointerdown", event => {
-    if (pointer !== null || event.button !== 0 || !event.isPrimary) return;
-    pointer = event.pointerId;
-    pointerX = event.clientX;
-    pointerAngle = angle;
-    stage.setPointerCapture(pointer);
-    stage.classList.add("orbit-dragging");
+    if (gesture || !event.isPrimary || event.button !== 0) return;
+    stopCoasting();
+    clearIdle();
+    inspectingWithKeys = false;
+    // Start from the pose actually on screen, including when catching a flick.
+    // Wait for horizontal intent before taking control of the pointer.
+    gesture = {
+      id: event.pointerId, x: event.clientX, y: event.clientY, start: displayedAngle,
+      lastX: event.clientX, lastTime: event.timeStamp, speed: 0, dragging: false,
+      degreesPerPixel: 280 / Math.max(stage.clientWidth, 160),
+    };
+    if (event.pointerType === "touch" && stage.hasPointerCapture(event.pointerId)) {
+      stage.releasePointerCapture(event.pointerId);
+    }
+    setAngle(displayedAngle);
     reconcile();
   });
-  stage.addEventListener("pointermove", event => {
-    if (event.pointerId === pointer) {
-      setAngle(pointerAngle + (event.clientX - pointerX) * 280 / Math.max(stage.clientWidth, 160));
+
+  window.addEventListener("pointermove", event => {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const dx = event.clientX - gesture.x;
+    const dy = event.clientY - gesture.y;
+    if (!gesture.dragging) {
+      const threshold = event.pointerType === "touch" ? 8 : 3;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < threshold) return;
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        clearGesture();
+        reconcile();
+        return;
+      }
+      gesture.dragging = true;
+      stage.setPointerCapture(event.pointerId);
+      stage.classList.add("orbit-dragging");
     }
+    const dt = Math.max(1, event.timeStamp - gesture.lastTime);
+    const speed = (event.clientX - gesture.lastX) * gesture.degreesPerPixel / dt;
+    const weight = 1 - Math.exp(-dt / 40);
+    gesture.speed += (Math.max(-.48, Math.min(.48, speed)) - gesture.speed) * weight;
+    gesture.lastX = event.clientX;
+    gesture.lastTime = event.timeStamp;
+    setAngle(gesture.start + dx * gesture.degreesPerPixel);
+  });
+
+  stage.addEventListener("pointermove", event => {
     if (!enabled || event.pointerType === "touch") return;
     const bounds = stage.getBoundingClientRect();
     const x = Math.max(-1, Math.min(1, (event.clientX - bounds.left) / bounds.width * 2 - 1));
@@ -216,14 +358,21 @@ function mountTurntable(stage) {
   });
   stage.addEventListener("pointerleave", clearLight);
   function endGesture(event) {
-    if (event.pointerId !== pointer) return;
-    pointer = null;
-    stage.classList.remove("orbit-dragging");
-    deferIdle(280);
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const { dragging, speed, lastTime } = gesture;
+    if (event.type === "lostpointercapture" && !dragging) return;
+    clearGesture();
+    if (event.type === "pointerup") {
+      const stillFor = Math.max(0, event.timeStamp - lastTime);
+      const releaseSpeed = speed * Math.exp(-stillFor / 55);
+      if (dragging && coast(releaseSpeed)) return;
+      deferIdle(2800);
+    }
+    reconcile();
   }
-  for (const name of ["lostpointercapture", "pointerup", "pointercancel"]) {
-    stage.addEventListener(name, endGesture);
-  }
+  window.addEventListener("pointerup", endGesture);
+  window.addEventListener("pointercancel", endGesture);
+  stage.addEventListener("lostpointercapture", endGesture);
   stage.addEventListener("keydown", event => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     let next;
@@ -232,14 +381,29 @@ function mountTurntable(stage) {
     else if (event.key === "Home") next = 0;
     else return;
     event.preventDefault();
-    deferIdle(850);
+    stopCoasting();
+    clearGesture();
+    clearIdle();
+    inspectingWithKeys = true;
     setAngle(next);
+    reconcile();
+  });
+  stage.addEventListener("blur", () => {
+    if (!inspectingWithKeys) return;
+    inspectingWithKeys = false;
+    deferIdle(1800);
+    reconcile();
   });
 
   new IntersectionObserver(([entry]) => {
     onscreen = entry.isIntersecting;
     reconcile();
   }).observe(stage);
+  if (instrument) {
+    new MutationObserver(reconcile).observe(instrument, {
+      attributes: true, attributeFilter: ["inert", "hidden"],
+    });
+  }
   document.addEventListener("visibilitychange", reconcile);
   reduce.addEventListener("change", updatePreference);
   reduceData.addEventListener("change", updatePreference);

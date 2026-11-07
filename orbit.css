@@ -1,6 +1,6 @@
 [data-orbit] {
   cursor: grab;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -60,4 +60,8 @@
 
 [data-orbit][data-motion="paused"] > :is(.orbit-still, .orbit-turn-frame, .orbit-film-frame) {
   transition: none;
+}
+
+[data-orbit].orbit-dragging > :is(.orbit-still, .orbit-turn-frame, .orbit-film-frame) {
+  transition-duration: 70ms;
 }
