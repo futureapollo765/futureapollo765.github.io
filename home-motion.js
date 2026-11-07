@@ -1,5 +1,6 @@
 import { projects } from "./project-data.js";
 import { mountProjectIndex } from "./project-index.js";
+import { interruptScrollMotion } from "./scroll-motion.js";
 
 const home = document.querySelector("#home-view");
 const sequence = home.querySelector(".home-sequence");
@@ -21,15 +22,12 @@ try {
   // The control still works for this visit when storage is unavailable.
 }
 
-export function constrainHomeWheel(target, actual, now) {
-  return index?.constrainWheel(target,actual,now) ?? target;
-}
-
-export function rememberHome() {
-  return { top:window.scrollY, ...index?.snapshot() };
+export function rememberHome(sourceId) {
+  return { top:window.scrollY, ...index?.snapshot(sourceId) };
 }
 
 export function restoreHome(state, scrollToIntro = false) {
+  interruptScrollMotion();
   if (scrollToIntro && enabled && window.scrollY > 0) {
     index?.restore({ index:-1 });
     window.scrollTo({ top:0, behavior:"smooth" });
@@ -113,6 +111,7 @@ window.addEventListener("studio-intro-ended", revealHome);
 window.addEventListener("scroll", refreshHomeMotion, { passive: true });
 window.addEventListener("resize", refreshHomeMotion);
 cue.addEventListener("click", () => {
+  interruptScrollMotion();
   const studies = document.querySelector("#project-studies");
   const destination = studies.hidden ? document.querySelector("#selected-work") : studies;
   if (destination.hidden) {

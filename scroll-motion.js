@@ -1,13 +1,16 @@
-// Scroll the document itself; pinned scenes, the scrollbar, and browser history
-// always see the real position. The browser owns the final glide, so another
-// scroll request can take over without a JavaScript animation competing with it.
+// One animation owns wheel smoothing and writes the real document position.
+// Never mix a native smooth-scroll tail with competing instant frame updates.
 let cancelMounted = null;
 
-export function mountScrollMotion(constrainTarget) {
+export function interruptScrollMotion() {
+  cancelMounted?.();
+}
+
+export function mountScrollMotion() {
   const home = document.querySelector("#home-view");
   const root = document.scrollingElement;
   if (cancelMounted) return cancelMounted;
-  if (!home || !root || !CSS.supports("scroll-behavior", "smooth")) return () => {};
+  if (!home || !root) return () => {};
 
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   let direction = 0;
@@ -16,15 +19,15 @@ export function mountScrollMotion(constrainTarget) {
   let velocity = 0;
   let observed = 0;
   let previousTime = 0;
-
-  function release() {
-    direction = 0;
-    velocity = 0;
-  }
+  let previousFrame = 0;
+  let frame = 0;
+  let rate = 10;
 
   function interrupt() {
-    if (direction) window.scrollTo({top:window.scrollY, behavior:"instant"});
-    release();
+    cancelAnimationFrame(frame);
+    frame = 0;
+    direction = velocity = 0;
+    position = target = observed = window.scrollY;
   }
 
   function available() {
@@ -50,17 +53,53 @@ export function mountScrollMotion(constrainTarget) {
     return false;
   }
 
+  function animate(now) {
+    // Readback identifies our own asynchronous scroll events; it never feeds
+    // browser rounding back into the floating-point spring on the next frame.
+    if (!available() || document.querySelector("dialog[open]") || Math.abs(window.scrollY-observed)>1) {
+      interrupt();
+      return;
+    }
+    const limit=Math.max(0,root.scrollHeight-root.clientHeight);
+    target=Math.max(0,Math.min(limit,target));
+    position=Math.max(0,Math.min(limit,position));
+    const dt=Math.max(0,(now-previousFrame)/1000);
+    previousFrame=now;
+    const offset=position-target, slope=velocity+rate*offset, decay=Math.exp(-rate*dt);
+    const next=target+(offset+slope*dt)*decay;
+    velocity=(velocity-rate*slope*dt)*decay;
+    // Rate changes and browser edge rounding must never move against input.
+    const bounded=Math.max(Math.min(position,target),Math.min(Math.max(position,target),next));
+    if (bounded!==next) velocity=0;
+    position=bounded;
+    // Keep fractional trackpad samples accumulating throughout a gesture,
+    // including samples too small to change a rounded scrollY individually.
+    const settled=Math.abs(target-position)<.1 && Math.abs(velocity)<1 && now-previousTime>=100;
+    if (settled) position=target;
+    window.scrollTo({top:position,behavior:"instant"});
+    observed=window.scrollY;
+    if (settled) { frame=0; direction=velocity=0; }
+    else frame=requestAnimationFrame(animate);
+  }
+
   function wheel(event) {
-    if (!available() || document.querySelector("dialog[open]")) { release(); return; }
-    if (event.defaultPrevented || !event.cancelable || event.buttons ||
+    if (!available() || document.querySelector("dialog[open]")) { interrupt(); return; }
+    if (event.defaultPrevented || event.buttons ||
       event.ctrlKey || event.metaKey || event.shiftKey || event.altKey ||
-      !event.deltaY || Math.abs(event.deltaX) >= Math.abs(event.deltaY) || anotherScrollOwner(event)) {
+      anotherScrollOwner(event)) {
+      interrupt();
+      return;
+    }
+    // Empty end-of-gesture notifications carry no new input. Let the spring
+    // finish its damping tail instead of truncating the remaining travel.
+    if (event.deltaX === 0 && event.deltaY === 0) return;
+    if (!event.cancelable || !event.deltaY || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) {
       interrupt();
       return;
     }
     const actual = window.scrollY;
     const limit = Math.max(0, root.scrollHeight - root.clientHeight);
-    if (actual < 0 || actual > limit || !limit) { release(); return; }
+    if (actual < 0 || actual > limit || !limit) { interrupt(); return; }
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? root.clientHeight : 1;
     const now = performance.now();
     const raw = Math.abs(event.deltaY);
@@ -70,36 +109,21 @@ export function mountScrollMotion(constrainTarget) {
     if (!Number.isFinite(delta)) return;
 
     const sign = Math.sign(delta);
-    const fresh = sign !== direction || now - previousTime > 550 ||
-      (actual - observed) * sign < -.5 || (actual - target) * sign > .5;
-    let nextPosition = actual;
+    const fresh = !frame || sign !== direction || now-previousTime>550 || Math.abs(actual-observed)>1;
     if (fresh) {
-      // Reverse at the visible position, dropping the undelivered old impulse.
-      target = actual;
+      // Cancel any one-shot native glide (for example a section link) once,
+      // then let this RAF be the sole owner. Reversal drops the old impulse.
+      window.scrollTo({top:actual,behavior:"instant"});
+      position = target = observed = window.scrollY;
       velocity = 0;
-      if (!direction) nextPosition += sign * Math.min(5, Math.abs(delta) * .025);
-    } else {
-      // Retargeting native smooth scrolling on every trackpad sample can keep
-      // restarting its first frame. Integrate the critically damped spring
-      // through the actual elapsed time, then let the compositor carry the tail.
-      const dt = (now - previousTime) / 1000;
-      const rate = precise ? 10 : 13;
-      const offset = position - target;
-      const slope = velocity + rate * offset;
-      const decay = Math.exp(-rate * dt);
-      const integrated = target + (offset + slope * dt) * decay;
-      velocity = (velocity - rate * slope * dt) * decay;
-      if ((integrated - actual) * sign > .5) nextPosition = integrated;
+      previousFrame=now;
     }
 
-    const proposed = Math.max(0, Math.min(limit, target + delta));
-    const adjusted = constrainTarget?.(proposed, actual, now);
-    const destination = Number.isFinite(adjusted) ? Math.max(0, Math.min(limit, adjusted)) : proposed;
+    // Document position selects the index station. Presentation animations
+    // must never clamp wheel travel or build a queue of skipped stages.
+    const destination = Math.max(0, Math.min(limit, target + delta));
     if (Math.abs(destination - actual) < .01) {
-      // At a scene boundary, later events in this burst must not pass through
-      // and move the page beyond the allowed station. Natural document edges
-      // retain their ordinary browser behavior.
-      if (destination !== proposed) event.preventDefault();
+      // Natural document edges retain their ordinary browser behavior.
       interrupt();
       return;
     }
@@ -107,11 +131,9 @@ export function mountScrollMotion(constrainTarget) {
     event.preventDefault();
     previousTime = now;
     direction = sign;
-    position = Math.min(Math.max(nextPosition, Math.min(actual, destination)), Math.max(actual, destination));
-    if (position !== actual) window.scrollTo({top:position, behavior:"instant"});
-    observed = window.scrollY;
+    rate=precise ? 10 : 13;
     target = destination;
-    window.scrollTo({top:target, behavior:"smooth"});
+    if (!frame) frame=requestAnimationFrame(animate);
   }
 
   // Keep the document-level nonpassive wheel listener off the map and off
@@ -120,13 +142,10 @@ export function mountScrollMotion(constrainTarget) {
     window.removeEventListener("wheel", wheel);
     if (available()) {
       window.addEventListener("wheel", wheel, {passive:false});
-    }
+    } else interrupt();
   }
   window.addEventListener("scroll", () => {
-    if (!direction) return;
-    const actual = window.scrollY;
-    if ((actual - observed) * direction < -.5 || (actual - target) * direction >= -.5) release();
-    observed = actual;
+    if (frame && Math.abs(window.scrollY-observed)>1) interrupt();
   }, {passive:true});
   // Physical input takes ownership before controls and native navigation.
   // A reading scene may hand off focus with preventScroll as its old note
@@ -137,7 +156,7 @@ export function mountScrollMotion(constrainTarget) {
   for (const event of ["hashchange", "popstate", "pagehide", "pageshow"]) {
     window.addEventListener(event, () => { interrupt(); configure(); });
   }
-  window.addEventListener("resize", release);
+  window.addEventListener("resize", interrupt);
   function settingsChanged() {
     interrupt();
     configure();

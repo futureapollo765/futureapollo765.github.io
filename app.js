@@ -1,4 +1,4 @@
-import { enterHome, rememberHome, restoreHome, constrainHomeWheel } from "./home-motion.js";
+import { enterHome, rememberHome, restoreHome } from "./home-motion.js";
 import { mountSelectedWork } from "./selected.js";
 import { showProjectView, hideProjectView, hasMapPhotoFlight } from "./projects.js";
 import { presentRoute } from "./transition.js";
@@ -19,7 +19,7 @@ let pendingMedia = null;
 mountSelectedWork();
 const restoreStudy = mountStudies();
 mountTimeline();
-const interruptScroll = mountScrollMotion(constrainHomeWheel);
+const interruptScroll = mountScrollMotion();
 
 function renderRoute() {
   const [page, id, action] = location.hash.slice(1).split("/");
@@ -69,7 +69,7 @@ home.addEventListener("click", event => {
     pendingMedia = target.closest(".index-panel") ? "index" :
       target.closest("#project-studies") ? "study" : target.closest(".tl-project") ? "timeline" : null;
     if (!target.id) target.id = "home-origin-" + [...home.querySelectorAll("a")].indexOf(target);
-    history.replaceState({ ...history.state, studioHome:{...rememberHome(), media:pendingMedia, projectId:pendingHomeProject, sourceId:target.dataset.returnFocus || target.id, restoreFocus:event.detail === 0} }, "", location.href);
+    history.replaceState({ ...history.state, studioHome:{...rememberHome(pendingMedia === "index" ? pendingHomeProject : null), media:pendingMedia, projectId:pendingHomeProject, sourceId:target.dataset.returnFocus || target.id, restoreFocus:event.detail === 0} }, "", location.href);
   }
 });
 document.querySelector(".skip-link").addEventListener("click", event => {

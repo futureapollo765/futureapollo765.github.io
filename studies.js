@@ -1,5 +1,6 @@
 import { projects } from "./project-data.js";
 import { redirectIcon } from "./icons.js";
+import { interruptScrollMotion } from "./scroll-motion.js";
 
 // The films show the corresponding public Scratch work running in TurboWarp.
 const chapters = [
@@ -107,6 +108,7 @@ export function mountStudies() {
   }
 
   function choose(i) {
+    interruptScrollMotion();
     if (pinned) {
       const local = (i + hold/2) * unit;
       scrollTo({top:scrollY + root.getBoundingClientRect().top - header + local, behavior:motion() ? "smooth":"instant"});

@@ -1,5 +1,6 @@
 import { favorites, projects } from "./project-data.js";
 import { redirectIcon } from "./icons.js";
+import { interruptScrollMotion } from "./scroll-motion.js";
 
 const dateLabel = new Intl.DateTimeFormat("en-US", {
   month: "short", day: "numeric", year: "numeric", timeZone: "UTC",
@@ -233,6 +234,7 @@ export function mountTimeline() {
     queue();
   }
   function goTo(i, moveFocus = false) {
+    interruptScrollMotion();
     i = clamp(i, cards.length - 1);
     if (moveFocus) cards[i].querySelector("a").focus({preventScroll:true});
     const x = position(i);

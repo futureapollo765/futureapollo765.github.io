@@ -1,5 +1,6 @@
 import { projects } from "./project-data.js";
 import { createIndexLettering } from "./index-lettering.js";
+import { interruptScrollMotion } from "./scroll-motion.js";
 
 const clamp = (x, a=0, b=1) => Math.min(b, Math.max(a, x));
 const ease = x => x*x*(3-2*x);
@@ -7,7 +8,7 @@ const fmt = n => String(n).padStart(2,"0");
 
 // Station zero is the orbit; each subsequent station is an actual shared
 // project. Orbit and every cover get one equal scroll interval and use the
-// same staged spring; each title finishes its handoff before the next.
+// same staged spring. Scroll selects a destination; animation owns the handoff.
 export function mountProjectIndex(stage) {
   const entries = projects.slice(0,6);
   const panel = stage.querySelector(".index-panel");
@@ -27,9 +28,9 @@ export function mountProjectIndex(stage) {
   const images = entries.map(item=>{ const img=new Image(); img.alt="";img.draggable=false;img.decoding="async";img.src=item.thumbnail;return img; });
   choices.style.setProperty("--stations", entries.length+1);
   const measure = document.createElement("canvas").getContext("2d");
-  let active = -1, shown = false, raw = 0, pair = "", lastTitle = null, fromTextWidth = 0;
+  let active = -1, presentedProject = -1, shown = false, raw = 0, pair = "", lastTitle = null, fromTextWidth = 0;
   let transitionFrame = 0, manual = null, expectedY = 0, hoverTimer = 0, swipe = null;
-  let settled = 0, desired = 0, natural = 0, flight = null, jumpDirectly = false;
+  let settled = 0, desired = 0, natural = 0, flight = null;
   let layoutKey = "";
   const peers = [panel.querySelector(".index-kicker"),link,cover];
   const adjustments = new WeakMap();
@@ -53,19 +54,26 @@ export function mountProjectIndex(stage) {
     shown = blend>=.5;
     stage.classList.toggle("is-inspecting",shown);
     panel.inert = !shown; copy.inert = shown; instrument.inert = blend >= .999;
-    const a = Math.max(1,from), b = Math.max(1,to);
-    const current = t<.5 ? from : to, project = entries[Math.max(1,current)-1];
+    // Orbit has no project image. Its fade must use the requested project on
+    // both sides, including direct jumps to covers other than project one.
+    const a = Math.max(1,from || to), b = Math.max(1,to || from);
+    const current = t<.5 ? from : to;
+    const projectNumber = Math.max(1,current || from || to), project = entries[projectNumber-1];
     const layout = [from,to,moving,current].join(":");
     const oldPositions = layout!==layoutKey && lastTitle && motion() && from>0 && to>0 ? peers.map(n=>n.getBoundingClientRect().top) : null;
     layoutKey=layout;
     if (current!==active) {
-      active = current; link.href = cover.href = "#projects/"+project.id;
-      link.setAttribute("aria-label","Open "+project.title);
-      count.textContent = fmt(Math.max(1,current))+" / "+fmt(entries.length);
-      plateNumber.textContent = fmt(Math.max(1,current));
+      active = current;
       for(const [i,button] of [...choices.children].entries()){
         button.setAttribute("aria-pressed",String(i===current));button.tabIndex=i===current?0:-1;
       }
+    }
+    if (projectNumber!==presentedProject) {
+      presentedProject=projectNumber;
+      link.href = cover.href = "#projects/"+project.id;
+      link.setAttribute("aria-label","Open "+project.title);
+      count.textContent = fmt(projectNumber)+" / "+fmt(entries.length);
+      plateNumber.textContent = fmt(projectNumber);
     }
     const mark = from+(to-from)*t;
     choices.style.setProperty("--active-slot",mark.toFixed(5));
@@ -110,21 +118,30 @@ export function mountProjectIndex(stage) {
   function rest(station) {
     stopTween(); settled=desired=station; scene(station,station,1);
   }
-  function turn(station, direct=false) {
-    desired=station; jumpDirectly=direct;
+  function turn(station) {
+    desired=station;
     if (!motion() || document.hidden || stage.closest("[hidden]")) { rest(station); return; }
-    if (flight) return; // Reversals change the existing spring's destination.
+    if (flight) {
+      // Record endpoint intent now, even if another selection arrives before
+      // the next frame. A third destination must not erase a chosen reversal.
+      if (station===flight.from || station===flight.to) flight.end=Number(station===flight.to);
+      return; // Keep only the latest destination; never queue stages.
+    }
     if (settled===station) return;
-    const to = direct ? station : settled+Math.sign(station-settled);
-    const f = flight = {from:settled,to,p:0,v:0,last:performance.now()};
+    const f = flight = {from:settled,to:station,p:0,v:0,last:performance.now(),end:1};
     function tick(now) {
       if (flight!==f) return;
       if (!motion() || document.hidden || stage.closest("[hidden]")) { rest(desired); return; }
-      // Exact critically damped spring. Retarget without dropping velocity;
-      // the outgoing and incoming frames retrace the very same line masks.
-      const end = (desired-f.from)*(f.to-f.from)>0 ? 1 : 0;
+      // Finish the handoff already underway, then go straight to the latest
+      // request. A skipped station must not rewind the current animation.
+      // Only explicitly selecting its source reverses the existing handoff;
+      // further skipped stations retain that intentional direction.
+      const redirected=desired!==f.from && desired!==f.to;
+      if (!redirected) f.end=Number(desired===f.to);
+      const end=f.end;
       const dt=Math.max(0, (now-f.last)/1000); f.last=now;
-      const rate=4.7, offset=f.p-end, slope=f.v+rate*offset, decay=Math.exp(-rate*dt);
+      const rate=redirected ? 16 : 4.7;
+      const offset=f.p-end, slope=f.v+rate*offset, decay=Math.exp(-rate*dt);
       f.p=end+(offset+slope*dt)*decay; f.v=(f.v-rate*slope*dt)*decay;
       const p=ease(clamp(f.p));
       scene(f.from,f.to,p);
@@ -133,7 +150,7 @@ export function mountProjectIndex(stage) {
       } else {
         settled=end ? f.to : f.from; flight=null; transitionFrame=0;
         scene(settled,settled,1);
-        if(desired!==settled) turn(desired,jumpDirectly);
+        if(desired!==settled) turn(desired);
       }
     }
     transitionFrame=requestAnimationFrame(tick);
@@ -146,44 +163,31 @@ export function mountProjectIndex(stage) {
     while(natural>0 && value<=natural-.04) natural--;
     if(immediate) rest(natural); else turn(natural);
   }
-  function override(station, hover=false) {
+  function cancelHover() {
     clearTimeout(hoverTimer);
-    manual={station,hover};
-    turn(station,true);
+    hoverTimer=0;
   }
-  // Let a sustained gesture continue as the visible handoff advances. The
-  // allowance follows the presentation, not an idle timer: there is no need
-  // to release a trackpad or pause a wheel before reaching the next project.
-  function constrainWheel(target, actual) {
+  function override(station) {
+    cancelHover();
+    manual={station};
+    turn(station);
+  }
+  function stationAnchor(station) {
     const distance=seq.offsetHeight-stage.offsetHeight;
-    if(!motion() || !distance || stage.closest("[hidden]")) return target;
+    if (!motion() || distance<=1) return null;
     const start=scrollY+seq.getBoundingClientRect().top-document.querySelector(".site-header").offsetHeight;
-    const unit=distance/stationCount;
-    const pos=(actual-start)/unit;
-    const sign=Math.sign(target-actual);
-    const exiting=sign>0 && flight?.to===entries.length;
-    if(!sign || pos<-.002 || pos>stationCount+(exiting ? .75 : .002)) return target;
-    const anchor=manual && !manual.hover ? manual.station : settled;
-    // Admit the following interval throughout this handoff. Waiting until
-    // its final frames would still flatten a continuous scroll at each edge.
-    const forwardFlight=flight && Math.sign(flight.to-flight.from)===sign;
-    const follow=forwardFlight ? ease(clamp(flight.p)) : 0;
-    const lead=.5+(forwardFlight ? flight.from+(flight.to-flight.from)*follow : anchor);
-    if(!flight && (sign>0 ? lead>=entries.length+.5 : lead<=.5)) return target;
-    // The last cover can begin yielding to Studies during its final reveal;
-    // holding the document exactly at its edge would introduce another stop.
-    const end=stationCount+(exiting ? follow*.72 : 0);
-    const limit=start+clamp(lead+sign*.66,0,end)*unit;
-    return sign>0 ? Math.min(target,Math.max(actual,limit)) : Math.max(target,Math.min(actual,limit));
+    return Math.max(0,Math.round(start+(station ? station+.5 : 0)*distance/stationCount));
   }
   function choose(index, moveFocus=false) {
+    // Hover has no click/keydown event to relinquish an older wheel glide.
+    // Clear that accumulator before anchoring any control-driven selection.
+    interruptScrollMotion();
     const station = index+1;
-    const distance = seq.offsetHeight-stage.offsetHeight;
     const header = document.querySelector(".site-header").offsetHeight;
+    const anchor = stationAnchor(station);
     expectedY = scrollY;
-    if (motion() && distance>1) {
-      const start=scrollY+seq.getBoundingClientRect().top-header;
-      expectedY=Math.max(0,Math.round(start + (station ? station+.5 : 0)*distance/stationCount));
+    if (anchor!==null) {
+      expectedY=anchor;
       // The scene is pinned at both positions. Move its document coordinate
       // directly; the selection animates only the two requested projects.
       window.scrollTo({top:expectedY,behavior:"instant"});
@@ -216,11 +220,12 @@ export function mountProjectIndex(stage) {
     button.addEventListener("click", () => choose(index));
     button.addEventListener("pointerenter", event => {
       if (!fine.matches || event.pointerType === "touch" || choices.contains(document.activeElement) && document.activeElement.matches(":focus-visible") || panel.contains(document.activeElement)) return;
-      clearTimeout(hoverTimer);
-      // Cross the ruler freely. Only a deliberate hover changes the plate.
-      hoverTimer = setTimeout(() => { expectedY=scrollY; override(i,true); }, 110);
+      cancelHover();
+      // Hover uses the same document anchor as a click. The next wheel gesture
+      // therefore continues from this station instead of an old scroll stage.
+      hoverTimer = setTimeout(() => choose(index), 110);
     });
-    button.addEventListener("pointerleave", () => clearTimeout(hoverTimer));
+    button.addEventListener("pointerleave", cancelHover);
   }
   choices.addEventListener("keydown", event => {
     const i = [...choices.children].indexOf(event.target);
@@ -236,12 +241,14 @@ export function mountProjectIndex(stage) {
     if (next === undefined) return;
     event.preventDefault(); choose(next - 1, true);
   });
-  stage.addEventListener("pointerleave", () => {
-    clearTimeout(hoverTimer);
-    if (!manual?.hover || panel.contains(document.activeElement)) return;
-    manual=null;
-    scrollScene(raw);
-  });
+  stage.addEventListener("pointerleave", cancelHover);
+  // Physical scrolling takes precedence over a delayed hover. Ignore the
+  // programmatic anchor scroll generated by choosing a station itself.
+  window.addEventListener("wheel", cancelHover, {capture:true,passive:true});
+  window.addEventListener("touchstart", cancelHover, {passive:true});
+  window.addEventListener("scroll", () => {
+    if (!manual || Math.abs(scrollY-expectedY)>=2) cancelHover();
+  }, {passive:true});
   // The displayed cover is also a directly scrubbable stack on a phone.
   cover.addEventListener("pointerdown", event => {
     if (!event.isPrimary || event.button !== 0) return;
@@ -273,7 +280,6 @@ export function mountProjectIndex(stage) {
   deck.hidden = false;
   scrollScene(0);
   return {
-    constrainWheel,
     travel(progress) {
       raw=clamp(progress)*stationCount;
       if(manual && Math.abs(scrollY-expectedY) < 2) return;
@@ -282,12 +288,24 @@ export function mountProjectIndex(stage) {
       const offscreen=stage.getBoundingClientRect().bottom <= document.querySelector(".site-header").offsetHeight;
       scrollScene(raw,offscreen);
     },
-    snapshot() {return {index:active-1, indexManual:!!manual};},
+    snapshot(sourceId) {
+      const source=entries.findIndex(project=>project.id===sourceId)+1;
+      const station=source || (manual?.station ?? natural);
+      const state={index:station-1,indexManual:source>0 || !!manual};
+      // A link may be activated while the old cover is still exiting. Back
+      // must restore that clicked cover, not the newer scroll destination.
+      // Align only this interrupted source to its own document interval.
+      if (source && source!==natural) {
+        const anchor=stationAnchor(source);
+        if (anchor!==null) state.top=anchor;
+      }
+      return state;
+    },
     restore(state) {
       stopTween(); clearTimeout(hoverTimer); manual=null;
       if (state && Number.isInteger(state.index) && (state.indexManual !== false || !motion())) {
         expectedY=scrollY; const station=clamp(state.index+1,0,entries.length);
-        manual={station,hover:false};natural=station;rest(station);
+        manual={station};natural=station;rest(station);
       } else scrollScene(raw,true);
     }
   };
