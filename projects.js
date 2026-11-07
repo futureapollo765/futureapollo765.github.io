@@ -15,6 +15,8 @@ const modulo = (value, n) => ((value % n) + n) % n;
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 const minZoom = .65;
 const maxZoom = 1.9;
+const dragGain = 2;
+const dragResponse = 42; // Damping rate per second.
 const routeFor = (project) => `#projects/${project.id}`;
 const tiles = new Map();
 // Place a varied group of the studio's actual projects in the opening chunk.
@@ -40,9 +42,11 @@ let focusedProject, selectedId, centeredProject;
 let layout, gesture, entryBounds, entryCell, selectedCell;
 let surface, zoomLabel, zoomOut, zoomIn;
 let aim, previousPose, pinch, returningPhoto, hoverTile, pressedTile, mapExit;
+let dragSpring, detailPress;
 const touches = new Map();
 const drift = { x: 0, y: 0 };
 let assembled = false;
+let minimizing = false;
 let renderFrame = 0, coastFrame = 0, statusTimer = 0;
 let suppressClickUntil = 0;
 let motionAllowed = !document.documentElement.classList.contains("motion-paused");
@@ -84,6 +88,7 @@ export function hasMapPhotoFlight(nextViewKey) {
 function syncMotion() {
   root.dataset.motion = canMove() ? "on" : "off";
   if (!canMove()) {
+    if (dragSpring) Object.assign(camera, dragSpring.target);
     stopCoasting();
     clearLook();
     clearPress();
@@ -157,6 +162,11 @@ function mount() {
   detailTitle = root.querySelector(".projects-detail-title");
   playLink = root.querySelector(".projects-play");
   sourceLink = root.querySelector(".projects-source");
+  document.addEventListener("pointerdown", beginDetailPress);
+  document.addEventListener("pointermove", trackDetailPress, { passive: true });
+  document.addEventListener("pointerup", endDetailPress);
+  document.addEventListener("pointercancel", () => { detailPress = null; });
+  document.addEventListener("click", clickOutsidePhoto);
 
   for (const project of projects) picker.add(new Option(project.title, String(project.id)));
   if (projects.length < 2) {
@@ -230,7 +240,7 @@ function mount() {
     }
     if (event.key === "Escape" && focusedProject && !dialog?.open && !root.hidden) {
       event.preventDefault();
-      backToMap();
+      minimizeDetail();
     }
   });
   new ResizeObserver(() => {
@@ -411,16 +421,11 @@ function centerOn(index) {
   camera.y = target.y;
 }
 
-function panBy(dx, dy) {
-  camera.x += dx / layout.stepX;
-  camera.y += dy / layout.stepY;
-  queueRender();
-}
-
 function stopCoasting() {
   cancelAnimationFrame(coastFrame);
   coastFrame = 0;
   aim = null;
+  dragSpring = null;
 }
 
 function glideTo(x, y, zoom, response = 76, anchor = null) {
@@ -499,8 +504,7 @@ function zoomAtPointer(event, unit) {
   glideTo(targetX, targetY, zoom, 46, { x, y, px, py });
 }
 
-// Images spring a short distance within their cells as the camera moves.
-// The underlying links continue to follow drag coordinates exactly.
+// Images drift a short distance within their cells as the camera moves.
 function updateDrift() {
   const now = performance.now();
   const elapsed = previousPose ? now - previousPose.time : Infinity;
@@ -530,6 +534,58 @@ function pinchMetrics() {
   };
 }
 
+function startPointerTrack(id, x, y, dragging = false) {
+  gesture = { id, x, y, fromX: camera.x, fromY: camera.y, dragging };
+}
+
+// The exact critically damped solution gives the same response across frame
+// rates. Its velocity carries through release, settling at the drag target.
+function sampleDragSpring(now) {
+  const dt = Math.max(0, now - dragSpring.time) / 1000;
+  if (!dt) return;
+  const decay = Math.exp(-dragResponse * dt);
+  for (const axis of ["x", "y"]) {
+    const offset = camera[axis] - dragSpring.target[axis];
+    const slope = dragSpring.velocity[axis] + dragResponse * offset;
+    camera[axis] = dragSpring.target[axis] + (offset + slope * dt) * decay;
+    dragSpring.velocity[axis] = (dragSpring.velocity[axis] - dragResponse * slope * dt) * decay;
+  }
+  dragSpring.time = now;
+}
+
+function animateDrag(now) {
+  coastFrame = 0;
+  if (!dragSpring) return;
+  sampleDragSpring(now);
+  const distance = Math.hypot((dragSpring.target.x - camera.x) * layout.stepX, (dragSpring.target.y - camera.y) * layout.stepY);
+  const speed = Math.hypot(dragSpring.velocity.x * layout.stepX, dragSpring.velocity.y * layout.stepY);
+  if (distance < .1 && speed < 4) {
+    Object.assign(camera, dragSpring.target);
+    dragSpring = null;
+  } else coastFrame = requestAnimationFrame(animateDrag);
+  queueRender();
+}
+
+function steerDrag(clientX, clientY) {
+  const x = gesture.fromX + dragGain * (gesture.x - clientX) / layout.stepX;
+  const y = gesture.fromY + dragGain * (gesture.y - clientY) / layout.stepY;
+  if (!canMove()) {
+    camera.x = x;
+    camera.y = y;
+    queueRender();
+    return;
+  }
+  const now = performance.now();
+  if (dragSpring) {
+    sampleDragSpring(now);
+    Object.assign(dragSpring.target, { x, y });
+  } else {
+    stopCoasting();
+    dragSpring = { target: { x, y }, velocity: { x: 0, y: 0 }, time: now };
+  }
+  if (!coastFrame) coastFrame = requestAnimationFrame(animateDrag);
+}
+
 function startDrag(event) {
   if (projects.length < 2 || event.button !== 0) return;
   clearLook();
@@ -552,7 +608,7 @@ function startDrag(event) {
   pressedTile = event.target.closest(".projects-tile");
   pressedTile?.classList.add("is-pressed");
   stopCoasting();
-  gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, time: event.timeStamp, vx: 0, vy: 0, dragging: false };
+  startPointerTrack(event.pointerId, event.clientX, event.clientY);
 }
 
 function moveDrag(event) {
@@ -587,13 +643,7 @@ function moveDrag(event) {
     viewport.setPointerCapture(event.pointerId);
     viewport.classList.add("is-dragging");
   }
-  const elapsed = Math.max(8, event.timeStamp - gesture.time);
-  gesture.vx = .45 * gesture.vx + .55 * dx / elapsed;
-  gesture.vy = .45 * gesture.vy + .55 * dy / elapsed;
-  gesture.x = event.clientX;
-  gesture.y = event.clientY;
-  gesture.time = event.timeStamp;
-  panBy(dx, dy);
+  steerDrag(event.clientX, event.clientY);
 }
 
 function clearLook() {
@@ -616,29 +666,15 @@ function finishDrag(event) {
     viewport.classList.remove("is-dragging");
     if (touches.size) {
       const [id, point] = touches.entries().next().value;
-      gesture = { id, ...point, time: event.timeStamp, vx: 0, vy: 0, dragging: true };
+      startPointerTrack(id, point.x, point.y, true);
     }
     return;
   }
   if (!gesture || gesture.id !== event.pointerId) return;
-  const drag = gesture;
+  const dragged = gesture.dragging;
+  if (dragged && event.type === "pointerup") steerDrag(event.clientX, event.clientY);
   cancelDrag();
-  if (!drag.dragging) return;
-  suppressClickUntil = performance.now() + 200;
-  if (!canMove() || event.type === "pointercancel" || event.timeStamp - drag.time > 100) return;
-  let vx = Math.max(-2.2, Math.min(2.2, drag.vx));
-  let vy = Math.max(-2.2, Math.min(2.2, drag.vy));
-  let last = performance.now();
-  function coast(now) {
-    const dt = Math.min(32, now - last);
-    const decay = Math.exp(-dt / 115);
-    vx *= decay;
-    vy *= decay;
-    panBy(vx * dt, vy * dt);
-    last = now;
-    if (Math.hypot(vx, vy) > .025) coastFrame = requestAnimationFrame(coast);
-  }
-  coastFrame = requestAnimationFrame(coast);
+  if (dragged) suppressClickUntil = performance.now() + 200;
 }
 
 function cancelDrag() {
@@ -689,6 +725,48 @@ function rememberThumbnail(tile) {
 function backToMap() {
   if (history.state?.studioMapFrom === focusedProject?.id) history.back();
   else location.replace("#projects");
+}
+
+function minimizeDetail() {
+  if (!focusedProject || dialog?.open || minimizing) return;
+  minimizing = true;
+  if (history.state?.studioHomeFrom === focusedProject.id) history.back();
+  else backToMap();
+}
+
+function onDetailBackground(event) {
+  if (!focusedProject || root.hidden || detail.hidden || dialog?.open) return false;
+  if (event.target.closest("a, button, input, select, textarea, label, summary, dialog, [contenteditable], [role='button'], [role='link'], .projects-detail-image")) return false;
+  // A shared photo can temporarily sit in a pointer-transparent animation
+  // layer. Its on-screen bounds still belong to the thumbnail.
+  const photo = (document.querySelector(".index-flight") || detailImage).getBoundingClientRect();
+  return event.clientX < photo.left || event.clientX > photo.right ||
+    event.clientY < photo.top || event.clientY > photo.bottom;
+}
+
+function beginDetailPress(event) {
+  detailPress = null;
+  if (!event.isPrimary || event.button !== 0 || !onDetailBackground(event)) return;
+  detailPress = { id: event.pointerId, project: focusedProject, x: event.clientX, y: event.clientY, released: false };
+}
+
+function trackDetailPress(event) {
+  if (detailPress?.id === event.pointerId && Math.hypot(event.clientX - detailPress.x, event.clientY - detailPress.y) > 6) detailPress = null;
+}
+
+function endDetailPress(event) {
+  trackDetailPress(event);
+  if (detailPress?.id !== event.pointerId) return;
+  if (onDetailBackground(event)) detailPress.released = true;
+  else detailPress = null;
+}
+
+function clickOutsidePhoto(event) {
+  const press = detailPress;
+  detailPress = null;
+  if (!press?.released || press.project !== focusedProject || event.defaultPrevented || !event.detail) return;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !onDetailBackground(event)) return;
+  minimizeDetail();
 }
 
 function closePlayerRoute() {
@@ -874,6 +952,8 @@ function openDetail(project) {
 }
 
 export function showProjectView(id, play = false) {
+  detailPress = null;
+  minimizing = false;
   if (!viewport) mount();
   root.hidden = false;
   const project = projects.find((entry) => String(entry.id) === String(id));
@@ -903,6 +983,8 @@ export function showProjectView(id, play = false) {
 }
 
 export function hideProjectView() {
+  detailPress = null;
+  minimizing = false;
   clearLook();
   if (mapExit) finishMapExit();
   clearReturnPhoto();
