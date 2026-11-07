@@ -1,4 +1,4 @@
-import { createOrbitFilm } from "./assets/orbit/film.js";
+import { createOrbitRenderer } from "./assets/orbit/renderer.js";
 
 const assets = new URL("./assets/orbit/", import.meta.url);
 const wrap = angle => ((angle % 360) + 360) % 360;
@@ -64,12 +64,14 @@ function mountTurntable(stage) {
   let onscreen = false;
   let angle = 0;
   let progress = 0;
-  let film = null;
-  let ready = false;
-  let filmFailed = false;
-  let localFilmURL = null;
-  let bufferingFilm = false;
-  let seeking = false;
+  let renderer = null;
+  let preparation = null;
+  let rendererFailed = false;
+  let drawFrame = 0;
+  let lastTime = null;
+  let dirty = true;
+  let needsResize = true;
+  const light = new Float32Array([.5, .5, 0]);
   let gesture = null;
   let coastFrame = 0;
   let inspectingWithKeys = false;
@@ -79,135 +81,99 @@ function mountTurntable(stage) {
   const visible = () => onscreen && !document.hidden && !instrument?.inert && !instrument?.hidden;
   const setReadout = degrees => {
     displayedAngle = wrap(degrees);
-    if (readout) readout.textContent = String(Math.round(wrap(degrees)) % 360).padStart(3, "0") + "°";
+    const value = String(Math.round(displayedAngle) % 360).padStart(3, "0") + "°";
+    if (readout && readout.textContent !== value) readout.textContent = value;
   };
   const showStill = createStillFrames(stage, degrees => {
-    stage.classList.remove("orbit-filmed");
+    stage.classList.remove("orbit-rendered");
     setReadout(degrees);
-  }, () => visible() && !ready);
+  }, () => visible() && !renderer);
 
-  function onFilmFrame(time) {
-    if (!film || !visible()) return;
-    const degrees = wrap(time / film.video.duration * 360);
-    if (!Number.isFinite(degrees)) return;
-    if (!seeking) angle = degrees;
-    stage.classList.add("orbit-filmed");
-    setReadout(degrees);
+  function stopDrawing() {
+    cancelAnimationFrame(drawFrame);
+    drawFrame = 0;
+    lastTime = null;
   }
 
-  function failFilm() {
-    if (filmFailed) return;
-    filmFailed = true;
-    ready = false;
-    seeking = false;
-    const broken = film;
-    film = null;
-    broken?.dispose();
-    if (localFilmURL) {
-      URL.revokeObjectURL(localFilmURL);
-      localFilmURL = null;
-    }
-    stage.classList.remove("orbit-filmed");
+  function failRenderer() {
+    stopDrawing();
+    rendererFailed = true;
+    renderer?.dispose();
+    renderer = null;
+    stage.dataset.engine = "stills";
+    stage.classList.remove("orbit-rendered");
     if (visible()) showStill(angle);
     reconcile();
   }
 
-  function prepareFilm() {
-    if (film || filmFailed) return;
-    film = createOrbitFilm(stage, onFilmFrame, failFilm);
-    if (!film) { filmFailed = true; return; }
-    const video = film.video;
-    video.addEventListener("loadeddata", () => {
-      if (!film) return;
-      ready = true;
-      seeking = true;
-      applySeek();
-      reconcile();
-    });
-    video.addEventListener("seeked", () => {
-      // Paint the decoded pose even when a fast gesture has queued a newer
-      // target. Otherwise the object can appear frozen until a flick ends.
-      if (ready && seeking && visible()) film.draw(video.currentTime);
-      applySeek();
-      reconcile();
-    });
-    video.preload = "auto";
-    video.src = new URL("turntable.mp4", assets).href;
-  }
-
-  async function bufferForSeeking() {
-    // Simple static preview servers can play a film progressively without
-    // supporting byte ranges. Show the nearby stills while making a seekable
-    // local copy, then switch back at the user's chosen angle.
-    if (bufferingFilm) return;
-    if (localFilmURL || reduceData.matches || connection?.saveData) {
-      failFilm();
-      return;
-    }
-    bufferingFilm = true;
-    ready = false;
-    const activeFilm = film;
-    activeFilm.pause();
-    showStill(angle);
+  async function prepareRenderer() {
+    if (renderer || preparation || rendererFailed) return;
+    const controller = new AbortController();
+    preparation = controller;
     try {
-      const response = await fetch(new URL("turntable.mp4", assets));
-      if (!response.ok) throw new Error("Could not buffer turntable");
-      const media = await response.blob();
-      if (film !== activeFilm) return;
-      localFilmURL = URL.createObjectURL(media);
-      activeFilm.video.src = localFilmURL;
+      const prepared = await createOrbitRenderer(stage, failRenderer, controller.signal);
+      if (controller.signal.aborted) { prepared.dispose(); return; }
+      renderer = prepared;
+      stage.dataset.engine = "geometry";
+      dirty = true;
     } catch {
-      failFilm();
+      if (!controller.signal.aborted) failRenderer();
     } finally {
-      bufferingFilm = false;
+      preparation = null;
+      reconcile();
     }
   }
 
-  // Coalesce drag and scroll updates while the decoder is seeking. Preserve the
-  // latest control angle and resume playback from that exact point on release.
-  function applySeek() {
-    if (!ready || !seeking || !visible() || film.video.seeking) return;
-    const video = film.video;
-    const target = Math.min(angle / 360 * video.duration, video.duration - 1 / 24);
-    if (Math.abs(video.currentTime - target) > .02) {
-      const seekable = video.seekable;
-      if (!seekable.length || target > seekable.end(seekable.length - 1) + .02) {
-        void bufferForSeeking();
-        return;
-      }
-      video.currentTime = target;
-      return;
+  function ambient() {
+    return enabled && !gesture && !coastFrame && !inspectingWithKeys && !idleDelay;
+  }
+
+  function draw(now) {
+    drawFrame = 0;
+    if (!visible() || !renderer) { lastTime = null; return; }
+    if (needsResize) { renderer.resize(); needsResize = false; }
+    const moving = ambient();
+    if (moving && lastTime !== null) angle = wrap(angle + Math.min(now - lastTime, 70) * .024);
+    lastTime = moving ? now : null;
+    if (moving || dirty) {
+      renderer.draw(angle, light);
+      stage.classList.add("orbit-rendered");
+      setReadout(angle);
+      dirty = false;
     }
-    seeking = false;
-    film.draw(video.currentTime);
+    if (moving) drawFrame = requestAnimationFrame(draw);
+  }
+
+  function scheduleDraw() {
+    if (visible() && renderer && !drawFrame) drawFrame = requestAnimationFrame(draw);
   }
 
   function reconcile() {
     clearInterval(fallbackTick);
     fallbackTick = 0;
     if (!visible()) {
+      preparation?.abort();
       stopCoasting();
       clearGesture();
       clearIdle();
       inspectingWithKeys = false;
-      film?.pause();
+      stopDrawing();
       return;
     }
-    if (enabled && !filmFailed) prepareFilm();
-    if (seeking) applySeek();
-    const moving = enabled && !gesture && !coastFrame && !inspectingWithKeys && !idleDelay && !seeking;
-    if (moving && ready) film.play();
-    else film?.pause();
-    if (moving && filmFailed) {
+    if (enabled && !rendererFailed) void prepareRenderer();
+    if (renderer) {
+      if (!ambient()) lastTime = null;
+      if (dirty || ambient()) scheduleDraw();
+    } else if (rendererFailed && ambient()) {
       fallbackTick = setInterval(() => { angle = wrap(angle + 5); showStill(angle); }, 208);
     }
   }
 
   function setAngle(next) {
     angle = wrap(next);
-    film?.pause();
-    seeking = ready;
-    if (ready) applySeek();
+    dirty = true;
+    lastTime = null;
+    if (renderer) scheduleDraw();
     else showStill(angle);
   }
 
@@ -259,8 +225,9 @@ function mountTurntable(stage) {
     stage.style.removeProperty("--orbit-y");
     stage.style.removeProperty("--orbit-rx");
     stage.style.removeProperty("--orbit-ry");
-    film?.light(.5, .5, 0);
-    if (ready && visible() && film.video.paused && !seeking) film.draw(film.video.currentTime);
+    light.set([.5, .5, 0]);
+    dirty = true;
+    scheduleDraw();
   }
 
   function updatePreference() {
@@ -271,6 +238,7 @@ function mountTurntable(stage) {
       detail: { enabled, reduced: reduce.matches, savingData },
     }));
     if (!enabled) {
+      preparation?.abort();
       stopCoasting();
       clearIdle();
       clearLight();
@@ -354,7 +322,9 @@ function mountTurntable(stage) {
     stage.style.setProperty("--orbit-y", `${y * 9}px`);
     stage.style.setProperty("--orbit-rx", `${-y * 4}deg`);
     stage.style.setProperty("--orbit-ry", `${x * 6}deg`);
-    film?.light((x + 1) / 2, (y + 1) / 2, 1);
+    light.set([(x + 1) / 2, (y + 1) / 2, 1]);
+    dirty = true;
+    scheduleDraw();
   });
   stage.addEventListener("pointerleave", clearLight);
   function endGesture(event) {
@@ -404,10 +374,16 @@ function mountTurntable(stage) {
       attributes: true, attributeFilter: ["inert", "hidden"],
     });
   }
+  new ResizeObserver(() => {
+    needsResize = true;
+    dirty = true;
+    scheduleDraw();
+  }).observe(stage);
   document.addEventListener("visibilitychange", reconcile);
   reduce.addEventListener("change", updatePreference);
   reduceData.addEventListener("change", updatePreference);
   connection?.addEventListener("change", updatePreference);
+  stage.dataset.engine = "stills";
   updatePreference();
 }
 

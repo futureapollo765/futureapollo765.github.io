@@ -29,7 +29,7 @@
   visibility: hidden;
 }
 
-.orbit-film-frame {
+.orbit-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -39,29 +39,20 @@
   visibility: hidden;
 }
 
-.orbit-film-source {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  width: 1px;
-  height: 1px;
-  opacity: .001;
-  pointer-events: none;
-}
+.orbit-rendered .orbit-canvas { visibility: visible; }
+.orbit-rendered .orbit-still, .orbit-rendered .orbit-turn-frame { visibility: hidden; }
 
-.orbit-filmed .orbit-film-frame { visibility: visible; }
-.orbit-filmed .orbit-still, .orbit-filmed .orbit-turn-frame { visibility: hidden; }
-
-[data-orbit].orbit-object > :is(.orbit-still, .orbit-turn-frame, .orbit-film-frame) {
+[data-orbit].orbit-object > :is(.orbit-still, .orbit-turn-frame, .orbit-canvas) {
   transform: perspective(900px)
     translate3d(var(--orbit-x, 0px), var(--orbit-y, 0px), 0)
     rotateX(var(--orbit-rx, 0deg)) rotateY(var(--orbit-ry, 0deg)) scale(1.075);
   transition: transform 200ms ease-out;
 }
 
-[data-orbit][data-motion="paused"] > :is(.orbit-still, .orbit-turn-frame, .orbit-film-frame) {
+[data-orbit][data-motion="paused"] > :is(.orbit-still, .orbit-turn-frame, .orbit-canvas) {
   transition: none;
 }
 
-[data-orbit].orbit-dragging > :is(.orbit-still, .orbit-turn-frame, .orbit-film-frame) {
+[data-orbit].orbit-dragging > :is(.orbit-still, .orbit-turn-frame, .orbit-canvas) {
   transition-duration: 70ms;
 }

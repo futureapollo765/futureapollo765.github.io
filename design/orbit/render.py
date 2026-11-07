@@ -1,10 +1,12 @@
-"""Build the orbital assembly and render transparent, interactive turntable views.
+"""Build the orbital assembly, compact projection mesh, and studio captures.
 
 Run from the repository root with Blender 5.x and cwebp on PATH:
     blender -b --factory-startup -P design/orbit/render.py -- --output assets/orbit
 """
 
 import argparse
+import gzip
+import struct
 import math
 import shutil
 import subprocess
@@ -22,7 +24,7 @@ parser.add_argument(
 )
 mode = parser.add_mutually_exclusive_group()
 mode.add_argument(
-    "--film", action="store_true", help="Render the 360-frame ambient film with FFmpeg"
+    "--mesh", action="store_true", help="Export the real-time projection mesh"
 )
 mode.add_argument(
     "--frame",
@@ -35,12 +37,7 @@ args = parser.parse_args(
     sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 )
 cwebp = shutil.which("cwebp")
-ffmpeg = shutil.which("ffmpeg")
-if args.film and not ffmpeg:
-    parser.error(
-        "Install FFmpeg with the libx264 encoder to render the turntable film."
-    )
-if not args.film and not cwebp:
+if not args.mesh and not cwebp:
     parser.error(
         "Install the libwebp command-line tools and make cwebp available on PATH."
     )
@@ -94,6 +91,8 @@ def ring_parent(label, normal):
 # Sweep a beveled closed radial profile. The bevels are built into the surface,
 # so edge reflections remain stable across the very shallow machined contours.
 def profile(name, points, parent, mat, start=0, end=FULL_TURN, segments=192):
+    if args.mesh:
+        segments = min(segments, 80)
     closed = abs(end - start - FULL_TURN) < 0.00001
     count = segments if closed else segments + 1
     vertices = []
@@ -487,60 +486,60 @@ def render_view(index, temporary_directory):
     shutil.copyfile(encoded, args.output / name)
 
 
-def render_film(directory):
-    # Store color and its alpha matte side by side in one H.264 stream. Both
-    # halves stay in sync across autoplay, scrubbing and hardware decoders.
-    encoded = directory / "turntable.mp4"
-    command = [
-        ffmpeg,
-        "-hide_banner",
-        "-loglevel",
-        "error",
-        "-y",
-        "-f",
-        "image2pipe",
-        "-framerate",
-        "24",
-        "-c:v",
-        "png",
-        "-i",
-        "pipe:0",
-        "-filter_complex",
-        "[0:v]split[color][mask];[color]format=rgb24[colorout];"
-        "[mask]alphaextract,format=rgb24[matte];[colorout][matte]hstack,format=yuv420p",
-        "-c:v",
-        "libx264",
-        "-preset",
-        "slow",
-        "-crf",
-        "21",
-        "-g",
-        "12",
-        "-bf",
-        "0",
-        "-movflags",
-        "+faststart",
-        "-an",
-        str(encoded),
-    ]
-    scene.render.resolution_x = scene.render.resolution_y = 672
-    scene.cycles.samples = 10
-    png = directory / "view.png"
-    scene.render.filepath = str(png)
-    with subprocess.Popen(command, stdin=subprocess.PIPE) as encoder:
-        for degree in range(360):
-            root.rotation_euler.z = FULL_TURN * degree / 360
-            bpy.ops.render.render(write_still=True)
-            encoder.stdin.write(png.read_bytes())
-        encoder.stdin.close()
-        if encoder.wait():
-            raise RuntimeError("FFmpeg could not encode the turntable film.")
-    shutil.copyfile(encoded, args.output / encoded.name)
+def export_mesh():
+    # The studio captures carry the hairline graduations, brushed surfaces and
+    # engraved text. The proxy retains the rings, guard rails, core and pivots
+    # that define their silhouette and the depth between concentric surfaces.
+    finishes = {
+        material.name: i
+        for i, material in enumerate([silver, rim, black, dark, inset, ceramic])
+    }
+    vertices = {}
+    indices = []
+    bpy.context.view_layer.update()
+    for part in sorted(root.children_recursive, key=lambda obj: obj.name):
+        if (
+            part.type != "MESH"
+            or part.name.startswith("Radial index cut")
+            or "edge lamina" in part.name
+        ):
+            continue
+        mesh = part.data
+        mesh.calc_loop_triangles()
+        finish = finishes[mesh.materials[0].name]
+        local_indices = []
+        for vertex in mesh.vertices:
+            world = part.matrix_world @ vertex.co
+            key = (*[round(value * 10000) for value in world], finish)
+            if key not in vertices:
+                vertices[key] = len(vertices)
+            local_indices.append(vertices[key])
+        # Blender may return tessellated faces in different thread order.
+        triangles = sorted(
+            tuple(local_indices[index] for index in face.vertices)
+            for face in mesh.loop_triangles
+        )
+        for triangle in triangles:
+            indices.extend(triangle)
+
+    index_bytes = 2 if len(vertices) <= 65535 else 4
+    output = bytearray(
+        struct.pack("<4sIII", b"ORB1", len(vertices), len(indices), index_bytes)
+    )
+    for vertex in vertices:
+        output.extend(struct.pack("<4h", *vertex))
+    index_format = "<" + ("H" if index_bytes == 2 else "I")
+    for index in indices:
+        output.extend(struct.pack(index_format, index))
+    (args.output / "assembly.mesh.gz").write_bytes(
+        gzip.compress(output, compresslevel=9, mtime=0)
+    )
+    print(f"Orbital mesh: {len(vertices):,} vertices, {len(indices)//3:,} triangles")
 
 
 with tempfile.TemporaryDirectory() as directory:
-    if args.film:
-        render_film(Path(directory))
+    if args.mesh:
+        export_mesh()
     else:
         for frame in range(72) if args.frame is None else [args.frame]:
             render_view(frame, Path(directory))
