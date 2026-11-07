@@ -15,7 +15,7 @@ const modulo = (value, n) => ((value % n) + n) % n;
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 const minZoom = .65;
 const maxZoom = 1.9;
-const dragGain = 2;
+const dragGain = 3;
 const dragResponse = 42; // Damping rate per second.
 const routeFor = (project) => `#projects/${project.id}`;
 const tiles = new Map();
@@ -535,11 +535,11 @@ function pinchMetrics() {
 }
 
 function startPointerTrack(id, x, y, dragging = false) {
-  gesture = { id, x, y, fromX: camera.x, fromY: camera.y, dragging };
+  gesture = { id, x, y, fromX: camera.x, fromY: camera.y, dragging, samples: [{ x, y, time: performance.now() }] };
 }
 
 // The exact critically damped solution gives the same response across frame
-// rates. Its velocity carries through release, settling at the drag target.
+// rates. Its velocity also gives a continuous handoff into release inertia.
 function sampleDragSpring(now) {
   const dt = Math.max(0, now - dragSpring.time) / 1000;
   if (!dt) return;
@@ -567,6 +567,18 @@ function animateDrag(now) {
 }
 
 function steerDrag(clientX, clientY) {
+  const now = performance.now();
+  const samples = gesture.samples, last = samples.at(-1);
+  const dx = clientX - last.x, dy = clientY - last.y;
+  if (Math.hypot(dx, dy) >= .25) {
+    // A deliberate reversal throws in the new direction, without retaining
+    // the previous stroke's momentum in the velocity estimate.
+    const before = samples.at(-2);
+    if (now - last.time > 100) samples.length = 0;
+    else if (before && dx * (last.x - before.x) + dy * (last.y - before.y) < 0) samples.splice(0, samples.length - 1);
+    samples.push({ x: clientX, y: clientY, time: now });
+    while (samples.length > 2 && samples[1].time < now - 100) samples.shift();
+  }
   const x = gesture.fromX + dragGain * (gesture.x - clientX) / layout.stepX;
   const y = gesture.fromY + dragGain * (gesture.y - clientY) / layout.stepY;
   if (!canMove()) {
@@ -575,7 +587,6 @@ function steerDrag(clientX, clientY) {
     queueRender();
     return;
   }
-  const now = performance.now();
   if (dragSpring) {
     sampleDragSpring(now);
     Object.assign(dragSpring.target, { x, y });
@@ -584,6 +595,51 @@ function steerDrag(clientX, clientY) {
     dragSpring = { target: { x, y }, velocity: { x: 0, y: 0 }, time: now };
   }
   if (!coastFrame) coastFrame = requestAnimationFrame(animateDrag);
+}
+
+function releaseDrag() {
+  if (!canMove() || !dragSpring) return;
+  const now = performance.now(), samples = gesture.samples;
+  const last = samples.at(-1), first = samples[0];
+  const age = now - last.time, elapsed = last.time - first.time;
+  // A stationary hand releases the map where it was put. Pointerup at the
+  // same coordinates does not refresh the last actual movement timestamp.
+  if (age > 85 || elapsed < 8) return;
+  const recency = Math.exp(-Math.max(0, age - 20) / 45);
+  const vx = (first.x - last.x) * dragGain * 1000 / elapsed * recency;
+  const vy = (first.y - last.y) * dragGain * 1000 / elapsed * recency;
+  const speed = Math.hypot(vx, vy);
+  if (speed < 100) return;
+  const scale = Math.min(1, 2400 / speed);
+  const velocity = { x: vx * scale / layout.stepX, y: vy * scale / layout.stepY };
+  const friction = .16 + .055 * Math.min(speed / 1800, 1);
+  sampleDragSpring(now);
+  const target = { ...dragSpring.target };
+  const offset = { x: camera.x - target.x, y: camera.y - target.y };
+  const slope = {
+    x: dragSpring.velocity.x - velocity.x + dragResponse * offset.x,
+    y: dragSpring.velocity.y - velocity.y + dragResponse * offset.y,
+  };
+  stopCoasting();
+  function coast(time) {
+    coastFrame = 0;
+    if (!canMove() || document.hidden || root.hidden || mapView.hidden) return;
+    const elapsed = Math.max(0, time - now) / 1000;
+    const decay = Math.exp(-elapsed / friction), correction = Math.exp(-dragResponse * elapsed);
+    for (const axis of ["x", "y"]) {
+      // The first term is a frictional coast beyond the literal drag target.
+      // The short spring correction preserves position and velocity exactly
+      // at release, even when the pointer was ahead of the rendered map.
+      camera[axis] = target[axis] + velocity[axis] * friction * (1 - decay) +
+        (offset[axis] + slope[axis] * elapsed) * correction;
+    }
+    if (speed * scale * decay < 4) {
+      camera.x = target.x + velocity.x * friction;
+      camera.y = target.y + velocity.y * friction;
+    } else coastFrame = requestAnimationFrame(coast);
+    queueRender();
+  }
+  coastFrame = requestAnimationFrame(coast);
 }
 
 function startDrag(event) {
@@ -672,7 +728,10 @@ function finishDrag(event) {
   }
   if (!gesture || gesture.id !== event.pointerId) return;
   const dragged = gesture.dragging;
-  if (dragged && event.type === "pointerup") steerDrag(event.clientX, event.clientY);
+  if (dragged && event.type === "pointerup") {
+    steerDrag(event.clientX, event.clientY);
+    releaseDrag();
+  }
   cancelDrag();
   if (dragged) suppressClickUntil = performance.now() + 200;
 }
