@@ -10,6 +10,7 @@
   <link rel="preload" href="./assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./orbit.css">
+  <link rel="stylesheet" href="./selected.css">
   <link rel="stylesheet" href="./projects.css">
   <link rel="stylesheet" href="./loader.css">
   <script type="module" src="./loader.js"></script>
@@ -29,15 +30,24 @@
         <a href="#home" data-nav="home" aria-current="page">Home</a>
         <a href="#projects" data-nav="projects">Projects</a>
       </nav>
+      <div class="header-actions">
+        <button class="motion-toggle" type="button" aria-label="Pause motion" title="Pause motion">
+          <svg class="icon pause-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6v12m6-12v12" stroke-width="2.3"/></svg>
+          <svg class="icon resume-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m8 5 10 7-10 7z"/></svg>
+        </button>
       <a class="profile-link" href="https://scratch.mit.edu/users/FutureApollo765/" target="_blank" rel="noopener">Scratch <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 18 18 6M7 6h11v11"/></svg></a>
+      </div>
     </div>
   </header>
   <main id="main-content" tabindex="-1">
     <section id="home-view" class="view home-view" aria-labelledby="home-title">
-      <div class="hero">
+      <div class="home-sequence">
+        <div class="home-stage">
+          <div class="hero">
+            <div class="chapter-type" aria-hidden="true">Projects</div>
         <div class="hero-copy">
           <p class="eyebrow"><span class="signal" aria-hidden="true"></span>Personal showcase</p>
-          <h1 id="home-title" aria-label="FutureApollo765">Future<br>Apollo<span class="hero-number">765</span></h1>
+          <h1 id="home-title" aria-label="FutureApollo765"><span class="word-line"><span>Future</span></span><span class="word-line"><span>Apollo<span class="hero-number">765</span></span></span></h1>
           <p class="intro-copy">I explore interface design and creative coding through interactive projects in Scratch.</p>
           <a class="explore" href="#projects">Explore projects <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12h17m-7-7 7 7-7 7"/></svg></a>
         </div>
@@ -51,17 +61,25 @@
           </div>
           <figcaption class="orbit-caption">
             <span class="orbit-name">Orbital assembly</span>
-            <span class="orbit-instruction"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4"/></svg>Drag to rotate</span>
+            <span class="orbit-instruction"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4"/></svg><span class="drag-hint">Drag to rotate</span><span class="key-hint">Use ← → to rotate</span></span>
             <span class="angle" data-angle>000°</span>
           </figcaption>
         </figure>
-      </div>
-      <section class="featured" aria-labelledby="featured-title">
-        <div class="featured-heading">
-          <h2 id="featured-title">Selected work</h2>
-          <a class="all-projects" href="#projects">View all projects <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></a>
+          </div>
+          <div class="scene-controls">
+            <button type="button" class="scroll-cue">
+              <span class="scroll-wheel" aria-hidden="true"></span>Scroll to explore
+            </button>
+            <span class="scene-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <a class="project-belt" href="#projects" aria-label="Browse the Scratch project gallery">
+            <span class="belt-track" aria-hidden="true"></span>
+            <span class="belt-open" aria-hidden="true">↗</span>
+          </a>
         </div>
-        <div class="selected-works" id="selected-works"></div>
+      </div>
+      <section class="featured" id="selected-work" aria-labelledby="featured-title" tabindex="-1">
+        <div data-selected-work></div>
       </section>
     </section>
     <section id="projects-view" class="view projects-view" aria-labelledby="projects-title" hidden></section>

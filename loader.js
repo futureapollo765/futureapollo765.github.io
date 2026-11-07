@@ -7,7 +7,7 @@ function shouldPlayIntro() {
     return false;
   }
   try {
-    if (sessionStorage.getItem(visitKey)) return false;
+    if (localStorage.getItem("futureapollo.motion") === "paused" || sessionStorage.getItem(visitKey)) return false;
     sessionStorage.setItem(visitKey, "seen");
     return true;
   } catch {
@@ -44,6 +44,7 @@ function playIntro() {
     dialog.close();
     host.hidden = true;
     dialog.remove();
+    window.dispatchEvent(new Event("studio-intro-ended"));
   }
 
   const deadline = setTimeout(dismiss, 3200);

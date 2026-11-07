@@ -20,7 +20,11 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--output", type=Path, required=True, help="Destination for the WebP views"
 )
-parser.add_argument(
+mode = parser.add_mutually_exclusive_group()
+mode.add_argument(
+    "--film", action="store_true", help="Render the 360-frame ambient film with FFmpeg"
+)
+mode.add_argument(
     "--frame",
     type=int,
     choices=range(72),
@@ -31,7 +35,12 @@ args = parser.parse_args(
     sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 )
 cwebp = shutil.which("cwebp")
-if not cwebp:
+ffmpeg = shutil.which("ffmpeg")
+if args.film and not ffmpeg:
+    parser.error(
+        "Install FFmpeg with the libx264 encoder to render the turntable film."
+    )
+if not args.film and not cwebp:
     parser.error(
         "Install the libwebp command-line tools and make cwebp available on PATH."
     )
@@ -478,6 +487,60 @@ def render_view(index, temporary_directory):
     shutil.copyfile(encoded, args.output / name)
 
 
+def render_film(directory):
+    # Store color and its alpha matte side by side in one H.264 stream. Both
+    # halves stay in sync across autoplay, scrubbing and hardware decoders.
+    encoded = directory / "turntable.mp4"
+    command = [
+        ffmpeg,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-y",
+        "-f",
+        "image2pipe",
+        "-framerate",
+        "24",
+        "-c:v",
+        "png",
+        "-i",
+        "pipe:0",
+        "-filter_complex",
+        "[0:v]split[color][mask];[color]format=rgb24[colorout];"
+        "[mask]alphaextract,format=rgb24[matte];[colorout][matte]hstack,format=yuv420p",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "slow",
+        "-crf",
+        "21",
+        "-g",
+        "12",
+        "-bf",
+        "0",
+        "-movflags",
+        "+faststart",
+        "-an",
+        str(encoded),
+    ]
+    scene.render.resolution_x = scene.render.resolution_y = 672
+    scene.cycles.samples = 10
+    png = directory / "view.png"
+    scene.render.filepath = str(png)
+    with subprocess.Popen(command, stdin=subprocess.PIPE) as encoder:
+        for degree in range(360):
+            root.rotation_euler.z = FULL_TURN * degree / 360
+            bpy.ops.render.render(write_still=True)
+            encoder.stdin.write(png.read_bytes())
+        encoder.stdin.close()
+        if encoder.wait():
+            raise RuntimeError("FFmpeg could not encode the turntable film.")
+    shutil.copyfile(encoded, args.output / encoded.name)
+
+
 with tempfile.TemporaryDirectory() as directory:
-    for frame in range(72) if args.frame is None else [args.frame]:
-        render_view(frame, Path(directory))
+    if args.film:
+        render_film(Path(directory))
+    else:
+        for frame in range(72) if args.frame is None else [args.frame]:
+            render_view(frame, Path(directory))

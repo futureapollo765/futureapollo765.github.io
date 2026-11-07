@@ -276,7 +276,7 @@ export default {
       "id": 1294673188,
       "title": "Liquid Glass",
       "author": "FutureApollo765",
-      "thumbnail": "./assets/projects/1294673188.png?v=1793850787",
+      "thumbnail": "./assets/projects/1294673188.webp",
       "embed": "https://turbowarp.org/1294673188/embed"
     },
     {
@@ -773,7 +773,7 @@ export default {
       "id": 926613453,
       "title": "The Hills",
       "author": "FutureApollo765",
-      "thumbnail": "./assets/projects/926613453.png?v=1708047941",
+      "thumbnail": "./assets/projects/926613453.webp",
       "embed": "https://scratch.mit.edu/projects/926613453/embed?autostart=false"
     },
     {
