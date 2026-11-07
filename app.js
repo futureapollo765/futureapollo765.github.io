@@ -1,7 +1,8 @@
-import { enterHome } from "./home-motion.js";
+import { enterHome, rememberHome, restoreHome } from "./home-motion.js";
 import { mountSelectedWork } from "./selected.js";
-import { showProjectView, hideProjectView } from "./projects.js";
+import { showProjectView, hideProjectView, hasMapPhotoFlight } from "./projects.js";
 import { presentRoute } from "./transition.js";
+import { captureIndexFlight } from "./index-flight.js";
 import { projects } from "./project-data.js";
 
 const home = document.querySelector("#home-view");
@@ -27,11 +28,19 @@ function renderRoute() {
   });
 
   document.title = "FutureApollo765 — " + (view === "projects" ? "Projects" : "Home");
-  if (changed) window.scrollTo(0, 0);
+  if (changed && view === "projects") window.scrollTo(0, 0);
   if (fromOtherView) content.focus({ preventScroll: true });
   if (view === "projects") showProjectView(id, action === "play");
   else {
     hideProjectView();
+    if (changed) {
+      const state = history.state?.studioHome;
+      restoreHome(state);
+      if (state?.restoreFocus) {
+        const link = home.querySelector(".index-panel:not([inert]) [data-index-link]");
+        link?.focus({ preventScroll:true });
+      }
+    }
     enterHome();
     if (page === "selected-work") {
       const selectedWork = document.querySelector("#selected-work");
@@ -41,6 +50,14 @@ function renderRoute() {
   }
 }
 
+// Save the scene on the entry we are *leaving*, before the native hash link
+// creates the next entry. Browser Back can then restore its exact project.
+home.addEventListener("click", event => {
+  const target = event.target.closest("a[href^='#projects']");
+  if (target && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+    history.replaceState({ ...history.state, studioHome:{...rememberHome(), restoreFocus:event.detail === 0} }, "", location.href);
+  }
+});
 document.querySelector(".skip-link").addEventListener("click", event => {
   event.preventDefault();
   content.focus();
@@ -48,7 +65,7 @@ document.querySelector(".skip-link").addEventListener("click", event => {
 for (const link of document.querySelectorAll(".site-header [href='#home']")) {
   link.addEventListener("click", () => {
     if (currentView === "home") {
-      window.scrollTo({ top: 0, behavior: document.documentElement.classList.contains("motion-paused") ? "auto" : "smooth" });
+      restoreHome(null, true);
     }
   });
 }
@@ -59,7 +76,8 @@ function navigate() {
     const project = projects.find(item => String(item.id) === id);
     viewKey = project ? "project/" + project.id : "projects";
   }
-  presentRoute(viewKey, renderRoute);
+  const unfold = captureIndexFlight(viewKey);
+  presentRoute(viewKey, () => { renderRoute(); unfold?.(); }, Boolean(unfold) || hasMapPhotoFlight(viewKey));
 }
 
 window.addEventListener("hashchange", navigate);

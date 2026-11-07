@@ -4,10 +4,13 @@ A personal showcase built with static HTML, CSS, and JavaScript. Run `python3 -m
 
 ## Experience
 
-- **Home** pairs the public handle with an original orbital assembly. Scroll to change the composition, drag to rotate the object, or focus it and use the arrow keys. The header motion button remembers a visitor’s preference.
-- **Selected work** shows public Scratch favorites in two continuously moving rows. The upper row fits three project cards across. Hover or focus a card to inspect it, open the original on Scratch, or pause the motion.
-- **Projects** is a repeating two-dimensional map of shared projects. Drag or use the arrow keys to pan. Pinch, use the zoom controls, or press `+` and `−` to change scale. Hover or focus to enlarge a card, then open its project and player. Returning to the map restores the camera position and zoom. A link such as `#projects/1406787990` goes directly to one work.
-- **Intro and transitions** use the supplied recording and a corrected vector mark with exact four-fold rotational symmetry. A fresh home visit plays the clip once per tab. Subsequent page switches use a short logo wipe while the next view appears. Reduced-motion preferences bypass both effects.
+- **Home** pairs the public handle with an original orbital assembly. Drag it to turn, release to let it settle, or grab it again to stop. Keyboard arrows turn it while it has focus. The header motion control remembers a visitor's preference.
+- **Project index** uses the six latest projects in the synced catalog. Scroll from the assembly into the index, or choose a numbered position directly. Hover to preview, tap to select, swipe across the cover to change projects, or use the arrow keys on the index and Enter to open. The cover opens its project; browser Back restores the selected cover and scroll position.
+- **Selected work** shows public Scratch favorites in two continuously moving rows. The upper row fits three cards. Hover for details, drag or swipe either row to scrub, and release to resume its pace. Keyboard arrows browse real links; Enter opens the focused favorite on Scratch.
+- **Projects** is a repeating two-dimensional map of shared projects. Drag or scroll to pan, pinch to zoom around the pointer or your fingers, and use the title picker for a specific project. Arrows move between nearby works; Enter opens the current one. On touch screens, a tap opens a tile and the directional controls are available from the map toolbar.
+- **Intro and transitions** use the supplied recording and the corrected vector mark with four-fold rotational symmetry. A fresh home visit plays the clip once per tab. The mark bridges page switches; when the same thumbnail exists in both views, it expands and returns in place. Map position and zoom survive a round trip. Reduced motion skips these effects while preserving direct manipulation and navigation.
+
+See the [interaction design notes](design/interaction.md) for the live references and behavior decisions.
 
 ## Scratch updates
 

@@ -189,13 +189,6 @@ button { font: inherit; }
 .word-line:last-child { transform: translate3d(calc(7vw * var(--travel)),calc(-3vh * var(--travel)),0); }
 .hero-copy { opacity: clamp(0, 1.15 - var(--travel) * 1.6, 1); }
 .hero-copy:focus-within { opacity: 1; }
-.chapter-type {
-  pointer-events: none; position: absolute; z-index: -1; left: 50%; top: 49%;
-  transform: translate(calc(-12% - var(--travel) * 40%), -50%);
-  color: transparent; -webkit-text-stroke: 1px #b2b2af;
-  font-weight: 560; font-size: clamp(125px, 22vw, 400px); line-height: 1.1; letter-spacing: -.065em;
-  opacity: clamp(0, var(--travel) * 1.4 - .25, .64);
-}
 .instrument { transform: translate3d(calc(var(--travel) * -14vw),calc(var(--travel) * -1svh),0) scale(calc(1 + var(--travel) * .11)); }
 .key-hint { display: none; }
 .instrument:has(.orbit-object:focus-visible) .key-hint { display: inline; }
@@ -213,24 +206,8 @@ button { font: inherit; }
 .scroll-wheel::before { content: ""; position: absolute; left: 4px; top: 3px; height: 4px; width: 2px; background: #ccc; border-radius: 2px; animation: wheel-travel 1.6s ease-in-out infinite; }
 .scene-meter { width: clamp(80px, 13vw, 240px); height: 3px; background: #333334; }
 .scene-meter i { display: block; height: 100%; background: #d7d7d4; transform-origin: left; transform: scaleX(calc(.035 + var(--travel) * .965)); }
-.project-belt {
-  flex: none; display: block; position: relative; overflow: hidden;
-  border-block: 1px solid #3b3b3c; color: #bcbbb9; background: #171718;
-}
-.belt-track { display: flex; width: max-content; animation: belt-travel 55s linear infinite; }
-.belt-group { flex: none; display: flex; }
-.belt-group > span {
-  white-space: nowrap; display: inline-flex; align-items: center;
-  font-size: clamp(23px, 2.15vw, 38px); line-height: 1; font-weight: 480;
-  letter-spacing: -.045em; padding: 17px 0;
-}
-.belt-group > span::after { content: ""; width: 5px; height: 5px; margin: 0 30px; background: #777; transform: rotate(45deg); }
-.belt-open { position: absolute; inset: 0 0 0 auto; width: 62px; display: grid; place-content: center; background: #1a1a1b; border-left: 1px solid #454546; font-size: 20px; }
-.project-belt:is(:hover, :focus-visible) .belt-track { animation-play-state: paused; }
-.project-belt:hover .belt-open { background: var(--ink); color: var(--paper); }
 #selected-work { position: relative; z-index: 1; scroll-margin-top: var(--header); outline: none; }
 #selected-work:target { min-height: calc(100svh - var(--header)); display: grid; align-content: center; }
-@keyframes belt-travel { to { transform: translate3d(-50%,0,0); } }
 @keyframes wheel-travel { 0%, 90%, 100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(6px); opacity: 1; } }
 @keyframes type-arrive { from { opacity: 0; transform: translateY(.55em); clip-path: inset(0 0 100%); } to { opacity: 1; transform: none; clip-path: inset(-5% -5% -26%); } }
 @keyframes instrument-arrive { from { opacity: 0; translate: 24px 8px; } to { opacity: 1; translate: 0 0; } }
@@ -241,7 +218,7 @@ button { font: inherit; }
 }
 .motion-paused .home-sequence::after { height: 0; }
 .motion-paused .home-stage { position: relative; top: auto; }
-.motion-paused .belt-track, .motion-paused .scroll-wheel::before { animation-play-state: paused; }
+.motion-paused .scroll-wheel::before { animation-play-state: paused; }
 .motion-paused .brand img { transition: none; transform: none; }
 @media (max-width: 680px) {
   :root { --header: 65px; }
@@ -252,10 +229,6 @@ button { font: inherit; }
   .scene-controls { margin-bottom: 6px; }
   .instrument { transform: translate3d(0,calc(var(--travel) * -10svh),0) scale(calc(1 + var(--travel) * .12)); }
   .word-line:first-child { transform: translate3d(calc(-18vw * var(--travel)),calc(-2vh * var(--travel)),0); }
-  .chapter-type { top: 49%; }
-  .belt-group > span { padding-block: 13px; }
-  .belt-group > span::after { margin-inline: 20px; }
-  .belt-open { width: 38px; }
   .eyebrow { margin-bottom: 14px; }
 }
 @media (max-width: 370px) {
@@ -269,7 +242,7 @@ button { font: inherit; }
   .home-sequence::after { height: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .belt-track, .scroll-wheel::before { animation: none; }
+  .scroll-wheel::before { animation: none; }
   .home-stage { position: relative; top: auto; }
   .home-sequence::after { height: 0; }
 }

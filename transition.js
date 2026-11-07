@@ -88,7 +88,7 @@ function reveal(start = covered, direct = false) {
  * Keep the latest route request during a wipe. Routes with the same visual
  * identity (including opening and closing its player) render immediately.
  */
-export function presentRoute(key, render) {
+export function presentRoute(key, render, sharedPhoto = false) {
   const request = { key, render, hash: location.hash };
   if (!allowsMotion()) { settle(request); return; }
 
@@ -106,7 +106,7 @@ export function presentRoute(key, render) {
     return;
   }
 
-  if (key === paintedKey) {
+  if (key === paintedKey || sharedPhoto) {
     pending = null;
     // Back to the still-visible view, an anchor, or a modal-only change.
     // Drop an interrupted wipe so the destination is usable immediately.

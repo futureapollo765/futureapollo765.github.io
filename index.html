@@ -10,6 +10,7 @@
   <link rel="preload" href="./assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./orbit.css">
+  <link rel="stylesheet" href="./project-index.css">
   <link rel="stylesheet" href="./selected.css">
   <link rel="stylesheet" href="./projects.css">
   <link rel="stylesheet" href="./map-surface.css">
@@ -46,7 +47,6 @@
       <div class="home-sequence">
         <div class="home-stage">
           <div class="hero">
-            <div class="chapter-type" aria-hidden="true">Projects</div>
         <div class="hero-copy">
           <p class="eyebrow"><span class="signal" aria-hidden="true"></span>Personal showcase</p>
           <h1 id="home-title" aria-label="FutureApollo765"><span class="word-line"><span>Future</span></span><span class="word-line"><span>Apollo<span class="hero-number">765</span></span></span></h1>
@@ -67,17 +67,28 @@
             <span class="angle" data-angle>000°</span>
           </figcaption>
         </figure>
+        <section class="index-panel" aria-label="Project preview" inert>
+          <div class="index-copy">
+            <p class="index-kicker"><i aria-hidden="true"></i> Project index <span data-index-count></span></p>
+            <h2 class="index-title" data-index-title></h2>
+            <a class="index-open" data-index-link>Open project <span aria-hidden="true">↗</span></a>
+          </div>
+          <a class="index-plate" data-index-cover tabindex="-1" aria-hidden="true">
+            <div class="index-image-window"></div>
+            <span class="index-plate-label" aria-hidden="true"><span>Scratch</span><i></i><span class="index-swipe-hint"><span class="pointer-word">Drag</span><span class="touch-word">Swipe</span> to browse ↔</span><span data-plate-number></span></span>
+          </a>
+        </section>
           </div>
           <div class="scene-controls">
             <button type="button" class="scroll-cue">
-              <span class="scroll-wheel" aria-hidden="true"></span>Scroll to explore
+              <span class="scroll-wheel" aria-hidden="true"></span>Selected work
             </button>
-            <span class="scene-meter" aria-hidden="true"><i></i></span>
+            <span class="index-legend" aria-hidden="true">Project index <span class="scene-meter"><i></i></span></span>
           </div>
-          <a class="project-belt" href="#projects" aria-label="Browse the Scratch project gallery">
-            <span class="belt-track" aria-hidden="true"></span>
-            <span class="belt-open" aria-hidden="true">↗</span>
-          </a>
+          <div class="project-deck" hidden>
+            <div class="deck-choices" role="group" aria-label="Home project index" aria-description="Use the arrow keys to preview a project. Enter opens it."></div>
+            <a class="deck-map" href="#projects" aria-label="Explore the full project map">Map <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
       </div>
       <section class="featured" id="selected-work" aria-labelledby="featured-title" tabindex="-1">

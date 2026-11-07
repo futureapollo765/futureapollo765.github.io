@@ -1,11 +1,12 @@
-import { favorites, projects } from "./project-data.js";
+import { favorites } from "./project-data.js";
+import { mountProjectIndex } from "./project-index.js";
 
 const home = document.querySelector("#home-view");
 const sequence = home.querySelector(".home-sequence");
 const stage = home.querySelector(".home-stage");
 const orbit = home.querySelector("[data-orbit]");
 const header = document.querySelector(".site-header");
-const belt = home.querySelector(".belt-track");
+const index = mountProjectIndex(stage);
 const cue = home.querySelector(".scroll-cue");
 const toggle = document.querySelector(".motion-toggle");
 const reduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -20,19 +21,19 @@ try {
   // The control still works for this visit when storage is unavailable.
 }
 
-function fillBelt() {
-  if (!projects.length) {
-    belt.parentElement.hidden = true;
+export function rememberHome() {
+  return { top:window.scrollY, ...index?.snapshot() };
+}
+
+export function restoreHome(state, scrollToIntro = false) {
+  if (scrollToIntro && enabled && window.scrollY > 0) {
+    index?.restore({ index:-1 });
+    window.scrollTo({ top:0, behavior:"smooth" });
     return;
   }
-  const group = document.createElement("span");
-  group.className = "belt-group";
-  for (const project of projects.slice(0, 8)) {
-    const name = document.createElement("span");
-    name.textContent = project.title;
-    group.append(name);
-  }
-  belt.append(group, group.cloneNode(true));
+  window.scrollTo({top:state?.top || 0, behavior:"instant"});
+  updateSequence();
+  index?.restore(state);
 }
 
 function updateSequence() {
@@ -44,6 +45,7 @@ function updateSequence() {
   if (Math.abs(progress - lastProgress) < .0001) return;
   lastProgress = progress;
   stage.style.setProperty("--travel", progress.toFixed(4));
+  index?.travel(progress);
   orbit.dispatchEvent(new CustomEvent("orbitprogress", { detail: progress }));
 }
 
@@ -54,7 +56,12 @@ export function refreshHomeMotion() {
 }
 
 function updatePreference() {
-  enabled = !reduce.matches && !pausedByUser;
+  const next = !reduce.matches && !pausedByUser;
+  const preserve = enabled !== next && !home.hidden && lastProgress !== -1;
+  const selected = home.querySelector("#selected-work");
+  const favoritesTop = preserve && !selected.hidden ? selected.getBoundingClientRect().top : null;
+  const pose = preserve ? index?.snapshot() : null;
+  enabled = next;
   document.documentElement.classList.toggle("motion-paused", !enabled);
   toggle.disabled = reduce.matches;
   const label = reduce.matches ? "Reduced motion enabled" : enabled ? "Pause motion" : "Resume motion";
@@ -63,7 +70,15 @@ function updatePreference() {
   orbit.dispatchEvent(new CustomEvent("orbitmotion", { detail: enabled }));
   window.dispatchEvent(new CustomEvent("studio-motion", { detail: enabled }));
   lastProgress = -1;
-  refreshHomeMotion();
+  if (preserve) {
+    // Pausing changes the pinned stage's height. Keep the current work under
+    // the visitor's eyes even if removing that scroll distance moves the page.
+    if (favoritesTop !== null && favoritesTop < innerHeight) {
+      window.scrollBy({top:selected.getBoundingClientRect().top - favoritesTop, behavior:"instant"});
+    } else if (!enabled) window.scrollTo({top:0,behavior:"instant"});
+    updateSequence();
+    index?.restore(pose);
+  } else refreshHomeMotion();
 }
 
 function revealHome() {
@@ -76,7 +91,6 @@ export function enterHome() {
   refreshHomeMotion();
 }
 
-fillBelt();
 if (!favorites.length) {
   cue.lastChild.textContent = "Open project map";
   sequence.classList.add("no-favorites");
