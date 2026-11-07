@@ -1,10 +1,10 @@
-import { favorites } from "./project-data.js";
+import { favorites, projects } from "./project-data.js";
 
 const svg = path => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="${path}"/></svg>`;
 const launchIcon = svg("M6 18 18 6M7 6h11v11");
 const modulo = (value, limit) => ((value % limit) + limit) % limit;
 
-function favoriteCard(project, large) {
+function projectCard(project, large) {
   const link = document.createElement("a");
   link.className = large ? "sf-poster" : "sf-tile";
   link.href = project.url;
@@ -16,6 +16,9 @@ function favoriteCard(project, large) {
   const art = document.createElement("span");
   art.className = "sf-art";
   const image = new Image(480, 360);
+  // Set loading before src so offscreen catalog cards and their loop copies
+  // do not eagerly download the entire archive when this section mounts.
+  image.loading = "lazy";
   image.src = new URL(project.thumbnail, import.meta.url);
   image.alt = "";
   image.decoding = "async";
@@ -54,9 +57,10 @@ function makeLane(viewport, projects, large, speed) {
   track.className = "sf-runner";
   const original = document.createElement("div");
   original.className = "sf-group";
-  original.append(...projects.map(project => favoriteCard(project, large)));
+  original.append(...projects.map(project => projectCard(project, large)));
   track.append(original);
   viewport.append(track);
+  viewport.classList.toggle("sf-static", projects.length < 2);
 
   let width = 0;
   let position = 0;
@@ -197,37 +201,45 @@ function makeLane(viewport, projects, large, speed) {
 export function mountSelectedWork() {
   const mount = document.querySelector("[data-selected-work]");
   if (!mount || mount.childElementCount) return;
-  if (!favorites.length) {
+  if (!favorites.length && !projects.length) {
     mount.closest("section").hidden = true;
     return;
   }
 
   mount.innerHTML = `
     <div class="sf-heading">
-      <div><p class="sf-collection">Scratch favorites</p><h2 id="featured-title">Selected work</h2></div>
+      <div><p class="sf-collection">${favorites.length ? "Scratch favorites" : "Scratch projects"}</p><h2 id="featured-title">Selected work</h2></div>
       <div class="sf-controls">
         <span class="sf-scrub-hint" aria-hidden="true">Drag to browse</span>
-        <button type="button" class="sf-pause" aria-label="Pause favorites"></button>
+        <button type="button" class="sf-pause" aria-label="Pause project rows"></button>
       </div>
     </div>
     <span class="sf-key-help" id="sf-key-help">Use the left and right arrow keys to browse. Enter opens the focused project on Scratch.</span>
-    <div class="sf-stage sf-lane" role="group" aria-label="Featured favorites" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
-    <div class="sf-ribbon sf-lane" role="group" aria-label="More favorite projects on Scratch" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>`;
+    <div class="sf-stage sf-lane" role="group" aria-label="Public Scratch favorites" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
+    <div class="sf-catalog-heading"><h3>All projects</h3><span>${projects.length} shared ${projects.length === 1 ? "project" : "projects"}</span></div>
+    <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, first row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
+    <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, second row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>`;
 
   const start = Math.max(0, favorites.findIndex(project => project.id === 1406787990));
   const featured = [...favorites.slice(start), ...favorites.slice(0, start)];
-  const split = Math.ceil(favorites.length / 2);
-  const ribbon = [...favorites.slice(split), ...favorites.slice(0, split)];
+  // Interleave the source catalog between the compact rows. Every public
+  // project appears once across these two original groups, in source order.
+  const catalogRows = [projects.filter((_, i) => i % 2 === 0), projects.filter((_, i) => i % 2 === 1)];
   const pause = mount.querySelector(".sf-pause");
-  const lower = mount.querySelector(".sf-ribbon");
-  const lanes = [makeLane(mount.querySelector(".sf-stage"), featured, true, 24)];
-  if (favorites.length === 1) {
-    mount.classList.add("sf-single");
-    lower.hidden = true;
-    pause.hidden = true;
+  const upper = mount.querySelector(".sf-stage");
+  const lower = [...mount.querySelectorAll(".sf-ribbon")];
+  const lanes = [];
+  if (featured.length) lanes.push(makeLane(upper, featured, true, 24));
+  else upper.hidden = true;
+  catalogRows.forEach((row, i) => {
+    if (row.length) lanes.push(makeLane(lower[i], row, false, i ? 25 : -29));
+    else lower[i].hidden = true;
+  });
+  mount.querySelector(".sf-catalog-heading").hidden = !projects.length;
+  if (![featured, ...catalogRows].some(row => row.length > 1)) {
+    mount.classList.add("sf-static-collection");
     return;
   }
-  lanes.push(makeLane(lower, ribbon, false, -33));
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   let inView = false;
@@ -244,7 +256,7 @@ export function mountSelectedWork() {
 
   function sync() {
     const globalPause = document.documentElement.classList.contains("motion-paused") || reduced.matches;
-    const label = globalPause ? "Automatic movement is paused" : paused ? "Resume favorites" : "Pause favorites";
+    const label = globalPause ? "Automatic movement is paused" : paused ? "Resume project rows" : "Pause project rows";
     if (pause.title !== label) {
       pause.title = label;
       pause.setAttribute("aria-label", label);

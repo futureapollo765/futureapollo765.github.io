@@ -28,6 +28,8 @@ function archive() {
 function highlights(dated, years) {
   const favoriteIds = new Set(favorites.map(project => project.id));
   const chosen = new Set([dated[0], dated.at(-1)]);
+  const futureOS = dated.find(entry => entry.project.id === 953460273);
+  if (futureOS) chosen.add(futureOS);
   for (const entries of years.values()) {
     const picks = entries.filter(entry => favoriteIds.has(entry.project.id));
     if (picks.length) {
