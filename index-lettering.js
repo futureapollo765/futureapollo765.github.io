@@ -42,16 +42,13 @@ export function createIndexLettering(titleNode) {
   const label = doc.createElement("span");
   label.className = "index-lettering-label";
   label.textContent = titleNode.textContent;
-  const measures = [0, 1].map(() => {
-    const measure = doc.createElement("span");
-    measure.className = "index-lettering-measure";
-    measure.setAttribute("aria-hidden", "true");
-    return measure;
-  });
   const masks = doc.createElement("span");
   masks.className = "index-lettering-lines";
   masks.setAttribute("aria-hidden", "true");
-  frame.append(...measures, label, masks);
+  // Only the current, semantic label contributes to layout. Reserving both
+  // titles would rewrap the outgoing one in the incoming font, keeping excess
+  // height until the end of the wipe. The hidden midpoint is the reflow point.
+  frame.append(label, masks);
   titleNode.replaceChildren(frame);
 
   let pair = null, timer = 0, lastProgress = null;
@@ -72,7 +69,6 @@ export function createIndexLettering(titleNode) {
     lastProgress = null;
     setLabel(text);
     clearVisuals();
-    for (const measure of measures) measure.removeAttribute("data-letters");
   }
 
   function measureRows() {
@@ -106,8 +102,6 @@ export function createIndexLettering(titleNode) {
     if (!motion()) { settle(text); return; }
     lastProgress = p;
     setLabel(text);
-    if (measures[0].dataset.letters !== pair.from) measures[0].dataset.letters = pair.from;
-    if (measures[1].dataset.letters !== pair.to) measures[1].dataset.letters = pair.to;
     if (p === 0 || p === 1) { clearVisuals(); return; }
 
     // Every outgoing band has cleared before the first incoming band starts.

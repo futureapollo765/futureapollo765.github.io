@@ -9,13 +9,13 @@ const chapters = [
 const fmt = n => String(n).padStart(2, "0");
 const asset = name => new URL("./assets/studies/" + name, import.meta.url).href;
 const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
-// Both velocity and acceleration reach zero at either end of the handoff.
-const smooth = t => t * t * t * (10 + t * (6 * t - 15));
+// A broad ease keeps the fade visible throughout its travel, with no velocity
+// at either end. Scroll position remains the only clock for the pinned scene.
+const smooth = t => t * t * (3 - 2 * t);
 
 // Give each note a static reading interval, then divide the rest of the
 // scroll distance between its exit and the next note's entrance.
-const hold = .56;
-function opacityAt(position, i) {
+function opacityAt(position, i, hold) {
   const local = position-i;
   if (local >= 0 && local <= hold) return 1;
   const halfFade = (1-hold)/2;
@@ -77,7 +77,7 @@ export function mountStudies() {
     selector.append(button);
     return {item, art, video, button, film, link, alpha:-1};
   });
-  const end = views.length-1 + hold;
+  let hold = .3, end = views.length-1 + hold;
   const motion = () => !reduce.matches && !document.documentElement.classList.contains("motion-paused");
 
   function choose(i) {
@@ -131,7 +131,7 @@ export function mountStudies() {
     }
     for (const [i,view] of views.entries()) {
       const {item,art,video,film} = view;
-      const alpha = opacityAt(position,i);
+      const alpha = opacityAt(position,i,hold);
       if (view.alpha !== alpha) {
         item.style.opacity = alpha;
         item.style.visibility = alpha === 0 ? "hidden" : "visible";
@@ -159,9 +159,18 @@ export function mountStudies() {
   function layout() {
     if (!root.offsetWidth) return;
     header = document.querySelector(".site-header").offsetHeight;
-    unit = innerWidth <= 760
-      ? clamp(innerHeight * .51, 300, 430)
-      : clamp(innerHeight * .60, 420, 530);
+    // Reading and handoff have separate distances. Extending the handoff must
+    // not turn the fully opaque reading interval into a long empty scroll.
+    const mobile = innerWidth <= 760;
+    const reading = mobile
+      ? clamp(innerHeight * .30, 200, 230)
+      : clamp(innerHeight * .33, 270, 300);
+    const handoff = mobile
+      ? clamp(innerHeight * .95, 650, 820)
+      : clamp(innerHeight * .86, 730, 960);
+    unit = reading + handoff;
+    hold = reading / unit;
+    end = views.length-1 + hold;
     pinned = motion() && views.length>1 && innerHeight-header>=510;
     root.classList.toggle("studies-pinned",pinned);
     if (pinned && stage.scrollHeight > stage.clientHeight + 2) { pinned = false; root.classList.remove("studies-pinned"); }

@@ -1,27 +1,16 @@
 .index-lettering-frame {
   position: relative;
   isolation: isolate;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: block;
   width: fit-content;
   max-width: 100%;
 }
 
-.index-lettering-label,
-.index-lettering-measure {
-  grid-area: 1 / 1;
+.index-lettering-label {
+  display: block;
   min-width: 0;
-  align-self: start;
   overflow-wrap: inherit;
 }
-
-.index-lettering-measure {
-  visibility: hidden;
-  pointer-events: none;
-  user-select: none;
-}
-
-.index-lettering-measure::before { content: attr(data-letters); }
 
 .index-lettering-label[data-wiping] {
   -webkit-mask-image: var(--letter-line-images);

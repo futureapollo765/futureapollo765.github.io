@@ -32,7 +32,6 @@ export function mountProjectIndex(stage) {
   let layoutKey = "";
   const peers = [panel.querySelector(".index-kicker"),link,cover];
   const adjustments = new WeakMap();
-  let lastWheel = -Infinity, wheelSign = 0, wheelLimit = null;
 
   function fitTitle() {
     if (!title.clientWidth || !measure || !title.textContent) return;
@@ -157,24 +156,30 @@ export function mountProjectIndex(stage) {
     manual={station,hover};
     turn(station,true);
   }
-  // A high-momentum wheel gesture gets one reading station. A fresh gesture
-  // can continue or reverse. Touch, scrollbar drags and keyboard stay native.
-  function constrainWheel(target, actual, now) {
+  // Let a sustained gesture continue as the visible handoff advances. The
+  // allowance follows the presentation, not an idle timer: there is no need
+  // to release a trackpad or pause a wheel before reaching the next project.
+  function constrainWheel(target, actual) {
     const distance=seq.offsetHeight-stage.offsetHeight;
     if(!motion() || !distance || stage.closest("[hidden]")) return target;
     const start=scrollY+seq.getBoundingClientRect().top-document.querySelector(".site-header").offsetHeight;
     const unit=distance/entries.length;
     const pos=(actual-start)/unit;
     const sign=Math.sign(target-actual);
-    if(!sign || pos<-.002 || pos>entries.length+.002) { wheelLimit=null; return target; }
-    if(now-lastWheel>185 || wheelSign!==sign || wheelLimit===null) {
-      const here=manual?.station ?? (pos<.83 ? 0 : Math.max(1,natural));
-      const next=clamp(here+sign,0,entries.length);
-      wheelLimit=next===here ? (sign>0 ? Infinity : -Infinity) :
-        start + (next===0 ? 0 : clamp(next+(sign>0 ? .11 : -.10),0,entries.length))*unit;
-    }
-    lastWheel=now; wheelSign=sign;
-    return sign>0 ? Math.min(target,Math.max(actual,wheelLimit)) : Math.max(target,Math.min(actual,wheelLimit));
+    const exiting=sign>0 && flight?.to===entries.length;
+    if(!sign || pos<-.002 || pos>entries.length+(exiting ? .75 : .002)) return target;
+    const anchor=manual && !manual.hover ? manual.station : settled;
+    // Admit the following interval throughout this handoff. Waiting until
+    // its final frames would still flatten a continuous scroll at each edge.
+    const forwardFlight=flight && Math.sign(flight.to-flight.from)===sign;
+    const follow=forwardFlight ? ease(clamp(flight.p)) : 0;
+    const lead=forwardFlight ? flight.from+(flight.to-flight.from)*follow : anchor;
+    if(!flight && (sign>0 ? lead>=entries.length : lead<=0)) return target;
+    // The last cover can begin yielding to Studies during its final reveal;
+    // holding the document exactly at its edge would introduce another stop.
+    const end=entries.length+(exiting ? follow*.72 : 0);
+    const limit=start+clamp(lead+sign*.66,0,end)*unit;
+    return sign>0 ? Math.min(target,Math.max(actual,limit)) : Math.max(target,Math.min(actual,limit));
   }
   function choose(index, moveFocus=false) {
     const station = index+1;
@@ -193,7 +198,7 @@ export function mountProjectIndex(stage) {
       if(clipped < -1) window.scrollBy({top:clipped,behavior:"instant"});
       expectedY=scrollY;
     }
-    wheelLimit=null; natural=Math.max(1,station);
+    natural=Math.max(1,station);
     override(station);
     const button=choices.children[station];
     if(moveFocus) button.focus({preventScroll:true});
