@@ -1,0 +1,50 @@
+name: Refresh Scratch catalog
+
+on:
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+
+# A refresh publishes one coherent snapshot. Pushes never overwrite a newer main.
+concurrency:
+  group: refresh-scratch-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Fetch public projects, favorites, and covers
+        run: python3 tools/refresh_scratch.py
+      - name: Commit changed catalog and covers
+        run: |
+          git add -- scratch-catalog.js assets/projects
+          if git diff --cached --quiet; then
+            echo "Scratch catalog is current."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Refresh shared Scratch projects and favorites"
+            git push origin HEAD:main
+          fi
+      - name: Rebuild the configured Pages branch when its published revision is behind
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY" --jq '.has_pages')" = true ]; then
+            source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '[.build_type, .source.branch, .source.path] | join(" ")')
+            if [ "$source" = "legacy main /" ]; then
+              published=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds" --jq '(map(select(.status == "built")) | first | .commit) // ""')
+              if [ "$published" != "$(git rev-parse HEAD)" ]; then
+                gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" --silent
+              fi
+            fi
+          fi
