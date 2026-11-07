@@ -1,11 +1,15 @@
 const host = document.querySelector("#studio-intro");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const visitKey = "futureapollo765.studio-intro.v1";
+const visitKey = "futureapollo765.studio-intro.v3";
+const minimumDuration = 4500;
+const maximumDuration = 8500;
+const exitDuration = 550;
 
 function shouldPlayIntro() {
-  if (!host || location.hash || reducedMotion.matches || !window.HTMLDialogElement) {
-    return false;
-  }
+  const homeEntry = !location.hash || location.hash === "#home";
+  if (!host || !homeEntry || reducedMotion.matches ||
+      document.documentElement.classList.contains("motion-paused") ||
+      !window.HTMLDialogElement) return false;
   try {
     if (localStorage.getItem("futureapollo.motion") === "paused" || sessionStorage.getItem(visitKey)) return false;
     sessionStorage.setItem(visitKey, "seen");
@@ -18,58 +22,105 @@ function shouldPlayIntro() {
 function playIntro() {
   const dialog = document.createElement("dialog");
   dialog.className = "studio-intro-dialog";
-  dialog.setAttribute("aria-label", "Studio opening animation");
+  dialog.setAttribute("aria-label", "FutureApollo765 — Initializing");
+  dialog.innerHTML = `
+    <div class="studio-intro-field" aria-hidden="true"></div>
+    <div class="studio-intro-registration" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="studio-intro-core">
+      <div class="studio-intro-orbit" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="studio-intro-logo" aria-hidden="true">
+        <svg class="studio-intro-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5" fill="#fff" focusable="false">
+          <defs><path id="studio-intro-arm-shape" d="M2 0h2v2H3V1H2z"/></defs>
+          <g class="studio-intro-piece studio-intro-center"><path d="M2 2h1v1H2z"/></g>
+          <g class="studio-intro-piece studio-intro-arm" data-side="top"><use href="#studio-intro-arm-shape"/></g>
+          <g class="studio-intro-piece studio-intro-arm" data-side="right"><use href="#studio-intro-arm-shape" transform="rotate(90 2.5 2.5)"/></g>
+          <g class="studio-intro-piece studio-intro-arm" data-side="bottom"><use href="#studio-intro-arm-shape" transform="rotate(180 2.5 2.5)"/></g>
+          <g class="studio-intro-piece studio-intro-arm" data-side="left"><use href="#studio-intro-arm-shape" transform="rotate(270 2.5 2.5)"/></g>
+        </svg>
+      </div>
+      <div class="studio-intro-caption">
+        <p class="studio-intro-name">FutureApollo765</p>
+        <p class="studio-intro-status">Initializing</p>
+        <span class="studio-intro-rail" role="progressbar" aria-label="Initializing"><i></i></span>
+      </div>
+    </div>`;
 
-  const film = document.createElement("video");
-  film.className = "studio-intro-film";
-  film.poster = new URL("./assets/studio.svg", import.meta.url).href;
-  film.muted = true;
-  film.playsInline = true;
-  film.disablePictureInPicture = true;
-  film.setAttribute("aria-hidden", "true");
+  const logo = dialog.querySelector(".studio-intro-logo");
 
   const skip = document.createElement("button");
   skip.type = "button";
   skip.className = "studio-intro-skip";
   skip.textContent = "Skip intro";
-  dialog.append(film, skip);
+  dialog.append(skip);
   host.append(dialog);
   host.hidden = false;
-  dialog.showModal();
+  try { dialog.showModal(); }
+  catch { dialog.remove(); host.hidden = true; return false; }
 
-  function onMotion(event) {
-    if (!event.detail) dismiss();
-  }
+  const events = new AbortController();
+  const options = { signal: events.signal };
+  let phase = "waiting", announced = false;
+  let minimumElapsed = false, pageReady = document.readyState === "complete";
+  let fontsReady = !document.fonts, animationReady = false;
+  let minimumTimer = 0, deadline = 0, exitTimer = 0;
 
-  function dismiss() {
-    if (!dialog.isConnected) return;
-    clearTimeout(deadline);
-    reducedMotion.removeEventListener("change", dismiss);
-    window.removeEventListener("pagehide", dismiss);
-    window.removeEventListener("hashchange", dismiss);
-    window.removeEventListener("studio-motion", onMotion);
-    film.pause();
-    dialog.close();
-    host.hidden = true;
-    dialog.remove();
+  function releasePage() {
+    if (announced) return;
+    announced = true;
+    if (dialog.open) dialog.close();
     window.dispatchEvent(new Event("studio-intro-ended"));
   }
 
-  const deadline = setTimeout(dismiss, 3200);
-  skip.addEventListener("click", dismiss, { once: true });
-  dialog.addEventListener("cancel", (event) => {
-    event.preventDefault();
-    dismiss();
+  function removeIntro() {
+    if (phase === "removed") return;
+    phase = "removed";
+    clearTimeout(minimumTimer);
+    clearTimeout(deadline);
+    clearTimeout(exitTimer);
+    events.abort();
+    releasePage();
+    host.hidden = true;
+    dialog.remove();
+  }
+
+  function beginExit() {
+    if (phase !== "waiting") return;
+    phase = "exiting";
+    clearTimeout(minimumTimer);
+    clearTimeout(deadline);
+    dialog.classList.add("is-exiting");
+    dialog.inert = true;
+    // Release modality before fading, so the home entrance can begin beneath
+    // this last visual layer instead of appearing only after a black frame.
+    releasePage();
+    if (phase === "exiting") exitTimer = setTimeout(removeIntro, exitDuration);
+  }
+
+  function readyToExit() {
+    if (phase === "waiting" && minimumElapsed && pageReady && fontsReady && animationReady) beginExit();
+  }
+
+  minimumTimer = setTimeout(() => { minimumElapsed = true; readyToExit(); }, minimumDuration);
+  deadline = setTimeout(beginExit, maximumDuration);
+  skip.addEventListener("click", removeIntro, options);
+  dialog.addEventListener("cancel", event => { event.preventDefault(); removeIntro(); }, options);
+  window.addEventListener("keydown", event => {
+    if (event.key === "Escape") { event.preventDefault(); removeIntro(); }
+  }, options);
+  reducedMotion.addEventListener("change", event => { if (event.matches) removeIntro(); }, options);
+  window.addEventListener("studio-motion", event => { if (event.detail === false) removeIntro(); }, options);
+  window.addEventListener("pagehide", removeIntro, options);
+  window.addEventListener("hashchange", removeIntro, options);
+  window.addEventListener("load", () => { pageReady = true; readyToExit(); }, options);
+  document.fonts?.ready.then(() => { fontsReady = true; readyToExit(); }, () => { fontsReady = true; readyToExit(); });
+  // These are only the five finite logo motions. The atmospheric ring and
+  // indeterminate rail are outside logo, so their loops never gate readiness.
+  const assembly = logo.getAnimations?.({ subtree: true }) || [];
+  Promise.all(assembly.map(animation => animation.finished.catch(() => {}))).then(() => {
+    animationReady = true;
+    readyToExit();
   });
-  film.addEventListener("ended", dismiss, { once: true });
-  film.addEventListener("error", dismiss, { once: true });
-  reducedMotion.addEventListener("change", dismiss);
-  window.addEventListener("pagehide", dismiss, { once: true });
-  window.addEventListener("hashchange", dismiss, { once: true });
-  window.addEventListener("studio-motion", onMotion);
-  film.src = new URL("./assets/studio-intro.mp4", import.meta.url);
-  film.play().catch(dismiss);
+  return true;
 }
 
-export const recordedIntroStarted = shouldPlayIntro();
-if (recordedIntroStarted) playIntro();
+export const recordedIntroStarted = shouldPlayIntro() && playIntro();
