@@ -1,10 +1,10 @@
 import { projects } from "./project-data.js";
 import { mountMapSurface } from "./map-surface.js";
+import { redirectIcon } from "./icons.js";
 
 const root = document.querySelector("#projects-view");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const icon = (path) => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
-const externalIcon = icon("M5 19 19 5M6 5h13v13");
 const directions = [
   ["left", -1, 0, "M20 12H4m7-7-7 7 7 7"],
   ["up", 0, -1, "M12 20V4m-7 7 7-7 7 7"],
@@ -114,7 +114,7 @@ function mount() {
         <h1 id="projects-title">Projects <span class="projects-total">${projects.length}</span></h1>
         <label class="projects-picker">
           <select aria-label="Find a project"><option value="">Find a project</option></select>
-          ${icon("m6 9 6 6 6-6")}
+          ${redirectIcon}
         </label>
       </div>
       <div class="projects-map" tabindex="0" role="region" aria-label="Project map" aria-describedby="projects-map-help">
@@ -138,8 +138,8 @@ function mount() {
     </div>
     <div class="projects-detail" hidden>
       <div class="projects-detail-bar">
-        <a class="projects-back" href="#projects">${icon("M20 12H4m7-7-7 7 7 7")}Back to map</a>
-        <a class="projects-source" target="_blank" rel="noopener noreferrer">Open on Scratch ${externalIcon}</a>
+        <a class="projects-back" href="#projects">${redirectIcon}Back to map</a>
+        <a class="projects-source" target="_blank" rel="noopener noreferrer">Open on Scratch ${redirectIcon}</a>
       </div>
       <div class="projects-detail-body">
         <img class="projects-detail-image" width="480" height="360" alt="">
@@ -176,7 +176,7 @@ function mount() {
     root.querySelector("#projects-map-help").textContent = projects.length ? "Select the project to open it." : "";
     if (!projects.length) {
       picker.disabled = true;
-      tileLayer.innerHTML = '<div class="projects-empty"><p>No shared projects are available.</p><a href="https://scratch.mit.edu/users/FutureApollo765/">View Scratch profile</a></div>';
+      tileLayer.innerHTML = `<div class="projects-empty"><p>No shared projects are available.</p><a href="https://scratch.mit.edu/users/FutureApollo765/">View Scratch profile ${redirectIcon}</a></div>`;
     }
   }
   if (projects.length > 1) surface = mountMapSurface(viewport);
@@ -331,7 +331,7 @@ function createTile(project, key, depth) {
   const open = document.createElement("span");
   open.className = "projects-tile-open";
   open.setAttribute("aria-hidden", "true");
-  open.innerHTML = `Open project ${icon("M4 12h15m-7-7 7 7-7 7")}`;
+  open.innerHTML = `Open project ${redirectIcon}`;
   const label = document.createElement("span");
   label.className = "projects-tile-name";
   label.textContent = project.title;
@@ -850,7 +850,7 @@ function showPlayer(project) {
       </button>
     </div>
     <div class="projects-player-stage"><span class="projects-player-loading" role="status">Loading player…</span></div>
-    <div class="projects-player-footer"><a target="_blank" rel="noopener noreferrer">Open on Scratch ${externalIcon}</a></div>`;
+    <div class="projects-player-footer"><a target="_blank" rel="noopener noreferrer">Open on Scratch ${redirectIcon}</a></div>`;
   dialog.querySelector("strong").textContent = project.title;
   dialog.querySelector(".projects-player-footer a").href = project.url;
   dialog.querySelector("button").addEventListener("click", closePlayerRoute);

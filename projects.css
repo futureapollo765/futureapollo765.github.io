@@ -361,6 +361,10 @@
 }
 
 .projects-empty a {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
   color: var(--ink, #f2f2ef);
   text-decoration: underline;
   text-underline-offset: 3px;

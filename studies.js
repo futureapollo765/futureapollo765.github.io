@@ -1,4 +1,5 @@
 import { projects } from "./project-data.js";
+import { redirectIcon } from "./icons.js";
 
 // The films show the corresponding public Scratch work running in TurboWarp.
 const chapters = [
@@ -61,7 +62,7 @@ export function mountStudies() {
     const item = document.createElement("article");
     item.className = "study-note";
     item.id = "study-note-" + project.id;
-    item.innerHTML = `<p class="study-field"><span>${fmt(i+1)}</span> ${field}</p><h3></h3><p class="study-intro"></p><a class="study-open"><span>Open project</span><b aria-hidden="true">↗</b></a>`;
+    item.innerHTML = `<p class="study-field"><span>${fmt(i+1)}</span> ${field}</p><h3></h3><p class="study-intro"></p><a class="study-open"><span>Open project</span>${redirectIcon}</a>`;
     item.querySelector("h3").textContent = project.title;
     item.querySelector(".study-intro").textContent = copy;
     const link = item.querySelector("a");

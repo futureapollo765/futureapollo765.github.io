@@ -164,8 +164,9 @@
   letter-spacing: -.05em;
   overflow-wrap: anywhere;
 }
-.tl-open { display: grid; width: 22px; }
+.tl-open { display: grid; width: 22px; height:22px; }
 .tl-open svg, .tl-controls svg, .tl-archive svg { display: block; width: 100%; }
+.tl-open svg { height:100%; }
 .tl-footer { align-items: center; border-top: 1px solid var(--tl-line); padding-top: 10px; }
 .tl-controls { display: flex; gap: 8px; }
 .tl-controls button { width: 42px; border: 1px solid #868981; border-radius: 50%; }
@@ -196,7 +197,6 @@
   width: 14px;
   height: 14px;
   pointer-events: none;
-  transform: rotate(90deg);
 }
 .tl-empty { margin-inline: var(--gutter, 5vw); }
 @media (max-width: 780px) {

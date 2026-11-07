@@ -1,7 +1,7 @@
 import { favorites, projects } from "./project-data.js";
+import { redirectIcon } from "./icons.js";
 
 const svg = path => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="${path}"/></svg>`;
-const launchIcon = svg("M6 18 18 6M7 6h11v11");
 const modulo = (value, limit) => ((value % limit) + limit) % limit;
 
 function projectCard(project, large) {
@@ -40,7 +40,7 @@ function projectCard(project, large) {
   }
   const action = document.createElement("span");
   action.className = "sf-open";
-  action.innerHTML = `<span>Open on Scratch</span>${launchIcon}`;
+  action.innerHTML = `<span>Open on Scratch</span>${redirectIcon}`;
   link.append(caption, action);
   return link;
 }

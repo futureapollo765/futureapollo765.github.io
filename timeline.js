@@ -1,4 +1,5 @@
 import { favorites, projects } from "./project-data.js";
+import { redirectIcon } from "./icons.js";
 
 const dateLabel = new Intl.DateTimeFormat("en-US", {
   month: "short", day: "numeric", year: "numeric", timeZone: "UTC",
@@ -69,7 +70,7 @@ function releaseCard(entry, startsYear) {
   title.textContent = project.title;
   const icon = document.createElement("span");
   icon.className = "tl-open";
-  icon.innerHTML = arrow(1);
+  icon.innerHTML = redirectIcon;
   link.append(time, art, title, icon);
   item.append(yearMark, link);
   return item;
@@ -94,7 +95,7 @@ export function mountTimeline() {
           <button type="button" data-tl-prev aria-label="Previous milestone">${arrow(-1)}</button>
           <button type="button" data-tl-next aria-label="Next milestone">${arrow(1)}</button>
         </div>
-        <label class="tl-archive"><select aria-label="Browse all shared projects by date"><option value="">Browse all shared projects</option></select>${arrow(1)}</label>
+        <label class="tl-archive"><select aria-label="Browse all shared projects by date"><option value="">Browse all shared projects</option></select>${redirectIcon}</label>
       </div>
     </div>`;
   const stage = section.querySelector(".tl-stage");
