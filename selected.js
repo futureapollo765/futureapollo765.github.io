@@ -65,6 +65,7 @@ function makeLane(viewport, projects, large, speed) {
   let width = 0;
   let position = 0;
   let keyboardFocused = false;
+  let hovered = false;
   let running = false;
   let carry = 0;
   let down = null;
@@ -97,7 +98,7 @@ function makeLane(viewport, projects, large, speed) {
   }
 
   function move(deltaSeconds) {
-    if (!width || down || keyboardFocused) return;
+    if (!width || down || keyboardFocused || hovered) return;
     // A released drag gradually settles back into this row's own direction.
     const decay = Math.exp(-deltaSeconds / .19);
     advance(speed * deltaSeconds + carry * .19 * (1 - decay));
@@ -109,6 +110,17 @@ function makeLane(viewport, projects, large, speed) {
     running = enabled;
     if (!enabled) carry = 0;
   }
+
+  function updateHover(event, target) {
+    // Touch-generated pointer events must not leave a row stuck on hover.
+    if (event.pointerType === "touch") return;
+    const project = target instanceof Element ? target.closest("a") : null;
+    hovered = !!project && viewport.contains(project);
+    if (hovered) carry = 0;
+  }
+  // Delegation also covers the repeated cards used by the seamless loop.
+  viewport.addEventListener("pointerover", event => updateHover(event, event.target));
+  viewport.addEventListener("pointerout", event => updateHover(event, event.relatedTarget));
 
   viewport.addEventListener("focusin", event => {
     keyboardFocused = event.target.matches(":focus-visible");
@@ -139,6 +151,7 @@ function makeLane(viewport, projects, large, speed) {
   viewport.addEventListener("pointerdown", event => {
     if (!width || down || !event.isPrimary || event.button !== 0) return;
     keyboardFocused = false;
+    if (event.pointerType === "touch") hovered = false;
     carry = 0;
     suppressClickUntil = 0;
     down = {
@@ -173,11 +186,15 @@ function makeLane(viewport, projects, large, speed) {
     if (down?.id !== event.pointerId) return;
     const gesture = down;
     down = null;
+    // Pointer capture retargets hover events while dragging. Use the real
+    // release position so a card under the pointer stays still afterward.
+    updateHover(event, event.type === "pointerup"
+      ? document.elementFromPoint(event.clientX, event.clientY) : null);
     if (gesture.vertical || gesture.dragging) suppressClickUntil = performance.now() + 600;
     if (gesture.dragging) {
       viewport.classList.remove("is-scrubbing");
       if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
-      if (running && event.type === "pointerup") {
+      if (running && !hovered && event.type === "pointerup") {
         const limit = Math.min(1400, viewport.clientWidth * 2.2);
         const velocity = event.timeStamp - gesture.time < 95 ? gesture.velocity : 0;
         carry = Math.max(-limit, Math.min(limit, velocity)) - speed;
