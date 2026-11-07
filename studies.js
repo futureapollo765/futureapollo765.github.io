@@ -4,10 +4,16 @@ import { projects } from "./project-data.js";
 const chapters = [
   { id:926613453, film:"hills", field:"Arcade", copy:"A tank and a moonlit ridgeline. Aim across the hills and press Space to fire." },
   { id:1334587822, film:"pathfinder", field:"Pathfinding", copy:"A line traces an A* search around rectangular obstacles. A smaller search angle buys precision at the cost of more computation." },
-  { id:1406787990, film:"glass", field:"Interface design", copy:"Drag a glass shape to stretch it. Bring two shapes together and their edges join over the image beneath." },
+  { id:1406787990, film:"glass", field:"Interface design", copy:"Open the options panel and explore layered glass menus over the image beneath." },
 ];
 const fmt = n => String(n).padStart(2, "0");
-const asset = name => new URL("./assets/studies/" + name, import.meta.url).href;
+// Version replaced captures so existing visitors receive the corrected media.
+const captureRevisions = {"glass.webp": "bbf2efd3c227", "glass.mp4": "52ec11c9fa16"};
+const asset = name => {
+  const url = new URL("./assets/studies/" + name, import.meta.url);
+  if (captureRevisions[name]) url.searchParams.set("v", captureRevisions[name]);
+  return url.href;
+};
 const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
 // A broad ease keeps the fade visible throughout its travel, with no velocity
 // at either end. Scroll position remains the only clock for the pinned scene.

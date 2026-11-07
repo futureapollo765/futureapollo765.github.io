@@ -1,6 +1,7 @@
 """Refresh the public Scratch catalog, cover images, and project share dates."""
 import concurrent.futures
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -90,7 +91,12 @@ def make_item(row, owned_ids, previous, staging):
     # Locally curated running-stage captures take priority over Scratch cover art.
     name = f"{project_id}.webp"
     thumbnail = f"./assets/projects/{name}"
-    if not (ASSETS / name).exists():
+    if (ASSETS / name).exists():
+        # Revisions follow the actual capture, so returning visitors see a new
+        # curated image and routine catalog refreshes keep the same cache key.
+        revision = hashlib.sha256((ASSETS / name).read_bytes()).hexdigest()[:12]
+        thumbnail += f"?v={revision}"
+    else:
         version = parse_qs(urlsplit(row["images"]["282x218"]).query).get("v", [history.get("modified")])[0]
         query = f"?v={version}" if version else ""
         name = f"{project_id}.png"

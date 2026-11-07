@@ -33,10 +33,6 @@
 }
 .sf-controls { display: flex; align-items: center; gap: 14px; }
 .sf-scrub-hint { color: var(--sf-muted); font-size: 12px; }
-.sf-catalog-heading { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding-inline:var(--gutter, 5vw); margin:clamp(28px,3vw,48px) 0 15px; }
-.sf-catalog-heading[hidden] { display:none; }
-.sf-catalog-heading h3 { margin:0; font-size:clamp(20px,2vw,30px); font-weight:510; line-height:1.1; letter-spacing:-.035em; }
-.sf-catalog-heading > span { color:var(--sf-muted); font:500 10px/1.2 var(--mono, monospace); letter-spacing:.05em; }
 .sf-key-help {
   position: absolute;
   width: 1px;

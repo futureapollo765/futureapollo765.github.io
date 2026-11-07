@@ -172,7 +172,7 @@ export default {
       "title": "Liquid Glass V2",
       "author": "FutureApollo765",
       "sharedAt": "2026-11-06T12:59:08.000Z",
-      "thumbnail": "./assets/projects/1406787990.webp",
+      "thumbnail": "./assets/projects/1406787990.webp?v=bbf2efd3c227",
       "embed": "https://turbowarp.org/1406787990/embed?hqpen"
     },
     {
@@ -188,7 +188,7 @@ export default {
       "title": "FutureOS",
       "author": "FutureApollo765",
       "sharedAt": "2026-10-30T19:17:31.000Z",
-      "thumbnail": "./assets/projects/953460273.webp",
+      "thumbnail": "./assets/projects/953460273.webp?v=43d5877f75c7",
       "embed": "https://turbowarp.org/953460273/embed?hqpen"
     },
     {
@@ -204,7 +204,7 @@ export default {
       "title": "StageManager",
       "author": "FutureApollo765",
       "sharedAt": "2026-10-08T18:12:25.000Z",
-      "thumbnail": "./assets/projects/1083676575.webp",
+      "thumbnail": "./assets/projects/1083676575.webp?v=7988523b3866",
       "embed": "https://scratch.mit.edu/projects/1083676575/embed?autostart=false"
     },
     {
@@ -212,7 +212,7 @@ export default {
       "title": "UI Engine 2.3",
       "author": "FutureApollo765",
       "sharedAt": "2026-10-08T17:46:33.000Z",
-      "thumbnail": "./assets/projects/1388418319.webp",
+      "thumbnail": "./assets/projects/1388418319.webp?v=08a6011414f1",
       "embed": "https://turbowarp.org/1388418319/embed?hqpen"
     },
     {
@@ -220,7 +220,7 @@ export default {
       "title": "NebulaOS0.1.0",
       "author": "FutureApollo765",
       "sharedAt": "2026-09-07T00:59:40.000Z",
-      "thumbnail": "./assets/projects/1378633467.webp",
+      "thumbnail": "./assets/projects/1378633467.webp?v=718d4bcfa7a7",
       "embed": "https://scratch.mit.edu/projects/1378633467/embed?autostart=false"
     },
     {
@@ -268,7 +268,7 @@ export default {
       "title": "Pathfinder",
       "author": "FutureApollo765",
       "sharedAt": "2026-06-23T03:10:44.000Z",
-      "thumbnail": "./assets/projects/1334587822.webp",
+      "thumbnail": "./assets/projects/1334587822.webp?v=003a96eae8ba",
       "embed": "https://scratch.mit.edu/projects/1334587822/embed?autostart=false"
     },
     {
@@ -292,7 +292,7 @@ export default {
       "title": "Liquid Glass",
       "author": "FutureApollo765",
       "sharedAt": "2026-05-12T16:41:49.000Z",
-      "thumbnail": "./assets/projects/1294673188.webp",
+      "thumbnail": "./assets/projects/1294673188.webp?v=4345cd7e65e5",
       "embed": "https://turbowarp.org/1294673188/embed"
     },
     {
@@ -308,7 +308,7 @@ export default {
       "title": "D.O.T.S. Projector",
       "author": "FutureApollo765",
       "sharedAt": "2026-05-07T20:18:45.000Z",
-      "thumbnail": "./assets/projects/1317352635.webp",
+      "thumbnail": "./assets/projects/1317352635.webp?v=79d4e0f1c3f1",
       "embed": "https://scratch.mit.edu/projects/1317352635/embed?autostart=false"
     },
     {
@@ -468,7 +468,7 @@ export default {
       "title": "Star Night",
       "author": "FutureApollo765",
       "sharedAt": "2026-01-07T03:22:21.000Z",
-      "thumbnail": "./assets/projects/1214545266.webp",
+      "thumbnail": "./assets/projects/1214545266.webp?v=8011f73d5435",
       "embed": "https://scratch.mit.edu/projects/1214545266/embed?autostart=false"
     },
     {
@@ -860,7 +860,7 @@ export default {
       "title": "The Hills",
       "author": "FutureApollo765",
       "sharedAt": "2023-11-18T00:47:57.000Z",
-      "thumbnail": "./assets/projects/926613453.webp",
+      "thumbnail": "./assets/projects/926613453.webp?v=d910837dfcdc",
       "embed": "https://scratch.mit.edu/projects/926613453/embed?autostart=false"
     },
     {

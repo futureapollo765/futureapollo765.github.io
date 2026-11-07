@@ -216,7 +216,6 @@ export function mountSelectedWork() {
     </div>
     <span class="sf-key-help" id="sf-key-help">Use the left and right arrow keys to browse. Enter opens the focused project on Scratch.</span>
     <div class="sf-stage sf-lane" role="group" aria-label="Public Scratch favorites" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
-    <div class="sf-catalog-heading"><h3>All projects</h3><span>${projects.length} shared ${projects.length === 1 ? "project" : "projects"}</span></div>
     <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, first row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
     <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, second row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>`;
 
@@ -231,11 +230,11 @@ export function mountSelectedWork() {
   const lanes = [];
   if (featured.length) lanes.push(makeLane(upper, featured, true, 24));
   else upper.hidden = true;
+  // Decreasing scrollLeft moves the cards right; the final row drifts slower.
   catalogRows.forEach((row, i) => {
-    if (row.length) lanes.push(makeLane(lower[i], row, false, i ? 25 : -29));
+    if (row.length) lanes.push(makeLane(lower[i], row, false, i ? -24 : -29));
     else lower[i].hidden = true;
   });
-  mount.querySelector(".sf-catalog-heading").hidden = !projects.length;
   if (![featured, ...catalogRows].some(row => row.length > 1)) {
     mount.classList.add("sf-static-collection");
     return;
