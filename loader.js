@@ -44,7 +44,8 @@ function assembleLogo(logo) {
 
 function shouldPlayIntro() {
   const homeEntry = !location.hash || location.hash === "#home";
-  if (!host || !homeEntry || reducedMotion.matches ||
+  // Once the early cover is dismissed, a late module must not hide the page.
+  if (!window.studioBoot?.pending || !host || !homeEntry || reducedMotion.matches ||
       document.documentElement.classList.contains("motion-paused") ||
       !window.HTMLDialogElement) return false;
   try {
@@ -94,8 +95,17 @@ function playIntro() {
   dialog.querySelector(".studio-intro-screen").append(skip);
   host.append(dialog);
   host.hidden = false;
-  try { dialog.showModal(); }
-  catch { dialog.remove(); host.hidden = true; return false; }
+  try {
+    dialog.showModal();
+    // The opaque modal now owns the cover; swap within this same paint.
+    window.studioBoot?.release();
+    skip.focus({ preventScroll: true });
+  }
+  catch {
+    dialog.remove(); host.hidden = true;
+    window.studioBoot?.cancel();
+    return false;
+  }
 
   const events = new AbortController();
   const options = { signal: events.signal };

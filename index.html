@@ -3,12 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Paint the loading cover before external CSS or deferred modules arrive. -->
+  <style>
+    html[data-studio-boot] { background: #000; }
+    html[data-studio-boot] body { visibility: hidden; }
+    html[data-studio-boot]::before {
+      content: ""; position: fixed; inset: 0; z-index: 2147483647;
+      background: #000; pointer-events: auto;
+    }
+  </style>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const boot = window.studioBoot = {
+        pending: true,
+        cancelled: false,
+        release() {
+          if (!boot.pending) return;
+          boot.pending = false;
+          clearTimeout(deadline);
+          root.removeAttribute("data-studio-boot");
+          window.removeEventListener("keydown", onKey);
+          window.removeEventListener("hashchange", cancel);
+          window.removeEventListener("pagehide", cancel);
+        },
+        cancel() { boot.cancelled = true; boot.release(); }
+      };
+      const cancel = () => boot.cancel();
+      const onKey = event => { if (event.key === "Escape") cancel(); };
+      // A failed or very late module must neither trap the page nor cover it
+      // again after this fallback has already made the content available.
+      const deadline = setTimeout(cancel, 8000);
+      window.addEventListener("keydown", onKey);
+      window.addEventListener("hashchange", cancel);
+      window.addEventListener("pagehide", cancel);
+      root.setAttribute("data-studio-boot", "");
+    })();
+  </script>
   <meta name="theme-color" content="#101011">
   <meta name="description" content="FutureApollo765’s personal showcase of interfaces and interactive projects built in Scratch.">
   <title>FutureApollo765 — Home</title>
   <link rel="icon" href="./assets/studio.svg" type="image/svg+xml">
   <link rel="preload" href="./assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css" onerror="window.studioBoot.cancel()">
   <link rel="stylesheet" href="./orbit.css">
   <link rel="stylesheet" href="./project-index.css">
   <link rel="stylesheet" href="./index-lettering.css">
@@ -17,10 +54,10 @@
   <link rel="stylesheet" href="./selected.css">
   <link rel="stylesheet" href="./projects.css">
   <link rel="stylesheet" href="./map-surface.css">
-  <link rel="stylesheet" href="./loader.css">
-  <link rel="stylesheet" href="./transition.css">
-  <script type="module" src="./loader.js"></script>
-  <script type="module" src="./app.js"></script>
+  <link rel="stylesheet" href="./loader.css" onerror="window.studioBoot.cancel()">
+  <link rel="stylesheet" href="./transition.css" onerror="window.studioBoot.cancel()">
+  <script type="module" src="./loader.js" onerror="window.studioBoot.cancel()"></script>
+  <script type="module" src="./app.js" onerror="window.studioBoot.cancel()"></script>
   <script type="module" src="./orbit.js"></script>
 </head>
 <body>

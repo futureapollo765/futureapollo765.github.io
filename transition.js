@@ -90,18 +90,26 @@ function reveal(start = covered, direct = false) {
  */
 export function presentRoute(key, render, sharedPhoto = false) {
   const request = { key, render, hash: location.hash };
-  if (!allowsMotion()) { settle(request); return; }
+  if (!allowsMotion()) {
+    try { settle(request); }
+    finally { window.studioBoot?.release(); }
+    return;
+  }
 
   if (paintedKey === null) {
-    if (recordedIntroStarted) { paint(request); return; }
-    ensureCover();
+    // An intro already owns its modal. If the early cover was skipped or
+    // timed out, render directly rather than flashing a late black layer.
+    if (recordedIntroStarted || !window.studioBoot?.pending) { paint(request); return; }
     try {
+      ensureCover();
       paint(request);
       if (document.querySelector("dialog[open]")) front();
       reveal(covered, true);
     } catch (error) {
       clearCover();
       throw error;
+    } finally {
+      window.studioBoot?.release();
     }
     return;
   }
