@@ -16,6 +16,8 @@ The initial black cover is declared inline in the HTML head, before external sty
 
 The first-visit intro begins with a painted black screen held for half a second, followed by a 350ms fade into the initialization scene. The logo then starts from its original zero-size pose, retaining its full animation and 4.5-second minimum display period. Skip and Escape remain available during the lead-in.
 
+Reloads and ordinary page changes hold the decoded route logo at a constant size while it turns 90 degrees clockwise over 900ms. The opaque cover stays visible for at least one second from the painted logo start, then reveals the page. Shared-thumbnail transitions remain direct. Study video wipes use stable overflow masks and equal, opposite translations so Safari can reveal the next project without moving its artwork or rebuilding the mask at each endpoint.
+
 See the [interaction design notes](design/interaction.md) for the live references and behavior decisions.
 
 ## Scratch updates

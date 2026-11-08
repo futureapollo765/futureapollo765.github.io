@@ -23,13 +23,14 @@
 .studio-route-mark {
   display: block;
   width: clamp(52px, 8vmin, 82px);
+  height: clamp(52px, 8vmin, 82px);
+  max-width: none;
+  max-height: none;
   aspect-ratio: 1;
-  animation: studio-quarter-turn 380ms cubic-bezier(.23,.62,.2,1) both;
-}
-
-@keyframes studio-quarter-turn {
-  from { transform: rotate(-90deg) scale(.88); }
-  to { transform: rotate(0) scale(1); }
+  object-fit: contain;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

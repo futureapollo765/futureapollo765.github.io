@@ -28,9 +28,9 @@
 .study-open .redirect-icon { transition:transform .24s; }
 .study-open:is(:hover,:focus-visible) .redirect-icon { transform:translateX(3px); }
 .study-aperture { display:grid; position:relative; justify-self:end; width:min(100%,calc(max(190px,100svh - var(--header) - 230px)*1.3333)); aspect-ratio:4/3; background:#141415; overflow:hidden; isolation:isolate; }
-.study-frame { grid-area:1/1; display:block; min-width:0; min-height:0; visibility:hidden; pointer-events:none; }
+.study-frame { position:absolute; inset:0; display:block; min-width:0; min-height:0; overflow:hidden; contain:paint; transform:translate3d(-100%,0,0); will-change:transform; backface-visibility:hidden; pointer-events:none; }
 .study-frame.is-current { pointer-events:auto; }
-.study-frame video { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
+.study-frame video { display:block; width:100%; height:100%; object-fit:contain; transform:translate3d(100%,0,0); will-change:transform; backface-visibility:hidden; pointer-events:none; }
 .study-selector { display:flex; position:relative; isolation:isolate; align-items:center; justify-content:flex-end; border-top:1px solid #989892; gap:0; background:var(--stock); }
 .study-selector::before { content:""; margin-right:auto; width:clamp(69px,10vw,185px); height:7px; background:repeating-linear-gradient(90deg,#72726e 0 1px,transparent 1px 8px); }
 .study-selector-marker { position:absolute; top:0; left:0; width:50px; height:44px; background:#19191a; opacity:0; pointer-events:none; transition:transform .62s cubic-bezier(.2,.8,.2,1), width .62s cubic-bezier(.2,.8,.2,1), height .62s cubic-bezier(.2,.8,.2,1); }

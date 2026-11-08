@@ -91,7 +91,7 @@ export function mountStudies() {
     button.setAttribute("aria-controls", item.id);
     button.addEventListener("click", () => choose(i));
     selector.append(button);
-    return {item, art, video, button, film, link, alpha:-1};
+    return {item, art, video, button, film, link, alpha:-1, fill:-1};
   });
   let hold = .3, end = views.length-1 + hold;
   const motion = () => !reduce.matches && !document.documentElement.classList.contains("motion-paused");
@@ -167,12 +167,17 @@ export function mountStudies() {
         item.style.transform = motion() && alpha !== 1 ? "translateY("+shift.toFixed(2)+"px)" : "none";
         view.alpha = alpha;
       }
-      // The next frame cuts across the previous one, which remains opaque
-      // underneath it. The artwork never rides up with the chapter text.
+      // Move an overflow mask and counter-move its video by the same amount.
+      // The artwork stays registered while only the reveal edge travels.
+      // Keep the same compositor layers at both endpoints: Safari can jump
+      // when a playing video's clip-path switches to none or becomes hidden.
       const fill = i === 0 ? 1 : smooth(clamp((position-i)/(1-hold)+1,0,1));
-      const visible = fill > 0 && position < i+1;
-      art.style.visibility = visible ? "visible" : "hidden";
-      art.style.clipPath = fill === 1 ? "none" : "inset(0 "+((1-fill)*100).toFixed(3)+"% 0 0)";
+      if (view.fill !== fill) {
+        const offset = ((1-fill)*100).toFixed(5);
+        art.style.transform = `translate3d(-${offset}%,0,0)`;
+        video.style.transform = `translate3d(${offset}%,0,0)`;
+        view.fill = fill;
+      }
       const play = near && i===active && !document.hidden && motion() && !save.matches && !navigator.connection?.saveData;
       if (!play) { if (!video.paused) video.pause(); continue; }
       if (!video.hasAttribute("src")) video.src = asset(film+".mp4");
