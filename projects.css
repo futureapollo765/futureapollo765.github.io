@@ -494,6 +494,10 @@
   flex-direction: column;
 }
 
+html:has(.projects-player[open]) {
+  overflow: hidden;
+}
+
 .projects-player::backdrop {
   background: rgb(5 5 6 / .88);
 }
