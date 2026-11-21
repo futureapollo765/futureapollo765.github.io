@@ -43,7 +43,7 @@ class ScratchSyncTests(unittest.TestCase):
         row = self.row(project_token="DO_NOT_EXPORT_TOKEN", author={"profile": "DO_NOT_EXPORT_PROFILE"})
         with patch.object(sync, "fetch", side_effect=AssertionError("Unexpected API request")):
             item = sync.make_item(row, {1}, {}, self.staging)
-        self.assertEqual(item["embed"], "https://turbowarp.org/1/embed")
+        self.assertEqual(item["embed"], "https://turbowarp.org/1/embed?hqpen")
         self.assertEqual(item["author"], sync.USER)
         self.assertEqual(item["detailSections"], ["instructions", "notesAndCredits"])
         self.assertEqual(self.payload(), {
@@ -58,7 +58,7 @@ class ScratchSyncTests(unittest.TestCase):
         detail = self.row(2, instructions="Fresh instructions", description="Fresh notes",
                           author={"username": "PublicCreator", "profile": {"private": "DO_NOT_EXPORT_PROFILE"}},
                           project_token="DO_NOT_EXPORT_TOKEN")
-        previous = {2: {"embed": "https://turbowarp.org/2/embed?hqpen"}}
+        previous = {2: {"embed": "https://turbowarp.org/2/embed"}}
         with patch.object(sync, "fetch", return_value=json.dumps(detail).encode()) as fetch:
             item = sync.make_item(listing, {1}, previous, self.staging)
         fetch.assert_called_once_with(f"{sync.API}/projects/2")

@@ -174,7 +174,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-11-17T19:57:33.000Z",
       "thumbnail": "./assets/projects/1234482409.png?v=1794945453",
-      "embed": "https://turbowarp.org/1234482409/embed",
+      "embed": "https://turbowarp.org/1234482409/embed?hqpen",
       "details": "./assets/project-details/1234482409.json?v=81b50c2f9d2b",
       "detailSections": [
         "instructions",
@@ -200,7 +200,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-11-17T19:44:04.000Z",
       "thumbnail": "./assets/projects/1441444552.png?v=1794944644",
-      "embed": "https://turbowarp.org/1441444552/embed",
+      "embed": "https://turbowarp.org/1441444552/embed?hqpen",
       "details": "./assets/project-details/1441444552.json?v=395b9710bb14",
       "detailSections": [
         "notesAndCredits"
@@ -224,7 +224,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-10-30T19:18:27.000Z",
       "thumbnail": "./assets/projects/1397755857.png?v=1793387907",
-      "embed": "https://turbowarp.org/1397755857/embed",
+      "embed": "https://turbowarp.org/1397755857/embed?hqpen",
       "details": "./assets/project-details/1397755857.json?v=417ffa9f1928",
       "detailSections": [
         "notesAndCredits"
@@ -236,7 +236,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-10-19T11:57:42.000Z",
       "thumbnail": "./assets/projects/1393202928.png?v=1792411202",
-      "embed": "https://turbowarp.org/1393202928/embed",
+      "embed": "https://turbowarp.org/1393202928/embed?hqpen",
       "details": "./assets/project-details/1393202928.json?v=0dffd8e0255f",
       "detailSections": [
         "instructions",
@@ -249,7 +249,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-10-08T18:12:25.000Z",
       "thumbnail": "./assets/projects/1083676575.webp?v=7988523b3866",
-      "embed": "https://turbowarp.org/1083676575/embed",
+      "embed": "https://turbowarp.org/1083676575/embed?hqpen",
       "details": "./assets/project-details/1083676575.json?v=204af050ed58",
       "detailSections": [
         "instructions",
@@ -274,7 +274,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-09-07T00:59:40.000Z",
       "thumbnail": "./assets/projects/1378633467.webp?v=718d4bcfa7a7",
-      "embed": "https://turbowarp.org/1378633467/embed",
+      "embed": "https://turbowarp.org/1378633467/embed?hqpen",
       "details": "./assets/project-details/1378633467.json?v=6a93adb24840",
       "detailSections": [
         "notesAndCredits"
@@ -286,7 +286,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-08-26T19:10:14.000Z",
       "thumbnail": "./assets/projects/1375427294.png?v=1787771414",
-      "embed": "https://turbowarp.org/1375427294/embed",
+      "embed": "https://turbowarp.org/1375427294/embed?hqpen",
       "details": "./assets/project-details/1375427294.json?v=8af4b5737f44",
       "detailSections": [
         "notesAndCredits"
@@ -298,7 +298,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-07-28T04:36:10.000Z",
       "thumbnail": "./assets/projects/1364964621.png?v=1788827604",
-      "embed": "https://turbowarp.org/1364964621/embed",
+      "embed": "https://turbowarp.org/1364964621/embed?hqpen",
       "details": "./assets/project-details/1364964621.json?v=a8f1ece8e3ac",
       "detailSections": [
         "instructions",
@@ -311,7 +311,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-07-20T15:59:05.000Z",
       "thumbnail": "./assets/projects/1363394873.png?v=1784563232",
-      "embed": "https://turbowarp.org/1363394873/embed",
+      "embed": "https://turbowarp.org/1363394873/embed?hqpen",
       "details": "./assets/project-details/1363394873.json?v=eea40e4abd10",
       "detailSections": [
         "instructions",
@@ -324,7 +324,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-07-17T06:32:28.000Z",
       "thumbnail": "./assets/projects/1362740076.png?v=1784269948",
-      "embed": "https://turbowarp.org/1362740076/embed",
+      "embed": "https://turbowarp.org/1362740076/embed?hqpen",
       "details": "./assets/project-details/1362740076.json?v=5a7fc580e77e",
       "detailSections": [
         "notesAndCredits"
@@ -336,7 +336,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-07-03T05:50:57.000Z",
       "thumbnail": "./assets/projects/1350992002.png?v=1783057857",
-      "embed": "https://turbowarp.org/1350992002/embed",
+      "embed": "https://turbowarp.org/1350992002/embed?hqpen",
       "details": "./assets/project-details/1350992002.json?v=65e1fb87c510",
       "detailSections": [
         "notesAndCredits"
@@ -348,7 +348,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-06-23T03:10:44.000Z",
       "thumbnail": "./assets/projects/1334587822.webp?v=003a96eae8ba",
-      "embed": "https://turbowarp.org/1334587822/embed",
+      "embed": "https://turbowarp.org/1334587822/embed?hqpen",
       "details": "./assets/project-details/1334587822.json?v=35d2913efd56",
       "detailSections": [
         "instructions"
@@ -360,7 +360,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-26T14:10:29.000Z",
       "thumbnail": "./assets/projects/1325162899.png?v=1779804629",
-      "embed": "https://turbowarp.org/1325162899/embed",
+      "embed": "https://turbowarp.org/1325162899/embed?hqpen",
       "details": "./assets/project-details/1325162899.json?v=38e734c98801",
       "detailSections": [
         "notesAndCredits"
@@ -372,7 +372,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-18T13:20:14.000Z",
       "thumbnail": "./assets/projects/1308628024.png?v=1779233007",
-      "embed": "https://turbowarp.org/1308628024/embed",
+      "embed": "https://turbowarp.org/1308628024/embed?hqpen",
       "details": "./assets/project-details/1308628024.json?v=20116524ece8",
       "detailSections": [
         "instructions"
@@ -384,7 +384,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-12T16:41:49.000Z",
       "thumbnail": "./assets/projects/1294673188.webp?v=4345cd7e65e5",
-      "embed": "https://turbowarp.org/1294673188/embed",
+      "embed": "https://turbowarp.org/1294673188/embed?hqpen",
       "details": "./assets/project-details/1294673188.json?v=508195984685",
       "detailSections": [
         "instructions",
@@ -397,7 +397,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-08T14:08:02.000Z",
       "thumbnail": "./assets/projects/1317692046.png?v=1778249282",
-      "embed": "https://turbowarp.org/1317692046/embed",
+      "embed": "https://turbowarp.org/1317692046/embed?hqpen",
       "details": "./assets/project-details/1317692046.json?v=8193e5c83a59",
       "detailSections": [
         "instructions",
@@ -410,7 +410,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-07T20:18:45.000Z",
       "thumbnail": "./assets/projects/1317352635.webp?v=79d4e0f1c3f1",
-      "embed": "https://turbowarp.org/1317352635/embed",
+      "embed": "https://turbowarp.org/1317352635/embed?hqpen",
       "details": "./assets/project-details/1317352635.json?v=79b16aa2ccf1",
       "detailSections": [
         "instructions",
@@ -423,7 +423,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-07T12:35:58.000Z",
       "thumbnail": "./assets/projects/1317136790.png?v=1778159976",
-      "embed": "https://turbowarp.org/1317136790/embed",
+      "embed": "https://turbowarp.org/1317136790/embed?hqpen",
       "details": "./assets/project-details/1317136790.json?v=3af4f6030839",
       "detailSections": [
         "instructions",
@@ -436,7 +436,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-06T12:47:48.000Z",
       "thumbnail": "./assets/projects/1316597686.png?v=1778071668",
-      "embed": "https://turbowarp.org/1316597686/embed",
+      "embed": "https://turbowarp.org/1316597686/embed?hqpen",
       "details": "./assets/project-details/1316597686.json?v=16d334a4dee5",
       "detailSections": [
         "instructions",
@@ -449,7 +449,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-05T13:33:05.000Z",
       "thumbnail": "./assets/projects/1316082483.png?v=1777987989",
-      "embed": "https://turbowarp.org/1316082483/embed",
+      "embed": "https://turbowarp.org/1316082483/embed?hqpen",
       "details": "./assets/project-details/1316082483.json?v=7de3edf110e8",
       "detailSections": [
         "instructions",
@@ -462,7 +462,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-05T13:27:52.000Z",
       "thumbnail": "./assets/projects/1316077974.png?v=1777987995",
-      "embed": "https://turbowarp.org/1316077974/embed",
+      "embed": "https://turbowarp.org/1316077974/embed?hqpen",
       "details": "./assets/project-details/1316077974.json?v=916f321b0d39",
       "detailSections": [
         "instructions",
@@ -475,7 +475,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-05-03T06:27:27.000Z",
       "thumbnail": "./assets/projects/1315103923.png?v=1777789647",
-      "embed": "https://turbowarp.org/1315103923/embed",
+      "embed": "https://turbowarp.org/1315103923/embed?hqpen",
       "details": "./assets/project-details/1315103923.json?v=c9c82bbc86ef",
       "detailSections": [
         "notesAndCredits"
@@ -487,7 +487,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-20T13:00:42.000Z",
       "thumbnail": "./assets/projects/1309473438.png?v=1776779924",
-      "embed": "https://turbowarp.org/1309473438/embed",
+      "embed": "https://turbowarp.org/1309473438/embed?hqpen",
       "details": "./assets/project-details/1309473438.json?v=656bcb1aeb9f",
       "detailSections": [
         "instructions",
@@ -500,7 +500,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-14T23:57:29.000Z",
       "thumbnail": "./assets/projects/1307155156.png?v=1776211049",
-      "embed": "https://turbowarp.org/1307155156/embed",
+      "embed": "https://turbowarp.org/1307155156/embed?hqpen",
       "details": "./assets/project-details/1307155156.json?v=c5a635202fad",
       "detailSections": [
         "notesAndCredits"
@@ -512,7 +512,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-14T00:40:44.000Z",
       "thumbnail": "./assets/projects/1306653204.png?v=1776127244",
-      "embed": "https://turbowarp.org/1306653204/embed",
+      "embed": "https://turbowarp.org/1306653204/embed?hqpen",
       "details": "./assets/project-details/1306653204.json?v=5861133ac1ef",
       "detailSections": [
         "notesAndCredits"
@@ -524,7 +524,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-14T00:39:55.000Z",
       "thumbnail": "./assets/projects/1306652860.png?v=1776127195",
-      "embed": "https://turbowarp.org/1306652860/embed",
+      "embed": "https://turbowarp.org/1306652860/embed?hqpen",
       "details": "./assets/project-details/1306652860.json?v=7d71a2610343",
       "detailSections": [
         "notesAndCredits"
@@ -536,7 +536,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-13T14:45:44.000Z",
       "thumbnail": "./assets/projects/1306471048.png?v=1776095409",
-      "embed": "https://turbowarp.org/1306471048/embed",
+      "embed": "https://turbowarp.org/1306471048/embed?hqpen",
       "details": "./assets/project-details/1306471048.json?v=0853f5f0f7eb",
       "detailSections": [
         "notesAndCredits"
@@ -548,7 +548,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-04-08T13:23:23.000Z",
       "thumbnail": "./assets/projects/1304681034.png?v=1775654669",
-      "embed": "https://turbowarp.org/1304681034/embed",
+      "embed": "https://turbowarp.org/1304681034/embed?hqpen",
       "details": "./assets/project-details/1304681034.json?v=2b4eecdd739c",
       "detailSections": [
         "instructions",
@@ -573,7 +573,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-03-18T06:10:19.000Z",
       "thumbnail": "./assets/projects/1292474764.png?v=1773814454",
-      "embed": "https://turbowarp.org/1292474764/embed",
+      "embed": "https://turbowarp.org/1292474764/embed?hqpen",
       "details": "./assets/project-details/1292474764.json?v=4303f0535431",
       "detailSections": [
         "notesAndCredits"
@@ -585,7 +585,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-03-09T12:59:30.000Z",
       "thumbnail": "./assets/projects/1288506306.png?v=1773061264",
-      "embed": "https://turbowarp.org/1288506306/embed",
+      "embed": "https://turbowarp.org/1288506306/embed?hqpen",
       "details": "./assets/project-details/1288506306.json?v=affee2e84d74",
       "detailSections": [
         "instructions",
@@ -598,7 +598,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-03-05T14:08:18.000Z",
       "thumbnail": "./assets/projects/1287057667.png?v=1772843408",
-      "embed": "https://turbowarp.org/1287057667/embed",
+      "embed": "https://turbowarp.org/1287057667/embed?hqpen",
       "details": "./assets/project-details/1287057667.json?v=f80b2a063cb1",
       "detailSections": [
         "instructions",
@@ -611,7 +611,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-02-25T14:25:17.000Z",
       "thumbnail": "./assets/projects/1283586736.png?v=1772036397",
-      "embed": "https://turbowarp.org/1283586736/embed",
+      "embed": "https://turbowarp.org/1283586736/embed?hqpen",
       "details": "./assets/project-details/1283586736.json?v=661cc4d5a142",
       "detailSections": [
         "notesAndCredits"
@@ -623,7 +623,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-02-14T00:06:49.000Z",
       "thumbnail": "./assets/projects/1279418281.png?v=1771027674",
-      "embed": "https://turbowarp.org/1279418281/embed",
+      "embed": "https://turbowarp.org/1279418281/embed?hqpen",
       "details": "./assets/project-details/1279418281.json?v=a8e4da19813f",
       "detailSections": [
         "notesAndCredits"
@@ -635,7 +635,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-02-05T16:51:59.000Z",
       "thumbnail": "./assets/projects/1275729799.png?v=1770387511",
-      "embed": "https://turbowarp.org/1275729799/embed",
+      "embed": "https://turbowarp.org/1275729799/embed?hqpen",
       "details": "./assets/project-details/1275729799.json?v=d69d2b1a56c7",
       "detailSections": [
         "instructions",
@@ -648,7 +648,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-01-26T19:59:25.000Z",
       "thumbnail": "./assets/projects/1271256397.png?v=1769457565",
-      "embed": "https://turbowarp.org/1271256397/embed",
+      "embed": "https://turbowarp.org/1271256397/embed?hqpen",
       "details": "./assets/project-details/1271256397.json?v=40929dd900b3",
       "detailSections": [
         "notesAndCredits"
@@ -660,7 +660,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2026-01-07T03:22:21.000Z",
       "thumbnail": "./assets/projects/1214545266.webp?v=8011f73d5435",
-      "embed": "https://turbowarp.org/1214545266/embed",
+      "embed": "https://turbowarp.org/1214545266/embed?hqpen",
       "details": "./assets/project-details/1214545266.json?v=42ad595c1d5f",
       "detailSections": [
         "notesAndCredits"
@@ -672,7 +672,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-19T13:36:20.000Z",
       "thumbnail": "./assets/projects/1257915147.png?v=1793886879",
-      "embed": "https://turbowarp.org/1257915147/embed",
+      "embed": "https://turbowarp.org/1257915147/embed?hqpen",
       "details": "./assets/project-details/1257915147.json?v=5d781bceb0a2",
       "detailSections": [
         "notesAndCredits"
@@ -684,7 +684,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-18T16:30:03.000Z",
       "thumbnail": "./assets/projects/1257593775.png?v=1766075425",
-      "embed": "https://turbowarp.org/1257593775/embed",
+      "embed": "https://turbowarp.org/1257593775/embed?hqpen",
       "details": "./assets/project-details/1257593775.json?v=fd6b19e6cb6a",
       "detailSections": [
         "notesAndCredits"
@@ -696,7 +696,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-10T15:21:40.000Z",
       "thumbnail": "./assets/projects/1254186775.png?v=1766152876",
-      "embed": "https://turbowarp.org/1254186775/embed",
+      "embed": "https://turbowarp.org/1254186775/embed?hqpen",
       "details": "./assets/project-details/1254186775.json?v=e10493e6c3f8",
       "detailSections": [
         "instructions",
@@ -709,7 +709,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-08T18:46:51.000Z",
       "thumbnail": "./assets/projects/1253243261.png?v=1765219640",
-      "embed": "https://turbowarp.org/1253243261/embed",
+      "embed": "https://turbowarp.org/1253243261/embed?hqpen",
       "details": "./assets/project-details/1253243261.json?v=878ad71b7e79",
       "detailSections": [
         "instructions",
@@ -722,7 +722,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-08T02:42:14.000Z",
       "thumbnail": "./assets/projects/1252921565.png?v=1777935716",
-      "embed": "https://turbowarp.org/1252921565/embed",
+      "embed": "https://turbowarp.org/1252921565/embed?hqpen",
       "details": "./assets/project-details/1252921565.json?v=5c18612dbc5e",
       "detailSections": [
         "instructions"
@@ -734,7 +734,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-12-01T17:57:16.000Z",
       "thumbnail": "./assets/projects/1249712517.png?v=1764611867",
-      "embed": "https://turbowarp.org/1249712517/embed",
+      "embed": "https://turbowarp.org/1249712517/embed?hqpen",
       "details": "./assets/project-details/1249712517.json?v=343e459a0ff1",
       "detailSections": [
         "notesAndCredits"
@@ -746,7 +746,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-11-30T03:36:33.000Z",
       "thumbnail": "./assets/projects/1249517776.png?v=1764473793",
-      "embed": "https://turbowarp.org/1249517776/embed",
+      "embed": "https://turbowarp.org/1249517776/embed?hqpen",
       "details": "./assets/project-details/1249517776.json?v=5c8ff6a62307",
       "detailSections": [
         "notesAndCredits"
@@ -758,7 +758,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-11-29T01:13:31.000Z",
       "thumbnail": "./assets/projects/1249239166.png?v=1765160394",
-      "embed": "https://turbowarp.org/1249239166/embed",
+      "embed": "https://turbowarp.org/1249239166/embed?hqpen",
       "details": "./assets/project-details/1249239166.json?v=a1c0df54085b",
       "detailSections": [
         "instructions",
@@ -771,7 +771,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-10-18T01:27:37.000Z",
       "thumbnail": "./assets/projects/1230468572.png?v=1771027470",
-      "embed": "https://turbowarp.org/1230468572/embed",
+      "embed": "https://turbowarp.org/1230468572/embed?hqpen",
       "details": "./assets/project-details/1230468572.json?v=0f5a94b4939b",
       "detailSections": [
         "instructions",
@@ -784,7 +784,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-10-13T15:39:58.000Z",
       "thumbnail": "./assets/projects/1228389548.png?v=1760371026",
-      "embed": "https://turbowarp.org/1228389548/embed",
+      "embed": "https://turbowarp.org/1228389548/embed?hqpen",
       "details": "./assets/project-details/1228389548.json?v=0147af573dc2",
       "detailSections": [
         "instructions",
@@ -797,7 +797,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-10-13T15:28:34.000Z",
       "thumbnail": "./assets/projects/1228385424.png?v=1764221751",
-      "embed": "https://turbowarp.org/1228385424/embed",
+      "embed": "https://turbowarp.org/1228385424/embed?hqpen",
       "details": "./assets/project-details/1228385424.json?v=57ddfeea0817",
       "detailSections": [
         "notesAndCredits"
@@ -809,7 +809,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-10-07T20:18:04.000Z",
       "thumbnail": "./assets/projects/1226158529.png?v=1778263803",
-      "embed": "https://turbowarp.org/1226158529/embed",
+      "embed": "https://turbowarp.org/1226158529/embed?hqpen",
       "details": "./assets/project-details/1226158529.json?v=2987d3c9b98a",
       "detailSections": [
         "instructions",
@@ -822,7 +822,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-10-02T18:25:15.000Z",
       "thumbnail": "./assets/projects/1224290510.png?v=1759429745",
-      "embed": "https://turbowarp.org/1224290510/embed",
+      "embed": "https://turbowarp.org/1224290510/embed?hqpen",
       "details": "./assets/project-details/1224290510.json?v=36f876c73cff",
       "detailSections": [
         "instructions",
@@ -835,7 +835,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-09-14T03:57:03.000Z",
       "thumbnail": "./assets/projects/1216700286.png?v=1757822223",
-      "embed": "https://turbowarp.org/1216700286/embed",
+      "embed": "https://turbowarp.org/1216700286/embed?hqpen",
       "details": "./assets/project-details/1216700286.json?v=912ec18a8a89",
       "detailSections": [
         "notesAndCredits"
@@ -847,7 +847,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-08-23T22:00:08.000Z",
       "thumbnail": "./assets/projects/1167352201.png?v=1755986466",
-      "embed": "https://turbowarp.org/1167352201/embed",
+      "embed": "https://turbowarp.org/1167352201/embed?hqpen",
       "details": "./assets/project-details/1167352201.json?v=54d38a5430da",
       "detailSections": [
         "notesAndCredits"
@@ -859,7 +859,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-08-23T21:59:17.000Z",
       "thumbnail": "./assets/projects/1208908551.png?v=1755986454",
-      "embed": "https://turbowarp.org/1208908551/embed",
+      "embed": "https://turbowarp.org/1208908551/embed?hqpen",
       "details": "./assets/project-details/1208908551.json?v=fb26e9ef5f6d",
       "detailSections": [
         "notesAndCredits"
@@ -871,7 +871,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-04-04T23:16:18.000Z",
       "thumbnail": "./assets/projects/1157564799.png?v=1743808972",
-      "embed": "https://turbowarp.org/1157564799/embed",
+      "embed": "https://turbowarp.org/1157564799/embed?hqpen",
       "details": "./assets/project-details/1157564799.json?v=a7e0254bcbfd",
       "detailSections": [
         "notesAndCredits"
@@ -883,7 +883,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-04-04T23:14:04.000Z",
       "thumbnail": "./assets/projects/1157564562.png?v=1743808928",
-      "embed": "https://turbowarp.org/1157564562/embed",
+      "embed": "https://turbowarp.org/1157564562/embed?hqpen",
       "details": "./assets/project-details/1157564562.json?v=4d9a6401cbb3",
       "detailSections": [
         "notesAndCredits"
@@ -895,7 +895,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-04-04T23:13:05.000Z",
       "thumbnail": "./assets/projects/1157564355.png?v=1743808881",
-      "embed": "https://turbowarp.org/1157564355/embed",
+      "embed": "https://turbowarp.org/1157564355/embed?hqpen",
       "details": "./assets/project-details/1157564355.json?v=cf959c903bd0",
       "detailSections": [
         "notesAndCredits"
@@ -907,7 +907,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-04-04T23:11:44.000Z",
       "thumbnail": "./assets/projects/1157564163.png?v=1743808870",
-      "embed": "https://turbowarp.org/1157564163/embed",
+      "embed": "https://turbowarp.org/1157564163/embed?hqpen",
       "details": "./assets/project-details/1157564163.json?v=2ae5371845b8",
       "detailSections": [
         "notesAndCredits"
@@ -919,7 +919,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-04-04T23:11:10.000Z",
       "thumbnail": "./assets/projects/1157563977.png?v=1743808825",
-      "embed": "https://turbowarp.org/1157563977/embed",
+      "embed": "https://turbowarp.org/1157563977/embed?hqpen",
       "details": "./assets/project-details/1157563977.json?v=9289bedd0e1c",
       "detailSections": [
         "notesAndCredits"
@@ -931,7 +931,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-03-25T12:16:16.000Z",
       "thumbnail": "./assets/projects/1152307824.png?v=1742904976",
-      "embed": "https://turbowarp.org/1152307824/embed",
+      "embed": "https://turbowarp.org/1152307824/embed?hqpen",
       "details": "./assets/project-details/1152307824.json?v=793973f42a91",
       "detailSections": [
         "notesAndCredits"
@@ -943,7 +943,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2025-03-13T15:55:18.000Z",
       "thumbnail": "./assets/projects/1146760998.png?v=1770143932",
-      "embed": "https://turbowarp.org/1146760998/embed",
+      "embed": "https://turbowarp.org/1146760998/embed?hqpen",
       "details": "./assets/project-details/1146760998.json?v=1d3aba3613d2",
       "detailSections": [
         "notesAndCredits"
@@ -967,7 +967,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-12-18T15:06:59.000Z",
       "thumbnail": "./assets/projects/1112348655.png?v=1765378771",
-      "embed": "https://turbowarp.org/1112348655/embed",
+      "embed": "https://turbowarp.org/1112348655/embed?hqpen",
       "details": "./assets/project-details/1112348655.json?v=d0217be46281",
       "detailSections": [
         "notesAndCredits"
@@ -979,7 +979,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-11-07T03:15:36.000Z",
       "thumbnail": "./assets/projects/1092759528.png?v=1732506352",
-      "embed": "https://turbowarp.org/1092759528/embed",
+      "embed": "https://turbowarp.org/1092759528/embed?hqpen",
       "details": "./assets/project-details/1092759528.json?v=99984fbd8b90",
       "detailSections": [
         "instructions"
@@ -991,7 +991,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-10-29T13:50:12.000Z",
       "thumbnail": "./assets/projects/1088597897.png?v=1757822705",
-      "embed": "https://turbowarp.org/1088597897/embed",
+      "embed": "https://turbowarp.org/1088597897/embed?hqpen",
       "details": "./assets/project-details/1088597897.json?v=58bbe83e5614",
       "detailSections": [
         "instructions",
@@ -1004,7 +1004,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-10-12T03:56:23.000Z",
       "thumbnail": "./assets/projects/1080409233.png?v=1729007781",
-      "embed": "https://turbowarp.org/1080409233/embed",
+      "embed": "https://turbowarp.org/1080409233/embed?hqpen",
       "details": "./assets/project-details/1080409233.json?v=32b693dad2dc",
       "detailSections": [
         "instructions"
@@ -1016,7 +1016,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-09-22T00:58:16.000Z",
       "thumbnail": "./assets/projects/1071123157.png?v=1770144149",
-      "embed": "https://turbowarp.org/1071123157/embed",
+      "embed": "https://turbowarp.org/1071123157/embed?hqpen",
       "details": "./assets/project-details/1071123157.json?v=fcef05811d0e",
       "detailSections": [
         "instructions"
@@ -1028,7 +1028,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-08-28T01:29:35.000Z",
       "thumbnail": "./assets/projects/1060299702.png?v=1770144137",
-      "embed": "https://turbowarp.org/1060299702/embed",
+      "embed": "https://turbowarp.org/1060299702/embed?hqpen",
       "details": "./assets/project-details/1060299702.json?v=49159301a976",
       "detailSections": [
         "notesAndCredits"
@@ -1040,7 +1040,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-07-27T02:57:58.000Z",
       "thumbnail": "./assets/projects/1050157955.png?v=1770144131",
-      "embed": "https://turbowarp.org/1050157955/embed",
+      "embed": "https://turbowarp.org/1050157955/embed?hqpen",
       "details": "./assets/project-details/1050157955.json?v=72a7893f0547",
       "detailSections": [
         "instructions",
@@ -1053,7 +1053,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-06-09T02:21:29.000Z",
       "thumbnail": "./assets/projects/1034426523.png?v=1717899751",
-      "embed": "https://turbowarp.org/1034426523/embed",
+      "embed": "https://turbowarp.org/1034426523/embed?hqpen",
       "details": "./assets/project-details/1034426523.json?v=1e44c7566e08",
       "detailSections": [
         "instructions",
@@ -1066,7 +1066,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-06-09T02:07:50.000Z",
       "thumbnail": "./assets/projects/1034424406.png?v=1717898896",
-      "embed": "https://turbowarp.org/1034424406/embed",
+      "embed": "https://turbowarp.org/1034424406/embed?hqpen",
       "details": "./assets/project-details/1034424406.json?v=3076aa08bc09",
       "detailSections": [
         "instructions",
@@ -1079,7 +1079,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-06-02T00:46:17.000Z",
       "thumbnail": "./assets/projects/1030696378.png?v=1770144184",
-      "embed": "https://turbowarp.org/1030696378/embed",
+      "embed": "https://turbowarp.org/1030696378/embed?hqpen",
       "details": "./assets/project-details/1030696378.json?v=d55de021ba4c",
       "detailSections": [
         "instructions",
@@ -1092,7 +1092,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-05-29T14:49:37.000Z",
       "thumbnail": "./assets/projects/1029129879.png?v=1745940563",
-      "embed": "https://turbowarp.org/1029129879/embed",
+      "embed": "https://turbowarp.org/1029129879/embed?hqpen",
       "details": "./assets/project-details/1029129879.json?v=2bd596d03b49",
       "detailSections": [
         "instructions",
@@ -1105,7 +1105,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-05-18T23:46:00.000Z",
       "thumbnail": "./assets/projects/1022807402.png?v=1760749675",
-      "embed": "https://turbowarp.org/1022807402/embed",
+      "embed": "https://turbowarp.org/1022807402/embed?hqpen",
       "details": "./assets/project-details/1022807402.json?v=98b6043b01e6",
       "detailSections": [
         "instructions",
@@ -1118,7 +1118,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-05-05T01:35:29.000Z",
       "thumbnail": "./assets/projects/1013854925.png?v=1742906546",
-      "embed": "https://turbowarp.org/1013854925/embed",
+      "embed": "https://turbowarp.org/1013854925/embed?hqpen",
       "details": "./assets/project-details/1013854925.json?v=0bb538b64dd4",
       "detailSections": [
         "instructions",
@@ -1131,7 +1131,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-03-20T01:14:28.000Z",
       "thumbnail": "./assets/projects/985974404.png?v=1710897505",
-      "embed": "https://turbowarp.org/985974404/embed",
+      "embed": "https://turbowarp.org/985974404/embed?hqpen",
       "details": "./assets/project-details/985974404.json?v=73cf86c60eb4",
       "detailSections": [
         "instructions",
@@ -1144,7 +1144,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-02-27T02:53:34.000Z",
       "thumbnail": "./assets/projects/972435365.png?v=1793493238",
-      "embed": "https://turbowarp.org/972435365/embed",
+      "embed": "https://turbowarp.org/972435365/embed?hqpen",
       "details": "./assets/project-details/972435365.json?v=fdf101da3223",
       "detailSections": [
         "notesAndCredits"
@@ -1156,7 +1156,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-01-05T14:41:01.000Z",
       "thumbnail": "./assets/projects/947011909.png?v=1743808834",
-      "embed": "https://turbowarp.org/947011909/embed",
+      "embed": "https://turbowarp.org/947011909/embed?hqpen",
       "details": "./assets/project-details/947011909.json?v=2cf272573322",
       "detailSections": [
         "notesAndCredits"
@@ -1168,7 +1168,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-01-05T06:49:03.000Z",
       "thumbnail": "./assets/projects/946914527.png?v=1743808857",
-      "embed": "https://turbowarp.org/946914527/embed",
+      "embed": "https://turbowarp.org/946914527/embed?hqpen",
       "details": "./assets/project-details/946914527.json?v=69071e61295d",
       "detailSections": [
         "instructions",
@@ -1181,7 +1181,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2024-01-02T09:06:15.000Z",
       "thumbnail": "./assets/projects/945927321.png?v=1704186837",
-      "embed": "https://turbowarp.org/945927321/embed",
+      "embed": "https://turbowarp.org/945927321/embed?hqpen",
       "details": "./assets/project-details/945927321.json?v=eb130720db34",
       "detailSections": [
         "notesAndCredits"
@@ -1193,7 +1193,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-12-11T01:18:44.000Z",
       "thumbnail": "./assets/projects/938138777.png?v=1702257849",
-      "embed": "https://turbowarp.org/938138777/embed",
+      "embed": "https://turbowarp.org/938138777/embed?hqpen",
       "details": "./assets/project-details/938138777.json?v=280faaffcdc1",
       "detailSections": [
         "notesAndCredits"
@@ -1205,7 +1205,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-12-01T02:21:02.000Z",
       "thumbnail": "./assets/projects/933417569.png?v=1701397349",
-      "embed": "https://turbowarp.org/933417569/embed",
+      "embed": "https://turbowarp.org/933417569/embed?hqpen",
       "details": "./assets/project-details/933417569.json?v=447f8ad5557c",
       "detailSections": [
         "notesAndCredits"
@@ -1217,7 +1217,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-11-22T02:06:19.000Z",
       "thumbnail": "./assets/projects/928441802.png?v=1700618850",
-      "embed": "https://turbowarp.org/928441802/embed",
+      "embed": "https://turbowarp.org/928441802/embed?hqpen",
       "details": "./assets/project-details/928441802.json?v=f69406740804",
       "detailSections": [
         "notesAndCredits"
@@ -1229,7 +1229,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-11-22T01:55:22.000Z",
       "thumbnail": "./assets/projects/928437630.png?v=1700618864",
-      "embed": "https://turbowarp.org/928437630/embed",
+      "embed": "https://turbowarp.org/928437630/embed?hqpen",
       "details": "./assets/project-details/928437630.json?v=780f567c3739",
       "detailSections": [
         "notesAndCredits"
@@ -1241,7 +1241,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-11-19T02:01:31.000Z",
       "thumbnail": "./assets/projects/926939126.png?v=1700359305",
-      "embed": "https://turbowarp.org/926939126/embed",
+      "embed": "https://turbowarp.org/926939126/embed?hqpen",
       "details": "./assets/project-details/926939126.json?v=60658aab5f00",
       "detailSections": [
         "notesAndCredits"
@@ -1253,7 +1253,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-11-18T00:47:57.000Z",
       "thumbnail": "./assets/projects/926613453.webp?v=d910837dfcdc",
-      "embed": "https://turbowarp.org/926613453/embed",
+      "embed": "https://turbowarp.org/926613453/embed?hqpen",
       "details": "./assets/project-details/926613453.json?v=513f503736fc",
       "detailSections": [
         "instructions",
@@ -1266,7 +1266,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-11-12T02:11:03.000Z",
       "thumbnail": "./assets/projects/923152681.png?v=1699840737",
-      "embed": "https://turbowarp.org/923152681/embed",
+      "embed": "https://turbowarp.org/923152681/embed?hqpen",
       "details": "./assets/project-details/923152681.json?v=947da0fe094c",
       "detailSections": [
         "notesAndCredits"
@@ -1278,7 +1278,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-10-31T15:41:44.000Z",
       "thumbnail": "./assets/projects/916977835.png?v=1699840784",
-      "embed": "https://turbowarp.org/916977835/embed",
+      "embed": "https://turbowarp.org/916977835/embed?hqpen",
       "details": "./assets/project-details/916977835.json?v=7b60ab4292df",
       "detailSections": [
         "instructions",
@@ -1291,7 +1291,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-10-09T00:46:40.000Z",
       "thumbnail": "./assets/projects/904995021.png?v=1696812506",
-      "embed": "https://turbowarp.org/904995021/embed",
+      "embed": "https://turbowarp.org/904995021/embed?hqpen",
       "details": "./assets/project-details/904995021.json?v=aec735e855de",
       "detailSections": [
         "notesAndCredits"
@@ -1303,7 +1303,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-09-27T14:26:20.000Z",
       "thumbnail": "./assets/projects/899507716.png?v=1776476551",
-      "embed": "https://turbowarp.org/899507716/embed",
+      "embed": "https://turbowarp.org/899507716/embed?hqpen",
       "details": "./assets/project-details/899507716.json?v=f57eff44cf0f",
       "detailSections": [
         "notesAndCredits"
@@ -1315,7 +1315,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-09-22T23:57:32.000Z",
       "thumbnail": "./assets/projects/897496872.png?v=1696812502",
-      "embed": "https://turbowarp.org/897496872/embed",
+      "embed": "https://turbowarp.org/897496872/embed?hqpen",
       "details": "./assets/project-details/897496872.json?v=82b0c37d3868",
       "detailSections": [
         "notesAndCredits"
@@ -1327,7 +1327,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-09-14T01:09:42.000Z",
       "thumbnail": "./assets/projects/893097273.png?v=1694734430",
-      "embed": "https://turbowarp.org/893097273/embed",
+      "embed": "https://turbowarp.org/893097273/embed?hqpen",
       "details": "./assets/project-details/893097273.json?v=f1dac09682ae",
       "detailSections": [
         "notesAndCredits"
@@ -1339,7 +1339,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-09-08T20:55:03.000Z",
       "thumbnail": "./assets/projects/890963245.png?v=1694532236",
-      "embed": "https://turbowarp.org/890963245/embed",
+      "embed": "https://turbowarp.org/890963245/embed?hqpen",
       "details": "./assets/project-details/890963245.json?v=40e90a3ec5d7",
       "detailSections": [
         "notesAndCredits"
@@ -1351,7 +1351,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-08-29T20:10:51.000Z",
       "thumbnail": "./assets/projects/887196759.png?v=1694532212",
-      "embed": "https://turbowarp.org/887196759/embed",
+      "embed": "https://turbowarp.org/887196759/embed?hqpen",
       "details": "./assets/project-details/887196759.json?v=6ef431f892eb",
       "detailSections": [
         "notesAndCredits"
@@ -1363,7 +1363,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-08-02T15:12:45.000Z",
       "thumbnail": "./assets/projects/879422198.png?v=1693407901",
-      "embed": "https://turbowarp.org/879422198/embed",
+      "embed": "https://turbowarp.org/879422198/embed?hqpen",
       "details": "./assets/project-details/879422198.json?v=fd31f009af33",
       "detailSections": [
         "notesAndCredits"
@@ -1375,7 +1375,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-26T09:20:30.000Z",
       "thumbnail": "./assets/projects/877586443.png?v=1693407917",
-      "embed": "https://turbowarp.org/877586443/embed",
+      "embed": "https://turbowarp.org/877586443/embed?hqpen",
       "details": "./assets/project-details/877586443.json?v=aaa6e5a25e45",
       "detailSections": [
         "notesAndCredits"
@@ -1387,7 +1387,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-21T13:03:14.000Z",
       "thumbnail": "./assets/projects/876389086.png?v=1693407676",
-      "embed": "https://turbowarp.org/876389086/embed",
+      "embed": "https://turbowarp.org/876389086/embed?hqpen",
       "details": "./assets/project-details/876389086.json?v=043fd0dfc59c",
       "detailSections": [
         "notesAndCredits"
@@ -1399,7 +1399,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-20T03:38:02.000Z",
       "thumbnail": "./assets/projects/876010003.png?v=1693407721",
-      "embed": "https://turbowarp.org/876010003/embed",
+      "embed": "https://turbowarp.org/876010003/embed?hqpen",
       "details": "./assets/project-details/876010003.json?v=500f5c227bba",
       "detailSections": [
         "notesAndCredits"
@@ -1411,7 +1411,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-14T02:51:13.000Z",
       "thumbnail": "./assets/projects/874470870.png?v=1689303126",
-      "embed": "https://turbowarp.org/874470870/embed",
+      "embed": "https://turbowarp.org/874470870/embed?hqpen",
       "details": "./assets/project-details/874470870.json?v=66ea317685be",
       "detailSections": [
         "notesAndCredits"
@@ -1423,7 +1423,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-12T03:06:07.000Z",
       "thumbnail": "./assets/projects/873892881.png?v=1689132342",
-      "embed": "https://turbowarp.org/873892881/embed",
+      "embed": "https://turbowarp.org/873892881/embed?hqpen",
       "details": "./assets/project-details/873892881.json?v=ad9cafb282b9",
       "detailSections": [
         "notesAndCredits"
@@ -1435,7 +1435,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-07T07:40:52.000Z",
       "thumbnail": "./assets/projects/872665826.png?v=1688715653",
-      "embed": "https://turbowarp.org/872665826/embed",
+      "embed": "https://turbowarp.org/872665826/embed?hqpen",
       "details": "./assets/project-details/872665826.json?v=600c13ef7e38",
       "detailSections": []
     },
@@ -1445,7 +1445,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:39:19.000Z",
       "thumbnail": "./assets/projects/871913894.png?v=1688481560",
-      "embed": "https://turbowarp.org/871913894/embed",
+      "embed": "https://turbowarp.org/871913894/embed?hqpen",
       "details": "./assets/project-details/871913894.json?v=11062df2c3c6",
       "detailSections": []
     },
@@ -1455,7 +1455,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:38:45.000Z",
       "thumbnail": "./assets/projects/871913810.png?v=1688481526",
-      "embed": "https://turbowarp.org/871913810/embed",
+      "embed": "https://turbowarp.org/871913810/embed?hqpen",
       "details": "./assets/project-details/871913810.json?v=add7b42efc7d",
       "detailSections": []
     },
@@ -1465,7 +1465,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:38:29.000Z",
       "thumbnail": "./assets/projects/871913732.png?v=1688481509",
-      "embed": "https://turbowarp.org/871913732/embed",
+      "embed": "https://turbowarp.org/871913732/embed?hqpen",
       "details": "./assets/project-details/871913732.json?v=6297d2744f66",
       "detailSections": []
     },
@@ -1475,7 +1475,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:38:11.000Z",
       "thumbnail": "./assets/projects/871913639.png?v=1688481491",
-      "embed": "https://turbowarp.org/871913639/embed",
+      "embed": "https://turbowarp.org/871913639/embed?hqpen",
       "details": "./assets/project-details/871913639.json?v=38cad70ced95",
       "detailSections": []
     },
@@ -1485,7 +1485,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:37:53.000Z",
       "thumbnail": "./assets/projects/871913563.png?v=1688481473",
-      "embed": "https://turbowarp.org/871913563/embed",
+      "embed": "https://turbowarp.org/871913563/embed?hqpen",
       "details": "./assets/project-details/871913563.json?v=d9636285d42c",
       "detailSections": []
     },
@@ -1495,7 +1495,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:37:32.000Z",
       "thumbnail": "./assets/projects/871913360.png?v=1688481452",
-      "embed": "https://turbowarp.org/871913360/embed",
+      "embed": "https://turbowarp.org/871913360/embed?hqpen",
       "details": "./assets/project-details/871913360.json?v=b4ce9d113919",
       "detailSections": []
     },
@@ -1505,7 +1505,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:36:40.000Z",
       "thumbnail": "./assets/projects/871913289.png?v=1688481401",
-      "embed": "https://turbowarp.org/871913289/embed",
+      "embed": "https://turbowarp.org/871913289/embed?hqpen",
       "details": "./assets/project-details/871913289.json?v=08b15787c605",
       "detailSections": []
     },
@@ -1515,7 +1515,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:35:17.000Z",
       "thumbnail": "./assets/projects/871912911.png?v=1688481317",
-      "embed": "https://turbowarp.org/871912911/embed",
+      "embed": "https://turbowarp.org/871912911/embed?hqpen",
       "details": "./assets/project-details/871912911.json?v=a30ac776642d",
       "detailSections": []
     },
@@ -1525,7 +1525,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:35:00.000Z",
       "thumbnail": "./assets/projects/871912841.png?v=1688481371",
-      "embed": "https://turbowarp.org/871912841/embed",
+      "embed": "https://turbowarp.org/871912841/embed?hqpen",
       "details": "./assets/project-details/871912841.json?v=78ab577182b8",
       "detailSections": []
     },
@@ -1535,7 +1535,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:34:37.000Z",
       "thumbnail": "./assets/projects/871912574.png?v=1688481277",
-      "embed": "https://turbowarp.org/871912574/embed",
+      "embed": "https://turbowarp.org/871912574/embed?hqpen",
       "details": "./assets/project-details/871912574.json?v=128ea74b89fa",
       "detailSections": []
     },
@@ -1545,7 +1545,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:34:06.000Z",
       "thumbnail": "./assets/projects/871912626.png?v=1688481247",
-      "embed": "https://turbowarp.org/871912626/embed",
+      "embed": "https://turbowarp.org/871912626/embed?hqpen",
       "details": "./assets/project-details/871912626.json?v=76691e76c045",
       "detailSections": []
     },
@@ -1555,7 +1555,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:33:34.000Z",
       "thumbnail": "./assets/projects/871912491.png?v=1688481214",
-      "embed": "https://turbowarp.org/871912491/embed",
+      "embed": "https://turbowarp.org/871912491/embed?hqpen",
       "details": "./assets/project-details/871912491.json?v=3a12e95bf5d9",
       "detailSections": []
     },
@@ -1565,7 +1565,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:33:20.000Z",
       "thumbnail": "./assets/projects/871912421.png?v=1688481200",
-      "embed": "https://turbowarp.org/871912421/embed",
+      "embed": "https://turbowarp.org/871912421/embed?hqpen",
       "details": "./assets/project-details/871912421.json?v=cac4f45cb655",
       "detailSections": []
     },
@@ -1575,7 +1575,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:33:00.000Z",
       "thumbnail": "./assets/projects/871912346.png?v=1688481180",
-      "embed": "https://turbowarp.org/871912346/embed",
+      "embed": "https://turbowarp.org/871912346/embed?hqpen",
       "details": "./assets/project-details/871912346.json?v=ca23d70c684c",
       "detailSections": []
     },
@@ -1585,7 +1585,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:32:41.000Z",
       "thumbnail": "./assets/projects/871912227.png?v=1688481161",
-      "embed": "https://turbowarp.org/871912227/embed",
+      "embed": "https://turbowarp.org/871912227/embed?hqpen",
       "details": "./assets/project-details/871912227.json?v=c433bef8b7d0",
       "detailSections": []
     },
@@ -1595,7 +1595,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:31:32.000Z",
       "thumbnail": "./assets/projects/871911883.png?v=1688481093",
-      "embed": "https://turbowarp.org/871911883/embed",
+      "embed": "https://turbowarp.org/871911883/embed?hqpen",
       "details": "./assets/project-details/871911883.json?v=cdff441989e2",
       "detailSections": []
     },
@@ -1605,7 +1605,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:30:45.000Z",
       "thumbnail": "./assets/projects/871911756.png?v=1688481046",
-      "embed": "https://turbowarp.org/871911756/embed",
+      "embed": "https://turbowarp.org/871911756/embed?hqpen",
       "details": "./assets/project-details/871911756.json?v=33f0fbaf7e7f",
       "detailSections": []
     },
@@ -1615,7 +1615,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:30:32.000Z",
       "thumbnail": "./assets/projects/871911676.png?v=1688481032",
-      "embed": "https://turbowarp.org/871911676/embed",
+      "embed": "https://turbowarp.org/871911676/embed?hqpen",
       "details": "./assets/project-details/871911676.json?v=5ac989532c80",
       "detailSections": []
     },
@@ -1625,7 +1625,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:30:15.000Z",
       "thumbnail": "./assets/projects/871911622.png?v=1688481016",
-      "embed": "https://turbowarp.org/871911622/embed",
+      "embed": "https://turbowarp.org/871911622/embed?hqpen",
       "details": "./assets/project-details/871911622.json?v=3c05aaac5229",
       "detailSections": []
     },
@@ -1635,7 +1635,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:29:27.000Z",
       "thumbnail": "./assets/projects/871911386.png?v=1688480967",
-      "embed": "https://turbowarp.org/871911386/embed",
+      "embed": "https://turbowarp.org/871911386/embed?hqpen",
       "details": "./assets/project-details/871911386.json?v=70815796e9fc",
       "detailSections": []
     },
@@ -1645,7 +1645,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:29:12.000Z",
       "thumbnail": "./assets/projects/871911332.png?v=1688480952",
-      "embed": "https://turbowarp.org/871911332/embed",
+      "embed": "https://turbowarp.org/871911332/embed?hqpen",
       "details": "./assets/project-details/871911332.json?v=014f8f425731",
       "detailSections": []
     },
@@ -1655,7 +1655,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:28:58.000Z",
       "thumbnail": "./assets/projects/871911267.png?v=1688480938",
-      "embed": "https://turbowarp.org/871911267/embed",
+      "embed": "https://turbowarp.org/871911267/embed?hqpen",
       "details": "./assets/project-details/871911267.json?v=009e4cd5ab8d",
       "detailSections": []
     },
@@ -1665,7 +1665,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:28:42.000Z",
       "thumbnail": "./assets/projects/871911199.png?v=1688480922",
-      "embed": "https://turbowarp.org/871911199/embed",
+      "embed": "https://turbowarp.org/871911199/embed?hqpen",
       "details": "./assets/project-details/871911199.json?v=2615b77087e9",
       "detailSections": []
     },
@@ -1675,7 +1675,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:28:29.000Z",
       "thumbnail": "./assets/projects/871911125.png?v=1688480909",
-      "embed": "https://turbowarp.org/871911125/embed",
+      "embed": "https://turbowarp.org/871911125/embed?hqpen",
       "details": "./assets/project-details/871911125.json?v=317a4088c483",
       "detailSections": []
     },
@@ -1685,7 +1685,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:28:10.000Z",
       "thumbnail": "./assets/projects/871911052.png?v=1694528384",
-      "embed": "https://turbowarp.org/871911052/embed",
+      "embed": "https://turbowarp.org/871911052/embed?hqpen",
       "details": "./assets/project-details/871911052.json?v=f9b2dea2ee56",
       "detailSections": []
     },
@@ -1695,7 +1695,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:27:53.000Z",
       "thumbnail": "./assets/projects/871910988.png?v=1688481633",
-      "embed": "https://turbowarp.org/871910988/embed",
+      "embed": "https://turbowarp.org/871910988/embed?hqpen",
       "details": "./assets/project-details/871910988.json?v=bb254cae1652",
       "detailSections": []
     },
@@ -1705,7 +1705,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:27:39.000Z",
       "thumbnail": "./assets/projects/871910903.png?v=1688480859",
-      "embed": "https://turbowarp.org/871910903/embed",
+      "embed": "https://turbowarp.org/871910903/embed?hqpen",
       "details": "./assets/project-details/871910903.json?v=91310b986523",
       "detailSections": []
     },
@@ -1715,7 +1715,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:27:21.000Z",
       "thumbnail": "./assets/projects/871910831.png?v=1694529311",
-      "embed": "https://turbowarp.org/871910831/embed",
+      "embed": "https://turbowarp.org/871910831/embed?hqpen",
       "details": "./assets/project-details/871910831.json?v=bd866cda01ae",
       "detailSections": []
     },
@@ -1725,7 +1725,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:27:06.000Z",
       "thumbnail": "./assets/projects/871910751.png?v=1694529331",
-      "embed": "https://turbowarp.org/871910751/embed",
+      "embed": "https://turbowarp.org/871910751/embed?hqpen",
       "details": "./assets/project-details/871910751.json?v=95600efc11e9",
       "detailSections": []
     },
@@ -1735,7 +1735,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:26:50.000Z",
       "thumbnail": "./assets/projects/871910673.png?v=1694530055",
-      "embed": "https://turbowarp.org/871910673/embed",
+      "embed": "https://turbowarp.org/871910673/embed?hqpen",
       "details": "./assets/project-details/871910673.json?v=e5b8597720f6",
       "detailSections": []
     },
@@ -1745,7 +1745,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:26:37.000Z",
       "thumbnail": "./assets/projects/871910597.png?v=1694528508",
-      "embed": "https://turbowarp.org/871910597/embed",
+      "embed": "https://turbowarp.org/871910597/embed?hqpen",
       "details": "./assets/project-details/871910597.json?v=4fd4878543ec",
       "detailSections": []
     },
@@ -1755,7 +1755,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:26:22.000Z",
       "thumbnail": "./assets/projects/871910539.png?v=1694530075",
-      "embed": "https://turbowarp.org/871910539/embed",
+      "embed": "https://turbowarp.org/871910539/embed?hqpen",
       "details": "./assets/project-details/871910539.json?v=894dc597296e",
       "detailSections": []
     },
@@ -1765,7 +1765,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:26:08.000Z",
       "thumbnail": "./assets/projects/871910467.png?v=1694530089",
-      "embed": "https://turbowarp.org/871910467/embed",
+      "embed": "https://turbowarp.org/871910467/embed?hqpen",
       "details": "./assets/project-details/871910467.json?v=226d860a01d1",
       "detailSections": []
     },
@@ -1775,7 +1775,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:25:53.000Z",
       "thumbnail": "./assets/projects/871910395.png?v=1688480753",
-      "embed": "https://turbowarp.org/871910395/embed",
+      "embed": "https://turbowarp.org/871910395/embed?hqpen",
       "details": "./assets/project-details/871910395.json?v=d2ffe31fde77",
       "detailSections": []
     },
@@ -1785,7 +1785,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:25:38.000Z",
       "thumbnail": "./assets/projects/871910307.png?v=1688480738",
-      "embed": "https://turbowarp.org/871910307/embed",
+      "embed": "https://turbowarp.org/871910307/embed?hqpen",
       "details": "./assets/project-details/871910307.json?v=04c1d2325d73",
       "detailSections": []
     },
@@ -1795,7 +1795,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:25:12.000Z",
       "thumbnail": "./assets/projects/871910195.png?v=1694530112",
-      "embed": "https://turbowarp.org/871910195/embed",
+      "embed": "https://turbowarp.org/871910195/embed?hqpen",
       "details": "./assets/project-details/871910195.json?v=b208ce60d088",
       "detailSections": []
     },
@@ -1805,7 +1805,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:24:57.000Z",
       "thumbnail": "./assets/projects/871910109.png?v=1688480697",
-      "embed": "https://turbowarp.org/871910109/embed",
+      "embed": "https://turbowarp.org/871910109/embed?hqpen",
       "details": "./assets/project-details/871910109.json?v=5ee0ae55f646",
       "detailSections": []
     },
@@ -1815,7 +1815,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:24:07.000Z",
       "thumbnail": "./assets/projects/871909914.png?v=1694530133",
-      "embed": "https://turbowarp.org/871909914/embed",
+      "embed": "https://turbowarp.org/871909914/embed?hqpen",
       "details": "./assets/project-details/871909914.json?v=31f34c3af517",
       "detailSections": []
     },
@@ -1825,7 +1825,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:23:46.000Z",
       "thumbnail": "./assets/projects/871909762.png?v=1688480627",
-      "embed": "https://turbowarp.org/871909762/embed",
+      "embed": "https://turbowarp.org/871909762/embed?hqpen",
       "details": "./assets/project-details/871909762.json?v=c31afb0edb2f",
       "detailSections": []
     },
@@ -1835,7 +1835,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:23:05.000Z",
       "thumbnail": "./assets/projects/871909592.png?v=1688480585",
-      "embed": "https://turbowarp.org/871909592/embed",
+      "embed": "https://turbowarp.org/871909592/embed?hqpen",
       "details": "./assets/project-details/871909592.json?v=471f5a6c776f",
       "detailSections": []
     },
@@ -1845,7 +1845,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:22:26.000Z",
       "thumbnail": "./assets/projects/871909388.png?v=1694530156",
-      "embed": "https://turbowarp.org/871909388/embed",
+      "embed": "https://turbowarp.org/871909388/embed?hqpen",
       "details": "./assets/project-details/871909388.json?v=1ef5bcdbbca6",
       "detailSections": []
     },
@@ -1855,7 +1855,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:22:03.000Z",
       "thumbnail": "./assets/projects/871909302.png?v=1694530171",
-      "embed": "https://turbowarp.org/871909302/embed",
+      "embed": "https://turbowarp.org/871909302/embed?hqpen",
       "details": "./assets/project-details/871909302.json?v=2c23c50da927",
       "detailSections": []
     },
@@ -1865,7 +1865,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:21:44.000Z",
       "thumbnail": "./assets/projects/871909206.png?v=1694530190",
-      "embed": "https://turbowarp.org/871909206/embed",
+      "embed": "https://turbowarp.org/871909206/embed?hqpen",
       "details": "./assets/project-details/871909206.json?v=8b2618b98170",
       "detailSections": []
     },
@@ -1875,7 +1875,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:20:55.000Z",
       "thumbnail": "./assets/projects/871908976.png?v=1694530233",
-      "embed": "https://turbowarp.org/871908976/embed",
+      "embed": "https://turbowarp.org/871908976/embed?hqpen",
       "details": "./assets/project-details/871908976.json?v=3869117ed8a5",
       "detailSections": []
     },
@@ -1885,7 +1885,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:20:33.000Z",
       "thumbnail": "./assets/projects/871908818.png?v=1688480433",
-      "embed": "https://turbowarp.org/871908818/embed",
+      "embed": "https://turbowarp.org/871908818/embed?hqpen",
       "details": "./assets/project-details/871908818.json?v=5bd8f642919a",
       "detailSections": []
     },
@@ -1895,7 +1895,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:19:17.000Z",
       "thumbnail": "./assets/projects/871908518.png?v=1694530249",
-      "embed": "https://turbowarp.org/871908518/embed",
+      "embed": "https://turbowarp.org/871908518/embed?hqpen",
       "details": "./assets/project-details/871908518.json?v=f952ff0cc056",
       "detailSections": []
     },
@@ -1905,7 +1905,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:18:52.000Z",
       "thumbnail": "./assets/projects/871908383.png?v=1688480332",
-      "embed": "https://turbowarp.org/871908383/embed",
+      "embed": "https://turbowarp.org/871908383/embed?hqpen",
       "details": "./assets/project-details/871908383.json?v=f4b99678baac",
       "detailSections": []
     },
@@ -1915,7 +1915,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:18:09.000Z",
       "thumbnail": "./assets/projects/871908227.png?v=1694530280",
-      "embed": "https://turbowarp.org/871908227/embed",
+      "embed": "https://turbowarp.org/871908227/embed?hqpen",
       "details": "./assets/project-details/871908227.json?v=797fac17eefe",
       "detailSections": []
     },
@@ -1925,7 +1925,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:17:50.000Z",
       "thumbnail": "./assets/projects/871907795.png?v=1688480270",
-      "embed": "https://turbowarp.org/871907795/embed",
+      "embed": "https://turbowarp.org/871907795/embed?hqpen",
       "details": "./assets/project-details/871907795.json?v=dd68618e1b72",
       "detailSections": []
     },
@@ -1935,7 +1935,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:16:06.000Z",
       "thumbnail": "./assets/projects/871907655.png?v=1694530298",
-      "embed": "https://turbowarp.org/871907655/embed",
+      "embed": "https://turbowarp.org/871907655/embed?hqpen",
       "details": "./assets/project-details/871907655.json?v=7a503ae03de9",
       "detailSections": []
     },
@@ -1945,7 +1945,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:14:55.000Z",
       "thumbnail": "./assets/projects/871907328.png?v=1688480095",
-      "embed": "https://turbowarp.org/871907328/embed",
+      "embed": "https://turbowarp.org/871907328/embed?hqpen",
       "details": "./assets/project-details/871907328.json?v=5e7ac85dcfb2",
       "detailSections": []
     },
@@ -1955,7 +1955,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:14:31.000Z",
       "thumbnail": "./assets/projects/871907092.png?v=1694532081",
-      "embed": "https://turbowarp.org/871907092/embed",
+      "embed": "https://turbowarp.org/871907092/embed?hqpen",
       "details": "./assets/project-details/871907092.json?v=800a4b323f86",
       "detailSections": []
     },
@@ -1965,7 +1965,7 @@ export default {
       "author": "FutureApollo765",
       "sharedAt": "2023-07-04T14:12:59.000Z",
       "thumbnail": "./assets/projects/871906668.png?v=1688479979",
-      "embed": "https://turbowarp.org/871906668/embed",
+      "embed": "https://turbowarp.org/871906668/embed?hqpen",
       "details": "./assets/project-details/871906668.json?v=0fe1e9357a13",
       "detailSections": []
     }

@@ -143,12 +143,7 @@ def make_item(row, owned_ids, previous, staging):
                 raise ValueError(f"Invalid Scratch thumbnail for {project_id}")
             (staging / name).write_bytes(png)
 
-    # All players use TurboWarp. Preserve previously enabled high-quality pen
-    # rendering even when a creator later removes its mention from the notes.
-    notes = ((source.get("description") or "") + " " + (source.get("instructions") or "")).lower()
-    prior_query = parse_qs(urlsplit(previous.get(project_id, {}).get("embed", "")).query, keep_blank_values=True)
-    hqpen = "hqpen" in prior_query or "hqpen" in notes or project_id in (1406787990, 953460273, 1388418319)
-    embed = f"https://turbowarp.org/{project_id}/embed" + ("?hqpen" if hqpen else "")
+    embed = f"https://turbowarp.org/{project_id}/embed?hqpen"
     return {"id": project_id, "title": row["title"], "author": author, "sharedAt": shared_at(history),
             "thumbnail": thumbnail, "embed": embed, "details": details, "detailSections": sections}
 
