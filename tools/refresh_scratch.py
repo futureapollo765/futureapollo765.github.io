@@ -77,6 +77,11 @@ def shared_at(history):
         return None
 
 
+def detail_sections(payload):
+    return [name for name in ("instructions", "notesAndCredits")
+            if isinstance(payload.get(name), str) and payload[name].strip()]
+
+
 def project_details(project_id, source, staging):
     # Only these public text fields are exported. The project API also returns
     # a project_token and author profile data, neither of which belongs here.
@@ -94,7 +99,7 @@ def project_details(project_id, source, staging):
     destination = DETAILS / name
     if not destination.exists() or destination.read_bytes() != content:
         (staging / "project-details" / name).write_bytes(content)
-    return f"./assets/project-details/{name}?v={revision}"
+    return f"./assets/project-details/{name}?v={revision}", detail_sections(payload)
 
 
 def make_item(row, owned_ids, previous, staging):
@@ -116,7 +121,7 @@ def make_item(row, owned_ids, previous, staging):
     author = USER if project_id in owned_ids else source.get("author", {}).get("username")
     if not isinstance(author, str) or not author:
         raise ValueError(f"Missing public Scratch author for {project_id}")
-    details = project_details(project_id, source, staging)
+    details, sections = project_details(project_id, source, staging)
 
     # Locally curated running-stage captures take priority over Scratch cover art.
     name = f"{project_id}.webp"
@@ -145,7 +150,7 @@ def make_item(row, owned_ids, previous, staging):
     hqpen = "hqpen" in prior_query or "hqpen" in notes or project_id in (1406787990, 953460273, 1388418319)
     embed = f"https://turbowarp.org/{project_id}/embed" + ("?hqpen" if hqpen else "")
     return {"id": project_id, "title": row["title"], "author": author, "sharedAt": shared_at(history),
-            "thumbnail": thumbnail, "embed": embed, "details": details}
+            "thumbnail": thumbnail, "embed": embed, "details": details, "detailSections": sections}
 
 
 def main():

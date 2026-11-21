@@ -45,6 +45,7 @@ class ScratchSyncTests(unittest.TestCase):
             item = sync.make_item(row, {1}, {}, self.staging)
         self.assertEqual(item["embed"], "https://turbowarp.org/1/embed")
         self.assertEqual(item["author"], sync.USER)
+        self.assertEqual(item["detailSections"], ["instructions", "notesAndCredits"])
         self.assertEqual(self.payload(), {
             "id": 1, "instructions": row["instructions"], "notesAndCredits": row["description"],
         })
@@ -70,12 +71,31 @@ class ScratchSyncTests(unittest.TestCase):
         row = self.row()
         del row["description"]
         with patch.object(sync, "fetch", return_value=json.dumps(self.row(description="Backfilled")).encode()) as fetch:
-            sync.make_item(row, {1}, {}, self.staging)
+            item = sync.make_item(row, {1}, {}, self.staging)
         fetch.assert_called_once_with(f"{sync.API}/projects/1")
         self.assertEqual(self.payload()["notesAndCredits"], "Backfilled")
+        self.assertEqual(item["detailSections"], ["instructions", "notesAndCredits"])
         with patch.object(sync, "fetch", side_effect=AssertionError("Blank text is valid")):
-            sync.make_item(self.row(instructions="", description=None), {1}, {}, self.staging)
+            item = sync.make_item(self.row(instructions="", description=None), {1}, {}, self.staging)
         self.assertEqual(self.payload(), {"id": 1, "instructions": "", "notesAndCredits": ""})
+        self.assertEqual(item["detailSections"], [])
+        for instructions, notes, expected in (
+            ("\r\n \t\u00a0\u2003", "", []),
+            ("\n Read this. \r\n", "\t", ["instructions"]),
+            (" \r\n", " Credits. \n", ["notesAndCredits"]),
+        ):
+            with self.subTest(instructions=instructions, notes=notes), \
+                    patch.object(sync, "fetch", side_effect=AssertionError("Whitespace text is valid")):
+                item = sync.make_item(self.row(instructions=instructions, description=notes), {1}, {}, self.staging)
+            self.assertEqual(item["detailSections"], expected)
+            self.assertEqual(self.payload()["instructions"], instructions)
+            self.assertEqual(self.payload()["notesAndCredits"], notes)
+        empty_detail = self.row()
+        del empty_detail["instructions"]
+        del empty_detail["description"]
+        with patch.object(sync, "fetch", return_value=json.dumps(empty_detail).encode()):
+            item = sync.make_item(empty_detail, {1}, {}, self.staging)
+        self.assertEqual(item["detailSections"], [])
 
     def test_nonpublic_or_mismatched_details_are_rejected(self):
         with self.assertRaises(ValueError):

@@ -833,10 +833,26 @@ function closePlayerRoute() {
   else location.replace(routeFor(focusedProject));
 }
 
+function renderPlayerText(panel, instructions, notes) {
+  for (const [selector, text] of [["[data-instructions]", instructions], ["[data-notes]", notes]]) {
+    const box = panel.querySelector(selector);
+    box.closest(".projects-player-section").hidden = !text;
+    box.textContent = text;
+  }
+  panel.hidden = !instructions && !notes;
+}
+
 async function loadPlayerDetails(project, panel, signal) {
-  const instructions = panel.querySelector("[data-instructions]");
-  const notes = panel.querySelector("[data-notes]");
+  const fields = project.detailSections;
+  if (Array.isArray(fields)) {
+    renderPlayerText(
+      panel,
+      fields.includes("instructions") ? "Loading…" : "",
+      fields.includes("notesAndCredits") ? "Loading…" : ""
+    );
+  }
   try {
+    if (panel.hidden) return;
     if (!project.details) throw new Error("Missing project details");
     const response = await fetch(project.details, { signal });
     if (!response.ok) throw new Error("Project details unavailable");
@@ -844,12 +860,11 @@ async function loadPlayerDetails(project, panel, signal) {
     if (data.id !== project.id || typeof data.instructions !== "string" || typeof data.notesAndCredits !== "string") {
       throw new Error("Unexpected project details");
     }
-    instructions.textContent = data.instructions.trim() || "No instructions provided.";
-    notes.textContent = data.notesAndCredits.trim() || "No notes or credits provided.";
+    renderPlayerText(panel, data.instructions.trim(), data.notesAndCredits.trim());
   } catch {
     if (signal.aborted) return;
-    instructions.textContent = "Instructions could not be loaded.";
-    notes.textContent = "Visit the project on Scratch to read its notes and credits.";
+    panel.querySelector("[data-instructions]").textContent = "Instructions could not be loaded.";
+    panel.querySelector("[data-notes]").textContent = "Visit the project on Scratch to read its notes and credits.";
   } finally {
     panel.removeAttribute("aria-busy");
   }
