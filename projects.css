@@ -473,9 +473,11 @@
   outline: none;
 }
 .projects-player {
+  --sidebar-layout-width: min(calc(100vw - 40px), 1200px, max(680px, calc((100dvh - 180px) * 2.15)));
+  --stage-share: .6;
   position: fixed;
   inset: 0;
-  width: min(calc(100vw - 40px), 1200px, max(680px, calc((100dvh - 180px) * 2.15)));
+  width: var(--sidebar-layout-width);
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - 20px);
   margin: auto;
@@ -494,9 +496,11 @@
   flex-direction: column;
 }
 
-/* Fit a standalone stage, its controls, and the dialog bars in the viewport. */
+/* Drop only the sidebar's width. The 2px dialog border surrounds either layout. */
 .projects-player:has(.projects-player-details[hidden]) {
-  width: min(calc(100vw - 24px), 1200px, max(240px, calc((100dvh - 180px) * 4 / 3)));
+  width: calc((var(--sidebar-layout-width) - 2px) * var(--stage-share) + 2px);
+  /* On short screens reserve the same viewport margin, bars, borders and player controls. */
+  max-width: max(240px, calc((100dvh - 176px) * 4 / 3 + 2px));
 }
 
 html:has(.projects-player[open]) {
@@ -555,7 +559,7 @@ html:has(.projects-player[open]) {
 
 .projects-player-body {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: calc(100% * var(--stage-share)) minmax(0, 1fr);
   border-block: 1px solid var(--line);
   min-height: 0;
   overflow: auto;
@@ -619,7 +623,10 @@ html:has(.projects-player[open]) {
 }
 
 @media (max-width: 740px) {
-  .projects-player { width: calc(100vw - 24px); }
+  .projects-player {
+    --sidebar-layout-width: calc(100vw - 24px);
+    --stage-share: 1;
+  }
   .projects-player-body { display: block; }
   .projects-player-details {
     contain: none;
