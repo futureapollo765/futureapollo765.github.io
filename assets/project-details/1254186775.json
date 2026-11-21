@@ -1,0 +1,5 @@
+{
+  "id": 1254186775,
+  "instructions": "Clone-based Windows Loading Animation.\nNumber of clones can be changed; each clone works by itself through delays. If there are overlapping clones, restart the project to fix the delay in spawning.",
+  "notesAndCredits": "FutureApollo Studio Presents"
+}

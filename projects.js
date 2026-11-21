@@ -1,4 +1,4 @@
-import { projects } from "./project-data.js";
+import { projects, findProject } from "./project-data.js";
 import { mountMapSurface } from "./map-surface.js";
 import { redirectIcon } from "./icons.js";
 
@@ -38,6 +38,7 @@ const camera = { x: projects.length > 1 ? 1.55 : 0, y: projects.length > 1 ? 1.3
 let mapView, viewport, tileLayer, picker, mapStatus;
 let detail, detailImage, detailTitle, playLink, sourceLink;
 let dialog, playerFrame, pendingPlayer, pendingDetail;
+let detailsRequest;
 let focusedProject, selectedId, centeredProject;
 let layout, gesture, entryBounds, entryCell, selectedCell;
 let surface, zoomLabel, zoomOut, zoomIn;
@@ -142,7 +143,6 @@ function mount() {
         <a class="projects-source" target="_blank" rel="noopener noreferrer">Open on Scratch ${redirectIcon}</a>
       </div>
       <div class="projects-detail-body">
-        <img class="projects-detail-image" width="480" height="360" alt="">
         <div class="projects-detail-caption">
           <h1 class="projects-detail-title" tabindex="-1"></h1>
           <a class="projects-play"><svg viewBox="0 0 12 12" aria-hidden="true" fill="currentColor"><path d="M2.5 1.25 10 6l-7.5 4.75z"/></svg>Play project</a>
@@ -158,7 +158,6 @@ function mount() {
   zoomOut = root.querySelector('[data-zoom="out"]');
   zoomIn = root.querySelector('[data-zoom="in"]');
   detail = root.querySelector(".projects-detail");
-  detailImage = root.querySelector(".projects-detail-image");
   detailTitle = root.querySelector(".projects-detail-title");
   playLink = root.querySelector(".projects-play");
   sourceLink = root.querySelector(".projects-source");
@@ -413,6 +412,7 @@ function renderMap() {
 // Point a direct link or picker selection at its first occurrence.
 // Never recenter when a visitor returns from a tile on their own map.
 function centerOn(index) {
+  if (!Number.isInteger(index) || index < 0 || index >= mapProjects.length) return;
   stopCoasting();
   const col = Math.floor(index / 16) * 4 + index % 4;
   const row = Math.floor((index % 16) / 4);
@@ -832,6 +832,29 @@ function closePlayerRoute() {
   if (history.state?.studioPlayerFrom === focusedProject.id) history.back();
   else location.replace(routeFor(focusedProject));
 }
+
+async function loadPlayerDetails(project, panel, signal) {
+  const instructions = panel.querySelector("[data-instructions]");
+  const notes = panel.querySelector("[data-notes]");
+  try {
+    if (!project.details) throw new Error("Missing project details");
+    const response = await fetch(project.details, { signal });
+    if (!response.ok) throw new Error("Project details unavailable");
+    const data = await response.json();
+    if (data.id !== project.id || typeof data.instructions !== "string" || typeof data.notesAndCredits !== "string") {
+      throw new Error("Unexpected project details");
+    }
+    instructions.textContent = data.instructions.trim() || "No instructions provided.";
+    notes.textContent = data.notesAndCredits.trim() || "No notes or credits provided.";
+  } catch {
+    if (signal.aborted) return;
+    instructions.textContent = "Instructions could not be loaded.";
+    notes.textContent = "Visit the project on Scratch to read its notes and credits.";
+  } finally {
+    panel.removeAttribute("aria-busy");
+  }
+}
+
 function showPlayer(project) {
   if (dialog?.open && playerFrame?.dataset.project === String(project.id)) return;
   removePlayer();
@@ -849,7 +872,19 @@ function showPlayer(project) {
         <svg viewBox="0 0 18 18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m4 4 10 10M14 4 4 14"/></svg>
       </button>
     </div>
-    <div class="projects-player-stage"><span class="projects-player-loading" role="status">Loading player…</span></div>
+    <div class="projects-player-body">
+      <div class="projects-player-stage"><span class="projects-player-loading" role="status">Loading player…</span></div>
+      <div class="projects-player-details" aria-busy="true">
+        <div class="projects-player-section">
+          <h2 id="player-instructions">Instructions</h2>
+          <div class="projects-player-copy" data-instructions role="region" aria-labelledby="player-instructions" tabindex="0">Loading…</div>
+        </div>
+        <div class="projects-player-section">
+          <h2 id="player-notes">Notes and Credits</h2>
+          <div class="projects-player-copy" data-notes role="region" aria-labelledby="player-notes" tabindex="0">Loading…</div>
+        </div>
+      </div>
+    </div>
     <div class="projects-player-footer"><a target="_blank" rel="noopener noreferrer">Open on Scratch ${redirectIcon}</a></div>`;
   dialog.querySelector("strong").textContent = project.title;
   dialog.querySelector(".projects-player-footer a").href = project.url;
@@ -861,19 +896,25 @@ function showPlayer(project) {
   const loading = dialog.querySelector(".projects-player-loading");
   playerFrame = document.createElement("iframe");
   playerFrame.className = "projects-player-frame";
-  playerFrame.title = `${project.title} — Scratch project player`;
+  playerFrame.title = `${project.title} — TurboWarp player`;
   playerFrame.dataset.project = project.id;
   playerFrame.allow = "fullscreen; gamepad";
   playerFrame.allowFullscreen = true;
+  playerFrame.setAttribute("scrolling", "no");
+  playerFrame.setAttribute("allowtransparency", "true");
   playerFrame.addEventListener("load", () => loading.remove(), { once: true });
   playerFrame.src = project.embed;
   dialog.querySelector(".projects-player-stage").append(playerFrame);
   root.append(dialog);
   dialog.showModal();
+  detailsRequest = new AbortController();
+  loadPlayerDetails(project, dialog.querySelector(".projects-player-details"), detailsRequest.signal);
 }
 
 function removePlayer(restoreFocus = false) {
   if (!dialog) return;
+  detailsRequest?.abort();
+  detailsRequest = null;
   playerFrame?.remove();
   playerFrame = null;
   dialog.close();
@@ -966,6 +1007,13 @@ function assembleMap() {
 function openDetail(project) {
   if (mapExit) finishMapExit();
   clearReturnPhoto();
+  if (!detailImage) {
+    detailImage = new Image(480, 360);
+    detailImage.className = "projects-detail-image";
+    detailImage.alt = "";
+    detail.querySelector(".projects-detail-body").prepend(detailImage);
+  }
+  detailImage.src = project.thumbnail;
   detailImage.getAnimations().forEach(animation => animation.cancel());
   focusedProject = project;
   selectedId = project.id;
@@ -993,7 +1041,6 @@ function openDetail(project) {
   detail.hidden = false;
   root.setAttribute("aria-labelledby", "projects-detail-title");
   detailTitle.id = "projects-detail-title";
-  detailImage.src = project.thumbnail;
   detailTitle.textContent = project.title;
   sourceLink.href = project.url;
   playLink.href = routeFor(project) + "/play";
@@ -1015,7 +1062,7 @@ export function showProjectView(id, play = false) {
   minimizing = false;
   if (!viewport) mount();
   root.hidden = false;
-  const project = projects.find((entry) => String(entry.id) === String(id));
+  const project = findProject(id);
   if (project) {
     if (focusedProject !== project || detail.hidden) openDetail(project);
     if (play) showPlayer(project);

@@ -1,0 +1,5 @@
+{
+  "id": 1334587822,
+  "instructions": "Based on A Star pathfinding\nDoes not support concave shapes (U Shape)\n\nVariables Definition\nstep - steps per movement (larger the farther each move is, maximum should be based on costume size to prevent going over border of thin walls)\n\ntheta - angle of search (smaller the more accurate & computation heavy)\n\nFutureApollo Studio Presents",
+  "notesAndCredits": ""
+}

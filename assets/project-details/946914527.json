@@ -1,0 +1,5 @@
+{
+  "id": 946914527,
+  "instructions": "Latest Version:\nhttps://scratch.mit.edu/projects/953460273\n\nFutureApollo Studio Presents\n\nThis is an Operating System fully coded on scratch, we hope to provide you all scratchers a useable model for a OS with fluent design if you want to make your own.\n\nBasic design language from iOS and iPadOS.\nKeyboard design and code from @0rby https://scratch.mit.edu/users/0rby/\n(Modified)",
+  "notesAndCredits": "Update Logs\n\n0.0.1 - 010524\nBasic UI\nApp icons\nApp open animation\nLock screen & startup animation\nActual time display\nBackground\n\n0.0.2 - 010524\nApp icons\nKeyboard\nSearch Bar\nOS Logo\nMusic UI\n\n0.0.3 - 010724\nTime UI\nMusic UI\nMusic Function\nCalculator UI\nCamera Function\nAnimation Trigger & Logic\nSearch bar"
+}

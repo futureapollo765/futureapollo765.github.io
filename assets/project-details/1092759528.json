@@ -1,0 +1,5 @@
+{
+  "id": 1092759528,
+  "instructions": "turnRadius = the minimum turning radius of the missile\n(2 is the largest possible for a missile to 100% hit the target)\n\nTarget is draggable, move it around to see how different positioning affects the missile.",
+  "notesAndCredits": ""
+}

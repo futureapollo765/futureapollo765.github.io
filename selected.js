@@ -7,11 +7,9 @@ const modulo = (value, limit) => ((value % limit) + limit) % limit;
 function projectCard(project, large) {
   const link = document.createElement("a");
   link.className = large ? "sf-poster" : "sf-tile";
-  link.href = project.url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
+  link.href = `#projects/${project.id}`;
   link.draggable = false;
-  link.setAttribute("aria-label", `Open ${project.title}${project.author ? ` by ${project.author}` : ""} on Scratch`);
+  link.setAttribute("aria-label", `Open ${project.title}${project.author ? ` by ${project.author}` : ""}`);
 
   const art = document.createElement("span");
   art.className = "sf-art";
@@ -40,7 +38,7 @@ function projectCard(project, large) {
   }
   const action = document.createElement("span");
   action.className = "sf-open";
-  action.innerHTML = `<span>Open on Scratch</span>${redirectIcon}`;
+  action.innerHTML = `<span>Open project</span>${redirectIcon}`;
   link.append(caption, action);
   return link;
 }
@@ -48,16 +46,25 @@ function projectCard(project, large) {
 function repeatedGroup(original) {
   const copy = original.cloneNode(true);
   copy.setAttribute("aria-hidden", "true");
-  for (const link of copy.querySelectorAll("a")) link.tabIndex = -1;
+  for (const link of copy.querySelectorAll("a")) {
+    link.removeAttribute("id");
+    link.tabIndex = -1;
+  }
   return copy;
 }
 
-function makeLane(viewport, projects, large, speed) {
+function makeLane(viewport, projects, large, speed, key) {
   const track = document.createElement("div");
   track.className = "sf-runner";
   const original = document.createElement("div");
   original.className = "sf-group";
-  original.append(...projects.map(project => projectCard(project, large)));
+  original.append(...projects.map(project => {
+    const card = projectCard(project, large);
+    card.id = `selected-${key}-${project.id}`;
+    // Every visual loop copy points back to the one keyboard-accessible card.
+    card.dataset.returnFocus = card.id;
+    return card;
+  }));
   track.append(original);
   viewport.append(track);
   viewport.classList.toggle("sf-static", projects.length < 2);
@@ -231,7 +238,7 @@ export function mountSelectedWork() {
         <button type="button" class="sf-pause" aria-label="Pause project rows"></button>
       </div>
     </div>
-    <span class="sf-key-help" id="sf-key-help">Use the left and right arrow keys to browse. Enter opens the focused project on Scratch.</span>
+    <span class="sf-key-help" id="sf-key-help">Use the left and right arrow keys to browse. Enter opens the focused project.</span>
     <div class="sf-stage sf-lane" role="group" aria-label="Public Scratch favorites" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
     <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, first row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>
     <div class="sf-ribbon sf-lane" role="group" aria-label="Shared Scratch projects, second row" aria-describedby="sf-key-help" aria-keyshortcuts="ArrowLeft ArrowRight Home End"></div>`;
@@ -245,11 +252,11 @@ export function mountSelectedWork() {
   const upper = mount.querySelector(".sf-stage");
   const lower = [...mount.querySelectorAll(".sf-ribbon")];
   const lanes = [];
-  if (featured.length) lanes.push(makeLane(upper, featured, true, 24));
+  if (featured.length) lanes.push(makeLane(upper, featured, true, 24, "favorites"));
   else upper.hidden = true;
   // Decreasing scrollLeft moves the cards right; the final row drifts slower.
   catalogRows.forEach((row, i) => {
-    if (row.length) lanes.push(makeLane(lower[i], row, false, i ? -24 : -29));
+    if (row.length) lanes.push(makeLane(lower[i], row, false, i ? -24 : -29, `projects-${i + 1}`));
     else lower[i].hidden = true;
   });
   if (![featured, ...catalogRows].some(row => row.length > 1)) {

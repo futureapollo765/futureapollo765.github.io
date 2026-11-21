@@ -3,7 +3,7 @@ import { mountSelectedWork } from "./selected.js";
 import { showProjectView, hideProjectView, hasMapPhotoFlight } from "./projects.js";
 import { presentRoute } from "./transition.js";
 import { captureIndexFlight } from "./index-flight.js";
-import { projects } from "./project-data.js";
+import { findProject } from "./project-data.js";
 import { mountStudies } from "./studies.js";
 import { mountTimeline } from "./timeline.js";
 import { mountScrollMotion } from "./scroll-motion.js";
@@ -92,7 +92,7 @@ function navigate() {
   pendingHomeProject = pendingMedia = null;
   let viewKey = "home";
   if (page === "projects") {
-    const project = projects.find(item => String(item.id) === id);
+    const project = findProject(id);
     viewKey = project ? "project/" + project.id : "projects";
   }
   const unfold = captureIndexFlight(viewKey);

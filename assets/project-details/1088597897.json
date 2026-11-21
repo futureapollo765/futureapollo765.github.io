@@ -1,0 +1,5 @@
+{
+  "id": 1088597897,
+  "instructions": "ClickO\n\n1. Click the blue goal, it will change to purple if mouse cursor is on target.\n2. if mis-clicked the background or didn't click the target before it shrinks to the smallest, you will lose a life. If all three lives are gone, the next miss will end the game.\n3. difficulties are available in options, choose the one that fits you.\n4. each score will restore 1 life until all 3 lives are restored.\n5. have fun.",
+  "notesAndCredits": "ClickO - A Clicker Game\nFutureApollo Studio Presents\n\n1.0 - 102924\nBasic Function & UI\n\n1.1 - 032525\nSwitch for Music\nSwitch for Clicking Effect"
+}

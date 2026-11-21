@@ -1,0 +1,5 @@
+{
+  "id": 1317352635,
+  "instructions": "Arrow keys to move, mouse cursor to aim\nShows static walls in green, moving entities in red\n\nUse sliders to change wall/entity visibility and projector angle of projection in degrees.",
+  "notesAndCredits": "FutureApollo Studio Presents"
+}

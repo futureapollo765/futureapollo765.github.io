@@ -475,18 +475,23 @@
 .projects-player {
   position: fixed;
   inset: 0;
-  width: min(calc(100vw - 40px), 810px, max(410px, calc((100dvh - 140px) * 1.2)));
+  width: min(calc(100vw - 40px), 1200px, max(680px, calc((100dvh - 180px) * 2.15)));
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - 20px);
   margin: auto;
   padding: 0;
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   border: 1px solid #424244;
   border-radius: 8px;
   background: #171719;
   color: var(--ink, #f2f2ef);
+}
+
+.projects-player[open] {
+  display: flex;
+  flex-direction: column;
 }
 
 .projects-player::backdrop {
@@ -496,6 +501,7 @@
 .projects-player-bar,
 .projects-player-footer {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -503,6 +509,7 @@
 }
 
 .projects-player-bar strong {
+  overflow-wrap: anywhere;
   font-size: 18px;
   line-height: 1.2;
   letter-spacing: -.035em;
@@ -522,11 +529,62 @@
 
 .projects-player-stage {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 480 / 404;
+  align-self: start;
   background: #0d0d0e;
+}
+
+/* TurboWarp places a 50px controls row above its 4:3 stage. */
+.projects-player-stage::before {
+  content: "";
+  display: block;
+  padding-top: calc(75% + 50px);
+}
+
+.projects-player-body {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  border-block: 1px solid var(--line);
+  min-height: 0;
+  overflow: auto;
+}
+
+.projects-player-details {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: clamp(15px, 2vw, 26px);
+  border-left: 1px solid var(--line);
+  /* The stage sets the row height. Long descriptions scroll inside their panels. */
+  contain: size;
+}
+
+.projects-player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.projects-player-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.projects-player-copy {
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #666664 transparent;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #ccccc9;
+  background: #101011;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.55;
 }
 
 .projects-player-frame {
@@ -535,11 +593,32 @@
   width: 100%;
   height: 100%;
   border: 0;
+  color-scheme: auto;
 }
 
 .projects-player-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   color: var(--muted, #aaa);
   font-size: 14px;
+}
+
+@media (max-width: 740px) {
+  .projects-player { width: calc(100vw - 24px); }
+  .projects-player-body { display: block; }
+  .projects-player-details {
+    contain: none;
+    grid-template-rows: auto auto;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .projects-player-copy {
+    flex: none;
+    max-height: 12em;
+    overscroll-behavior: auto;
+  }
 }
 
 .projects-player-footer {

@@ -1,0 +1,5 @@
+{
+  "id": 1252921565,
+  "instructions": "Just type\n\nUpdates-\nUpdated 67 blocker..\n\n2.0 - 120725\nRedesigned input method, instead of using answer, the project uses when key pressed and KeyList to check for symbols and characters from keyboard for real-time update.\nRemoved 67 filter\n\n2.1 - 121025\ninstead of waiting for all keys to be released, method now wait until the previous key is released to make the typing process smoother.\n\n3.0 - 121525\nAdded delete function (left arrow key)\n\n4.0 - 121625\nAdded Space key\n\n4.1 - 121625\nAdded \"delete\" message to lastKeyInput",
+  "notesAndCredits": ""
+}

@@ -1,0 +1,5 @@
+{
+  "id": 1388418319,
+  "instructions": "Based on UI Engine\nhttps://scratch.mit.edu/projects/1299370190/\n\nTry with TurboWarp to get high quality pen.\nhttps://turbowarp.org/1388418319/fullscreen?hqpen\n\nUpdate Logs\n100526 - 2.0\nUpdated/Supported Features:\n1. Menu\n2. Button\n3. Custom Static\n4. Custom Animated\n3. ID/List-based multi-component support\n\nPlanned Features:\n1. Text Renderer/Engine\n2. Custom Color\n3. Component Grouping\n4. Better Button Animation\n5. Touch Detection & Button Behavior\n\n100626 - 2.1\nAdd ID based window switch\nAdd horizontal/vertical tab bar\nAdd Switch\nAdd custom color\nRefine button hover effect\nRefine animation curve\nDrag it!\n\n100726 - 2.2\nRefine button behavior\nRefine tab bar drag effect\nFix tab bar behavior when too many tabs are created\n\n100826 - 2.3\nAdd Progress Bar\nAdd Slider\nAdd custom drag effect parameter\nRefine drag effect\n\nFutureApollo Studio Presents",
+  "notesAndCredits": ""
+}

@@ -1,0 +1,5 @@
+{
+  "id": 1299370190,
+  "instructions": "Dynamically morphs between any combination of width, height, position, and corner radius.\n\nTry with TurboWarp to get high quality pen.\nhttps://turbowarp.org/1299370190/fullscreen?hqpen\n\nWill act like an expandable menu/interface for the following cond, click on the rendered button to trigger the animation:\n1. cond 0->1\n2. cond 8->10\n3. cond 11->12\n\nFutureApollo Studio Presents",
+  "notesAndCredits": ""
+}

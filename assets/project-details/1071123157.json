@@ -1,0 +1,5 @@
+{
+  "id": 1071123157,
+  "instructions": "See Inside\n\nVariables Means the Following:\n\nNonLinear Movement:\n1. TargetX: X Position that the sprite is moving to\n2. TargetY: Y Position that the sprite is moving to\n3. Speed: speed of movement (The larger the value is, the smoother and slower the animation is)\n4. Bounce: How bouncy the movement is (Between 0-1, with 0 not bouncing at all and 1 bouncing forever)\n\nNonLinear Size:\n1. Target Size: The size that the sprite is switching to\n2. Speed: The speed of size change (The larger the value is, the smoother and slower the animation is)\n3. Bounce: How bouncy the size change is (Between 0-1, with 0 not bouncing at all and 1 bouncing forever)\n\nFutureApollo Studio Presents",
+  "notesAndCredits": ""
+}

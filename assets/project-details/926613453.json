@@ -1,0 +1,5 @@
+{
+  "id": 926613453,
+  "instructions": "Space to shoot\n\nBeta Version - 0.0.3\n\nCaution: Special font (Copperplate) may not work due to system or browser differences.",
+  "notesAndCredits": "Update Logs\n\n17th November, 2023 - 0.0.0\n1. Main Interface\n2. Options Interface\n3. Game Interface\n4. Game Functions\n\n18th November, 2023 - 0.0.1\n1. Renamed as \"The Hills\"\n2. Added Credits Interface\n3. Added Game Info Record\n4. Added Moon\n5. Redesigned Star\n6. Redesigned Tank\n7. Redesigned Loading Animation\n8. Redesigned Map Formation\n\n21st November, 2023 - 0.0.2\n1. Added Result Display\n2. Added Mouse Particle\n3. Added Version Interface\n4. Redesigned Loading\n5. Redesigned Ball Color\n6. Redesigned Background\n7. Redesigned Setting Interface\n8. Redesigned Loading\n\n10th December - 0.0.3\n1.Added Restart Button\n2.Redesigned Studio Logo\n3.Redesigned Loading Animation\n4.Redesigned Pressing Mechanism\n5.Redesigned Shooting Mechanism\n6.Redesigned Initializing Animation\n7.Redesigned Flag Summon Process\n8.Redesigned Options Sub Interface"
+}

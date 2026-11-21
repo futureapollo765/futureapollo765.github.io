@@ -1,0 +1,5 @@
+{
+  "id": 1083676575,
+  "instructions": "Inspired by iPadOS's StageManager\n\nPress SPACE to create window\nDrag the three dots to move window\nDrag the icon on bottom right to resize window\n\nBeta testing version (For FutureOS)\nPlease offer suggestions if you have any\n\nThe edge of the screen has some render issues which makes it not aligned(WebKit compatibility issues, only identified on Safari)",
+  "notesAndCredits": "V0.2 Change Log\nwindow will always stay in the stage boundary when changing size\nV0.3 Change Log\nexpanded size range\nV0.4 Change Log\nadded change animation\nadded open & close animation\nV0.5 Change Log\nadded function buttons for creating/expanding/retracting/minimizing a window\nV1.0 Change Log\nfilled buttons with color\nminimize will move the icon to the edge\nbetter minimizing animation\nV1.1 Change Log\nfixed icon going over border on top\nV1.2 Change Log\nquick actions now auto-hide when cursor is out of range in desktop mode\nV2.0 Change Log\nnow supports up to 5 windows per session\nadded fullscreen support"
+}

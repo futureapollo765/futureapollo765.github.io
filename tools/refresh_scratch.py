@@ -1,4 +1,4 @@
-"""Refresh the public Scratch catalog, cover images, and project share dates."""
+"""Refresh public Scratch projects, covers, share dates, and on-demand details."""
 import concurrent.futures
 from datetime import datetime, timezone
 import hashlib
@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "projects"
+DETAILS = ROOT / "assets" / "project-details"
 CATALOG = ROOT / "scratch-catalog.js"
 USER = "FutureApollo765"
 API = "https://api.scratch.mit.edu"
@@ -76,17 +77,46 @@ def shared_at(history):
         return None
 
 
+def project_details(project_id, source, staging):
+    # Only these public text fields are exported. The project API also returns
+    # a project_token and author profile data, neither of which belongs here.
+    payload = {"id": project_id}
+    for api_name, public_name in (("instructions", "instructions"), ("description", "notesAndCredits")):
+        value = source.get(api_name)
+        if value is None:
+            value = ""
+        if not isinstance(value, str):
+            raise ValueError(f"Invalid public project text for {project_id}: {api_name}")
+        payload[public_name] = value
+    content = (json.dumps(payload, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    revision = hashlib.sha256(content).hexdigest()[:12]
+    name = f"{project_id}.json"
+    destination = DETAILS / name
+    if not destination.exists() or destination.read_bytes() != content:
+        (staging / "project-details" / name).write_bytes(content)
+    return f"./assets/project-details/{name}?v={revision}"
+
+
 def make_item(row, owned_ids, previous, staging):
     project_id = row["id"]
     if type(project_id) is not int or project_id <= 0:
         raise ValueError("Invalid Scratch project ID")
+    if row.get("public") is False or row.get("is_published") is False:
+        raise ValueError(f"Project {project_id} is not public")
+    source = row
     history = row.get("history") or {}
-    if project_id in owned_ids:
-        author = USER
-    else:
+    # Listings include public project text, but omit author usernames. Resolve
+    # non-owned favorites and backfill a listing that lacks either text field.
+    if project_id not in owned_ids or any(key not in row for key in ("instructions", "description")):
         detail = json.loads(fetch(f"{API}/projects/{project_id}"))
-        author = detail["author"]["username"]
+        if detail.get("id") != project_id or detail.get("public") is False or detail.get("is_published") is False:
+            raise ValueError(f"Invalid public Scratch project response for {project_id}")
+        source = detail
         history = detail.get("history") or history
+    author = USER if project_id in owned_ids else source.get("author", {}).get("username")
+    if not isinstance(author, str) or not author:
+        raise ValueError(f"Missing public Scratch author for {project_id}")
+    details = project_details(project_id, source, staging)
 
     # Locally curated running-stage captures take priority over Scratch cover art.
     name = f"{project_id}.webp"
@@ -108,15 +138,14 @@ def make_item(row, owned_ids, previous, staging):
                 raise ValueError(f"Invalid Scratch thumbnail for {project_id}")
             (staging / name).write_bytes(png)
 
-    # Respect explicit TurboWarp project links while keeping embed hosts fixed.
-    notes = (row.get("description", "") + " " + row.get("instructions", "")).lower()
-    turbowarp = f"turbowarp.org/{project_id}" in notes or project_id in (1406787990, 953460273, 1388418319)
-    embed = f"https://scratch.mit.edu/projects/{project_id}/embed?autostart=false"
-    if turbowarp:
-        hqpen = "hqpen" in notes or project_id in (1406787990, 953460273, 1388418319)
-        embed = f"https://turbowarp.org/{project_id}/embed" + ("?hqpen" if hqpen else "")
+    # All players use TurboWarp. Preserve previously enabled high-quality pen
+    # rendering even when a creator later removes its mention from the notes.
+    notes = ((source.get("description") or "") + " " + (source.get("instructions") or "")).lower()
+    prior_query = parse_qs(urlsplit(previous.get(project_id, {}).get("embed", "")).query, keep_blank_values=True)
+    hqpen = "hqpen" in prior_query or "hqpen" in notes or project_id in (1406787990, 953460273, 1388418319)
+    embed = f"https://turbowarp.org/{project_id}/embed" + ("?hqpen" if hqpen else "")
     return {"id": project_id, "title": row["title"], "author": author, "sharedAt": shared_at(history),
-            "thumbnail": thumbnail, "embed": embed}
+            "thumbnail": thumbnail, "embed": embed, "details": details}
 
 
 def main():
@@ -128,8 +157,10 @@ def main():
     for row in favorites:
         rows.setdefault(row["id"], row)
     ASSETS.mkdir(parents=True, exist_ok=True)
+    DETAILS.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".scratch-sync-", dir=ROOT) as directory:
         staging = Path(directory)
+        (staging / "project-details").mkdir()
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
             items = list(pool.map(lambda row: make_item(row, owned, previous, staging), rows.values()))
         catalog = {
@@ -139,15 +170,22 @@ def main():
         }
         source = PREFIX + json.dumps(catalog, indent=2, ensure_ascii=False) + ";\n"
         (staging / CATALOG.name).write_text(source)
-        # Publish the manifest only after every referenced thumbnail is available.
+        # Failed requests leave the published snapshot intact. Publish the
+        # manifest only after all referenced covers and text files are available.
         for path in staging.glob("*.png"):
             os.replace(path, ASSETS / path.name)
+        for path in (staging / "project-details").glob("*.json"):
+            os.replace(path, DETAILS / path.name)
         os.replace(staging / CATALOG.name, CATALOG)
     used_images = {row["thumbnail"].split("?")[0].split("/")[-1] for row in items}
     for path in ASSETS.glob("*.png"):
         if path.stem.isdecimal() and path.name not in used_images:
             path.unlink()
-    print(f"Refreshed {len(projects)} shared projects and {len(favorites)} public favorites.")
+    used_details = {f"{row['id']}.json" for row in items}
+    for path in DETAILS.glob("*.json"):
+        if path.stem.isdecimal() and path.name not in used_details:
+            path.unlink()
+    print(f"Refreshed {len(projects)} shared projects, {len(favorites)} public favorites, and {len(items)} public detail files.")
 
 
 if __name__ == "__main__":

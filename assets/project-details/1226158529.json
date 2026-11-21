@@ -1,0 +1,5 @@
+{
+  "id": 1226158529,
+  "instructions": "Press space to generate your unique face ID, the rendering will be green if the similarity level is above 85% and is marked as a pass. Otherwise, the rendering will be white.\n\nNothing will be uploaded to Scratch Cloud and all calculations are done locally.",
+  "notesAndCredits": "FutureApollo Studio Presents"
+}

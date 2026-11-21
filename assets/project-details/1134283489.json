@@ -1,0 +1,5 @@
+{
+  "id": 1134283489,
+  "instructions": "choose an appID and click anywhere to trigger the change, appID should automatically switch back to 0 if successfully triggered animation. The island will change to corresponding form. swipe with two fingers on trackpad or use wheel on mouse as if you are scrolling down the page while mouse is hovering over the island to trigger expand/collapse animation.\n\nplay with the drag animation when no UI is shown and island is in basic form by click and drag.\n\nUse number key or click on island to change shape (not recommended as some UI are specifically designed for certain form)\n\n0-Default Island\n1-Long Island\n2-Compact Island\n3-Expanded Island\n4-Face ID Island\n5-Square Message Island\n6-Rounded Message Island\n\nTry with TurboWarp for better animation precision.\nhttps://turbowarp.org/1134283489/fullscreen?hqpen\n\nFutureApollo Studio Presents",
+  "notesAndCredits": ""
+}
